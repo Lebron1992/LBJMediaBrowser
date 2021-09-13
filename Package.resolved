@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "LBJImagePreviewer",
+        "repositoryURL": "https://github.com/Lebron1992/LBJImagePreviewer",
+        "state": {
+          "branch": "main",
+          "revision": "ddebfd67114b5210d8c90f1aa8e0f5fe6a5092ca",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
