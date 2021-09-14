@@ -1,23 +1,30 @@
 import UIKit
 
-public struct Media {
+public struct MediaUIImage {
   let uiImage: UIImage
-  var loadedContent: LoadedContent?
 
   public init(uiImage: UIImage) {
     self.uiImage = uiImage
   }
 }
 
-extension Media: Hashable {
+// MARK: - MediaType
+extension MediaUIImage: MediaType {
+  public var status: MediaStatus {
+    .loaded(uiImage)
+  }
+}
+
+// MARK: - Hashable
+extension MediaUIImage: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(uiImage)
   }
 }
 
 // MARK: - Templates
-extension Media {
+extension MediaUIImage {
   static let uiImages = (1...3)
     .compactMap { UIImage(named: "IMG_000\($0)", in: .module, compatibleWith: nil) }
-    .map { Media(uiImage: $0) }
+    .map { MediaUIImage(uiImage: $0) }
 }

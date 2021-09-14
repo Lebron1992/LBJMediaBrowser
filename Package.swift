@@ -13,8 +13,10 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      name: "LBJImagePreviewer",
-//      url: "file:///Users/lebron/Documents/Lebron/my-projects/LBJImagePreviewer",
+      url: "https://github.com/Alamofire/AlamofireImage.git",
+      .upToNextMajor(from: "4.2.0")
+    ),
+    .package(
       url: "https://github.com/Lebron1992/LBJImagePreviewer",
       branch: "main"
     )
@@ -22,7 +24,7 @@ let package = Package(
   targets: [
     .target(
       name: "LBJMediaBrowser",
-      dependencies: ["LBJImagePreviewer"],
+      dependencies: ["AlamofireImage", "LBJImagePreviewer"],
       resources: [.process("PreviewContent")]
     ),
     .testTarget(

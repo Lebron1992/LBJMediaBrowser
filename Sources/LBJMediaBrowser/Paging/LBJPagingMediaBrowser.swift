@@ -15,6 +15,7 @@ public struct LBJPagingMediaBrowser: View {
       }
       .background(.black)
       .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+      .ignoresSafeArea()
     }
   }
 
@@ -24,25 +25,27 @@ public struct LBJPagingMediaBrowser: View {
 }
 
 private extension LBJPagingMediaBrowser {
-  func mediaContent(for media: Media, at index: Int, in geometry: GeometryProxy) -> some View {
-    Group {
-      if let content = media.loadedContent {
-        PagingMediaView(content: content)
-      } else {
-        Color.clear
-      }
-    }
-    .frame(size: geometry.size)
-    .tag(index)
-    .onAppear { browser.loadMedia(at: index) }
-    .onDisappear { browser.cancelLoadingMedia(at: index) }
+  func mediaContent(
+    for media: MediaType,
+    at index: Int,
+    in geometry: GeometryProxy
+  ) -> some View {
+    PagingMediaView(browser: browser, status: media.status)
+      .frame(size: geometry.size)
+      .tag(index)
+      .onAppear { browser.loadMedia(at: index) }
   }
 }
 
 #if DEBUG
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-    LBJPagingMediaBrowser(browser: .init(medias: Media.uiImages, currentPage: 0))
+//    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.uiImages, currentPage: 0))
+//    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.urlImages, currentPage: 0))
+    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages]
+      .compactMap { $0 as? [MediaType] }
+      .reduce([], +)
+    LBJPagingMediaBrowser(browser: .init(medias: mixed.shuffled(), currentPage: 0))
   }
 }
 #endif
