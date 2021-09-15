@@ -125,8 +125,8 @@ private extension PagingBrowser {
     guard let media = media(at: index) else {
       return
     }
-    if let urlImage = media as? MediaURLImage {
-      medias[index] = urlImage.status(status)
+    if let mediaEditable = media as? MediaStatusEditable {
+      medias[index] = mediaEditable.status(status)
     }
   }
 

@@ -1,19 +1,12 @@
 import UIKit
 
-public struct MediaURLImage: MediaType {
+public struct MediaURLImage: MediaStatusEditable {
 
   let url: String
   public internal(set) var status: MediaStatus = .idle
 
   public init(url: String) {
     self.url = url
-  }
-}
-
-// MARK: - Buildable
-extension MediaURLImage: Buildable {
-  func status(_ value: MediaStatus) -> Self {
-    mutating(keyPath: \.status, value: value)
   }
 }
 

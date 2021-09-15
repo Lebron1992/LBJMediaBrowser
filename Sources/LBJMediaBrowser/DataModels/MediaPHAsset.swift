@@ -1,6 +1,6 @@
 import Photos
 
-public struct MediaPHAsset: MediaType {
+public struct MediaPHAsset: MediaStatusEditable {
 
   let phAsset: PHAsset
   let targetSize: CGSize
@@ -26,12 +26,5 @@ extension MediaPHAsset {
     case .loaded: return true
     default: return false
     }
-  }
-}
-
-// MARK: - Buildable
-extension MediaPHAsset: Buildable {
-  func status(_ value: MediaStatus) -> Self {
-    mutating(keyPath: \.status, value: value)
   }
 }
