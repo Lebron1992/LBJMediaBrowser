@@ -43,29 +43,40 @@ extension PagingBrowser {
     let indicesToLoad = (index - preloadSize)...(index + preloadSize)
 
     indicesToLoad.forEach { indexToLoad in
-      guard
-        let media = media(at: indexToLoad),
-        media.isLoading == false,
-        media.isLoaded == false
-      else {
+      guard let media = media(at: indexToLoad) else {
         return
       }
 
-      // URL Image
-      if let urlImage = media as? MediaURLImage {
-        downloadUrlImage(urlImage, at: indexToLoad)
-      }
+      switch media {
+      case let mediaImage as MediaImageType:
+        if mediaImage.isLoading == false && mediaImage.isLoaded == false {
+          // URL Image
+          if let urlImage = media as? MediaURLImage {
+            downloadUrlImage(urlImage, at: indexToLoad)
+          }
 
-      // PHAsset Image
-      if let phAssetImage = media as? MediaPHAsset {
-        fetchPHAssetImageIfNeeded(phAssetImage, at: indexToLoad)
+          // PHAsset Image
+          if let phAssetImage = media as? MediaPHAssetImage {
+            fetchPHAssetImage(phAssetImage, at: indexToLoad)
+          }
+        }
+
+      case let mediaVideo as MediaVideoType:
+        if mediaVideo.isLoading == false && mediaVideo.isLoaded == false {
+          // PHAsset Video
+          if let assetVideo = media as? MediaPHAssetVideo {
+            fetchPHAssetVideo(assetVideo, at: indexToLoad)
+          }
+        }
+      default:
+        break
       }
     }
   }
 
   private func downloadUrlImage(_ urlImage: MediaURLImage, at index: Int) {
     guard let url = URL(string: urlImage.url) else {
-      updateMediaStatus(.failed(.invalidURL(urlImage.url)), forMediaAt: index)
+      updateMediaImageStatus(.failed(.invalidURL(urlImage.url)), forMediaAt: index)
       return
     }
 
@@ -73,40 +84,59 @@ extension PagingBrowser {
       URLRequest(url: url),
       progress: { [weak self] progress in
         let percentage = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
-        self?.updateMediaStatus(.loading(percentage), forMediaAt: index)
+        self?.updateMediaImageStatus(.loading(percentage), forMediaAt: index)
       },
       completion: { [weak self] response in
         DispatchQueue.main.async {
           switch response.result {
           case .success(let image):
-            self?.updateMediaStatus(.loaded(image), forMediaAt: index)
+            self?.updateMediaImageStatus(.loaded(image), forMediaAt: index)
           case .failure(let error):
-            self?.updateMediaStatus(.failed(.commonError(error)), forMediaAt: index)
+            self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: index)
           }
         }
       }
     )
   }
 
-  private func fetchPHAssetImageIfNeeded(_ phAssetImage: MediaPHAsset, at index: Int) {
-    guard phAssetImage.isLoaded == false else {
-      return
-    }
-
+  private func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage, at index: Int) {
     let options = PHImageRequestOptions()
     options.version = .original
+    options.isNetworkAccessAllowed = true
 
     phImageManager.requestImage(
-      for: phAssetImage.phAsset,
+      for: phAssetImage.asset,
       targetSize: phAssetImage.targetSize,
       contentMode: phAssetImage.contentMode,
       options: options
     ) { [weak self] image, info in
 
-      if let image = image {
-        self?.updateMediaStatus(.loaded(image), forMediaAt: index)
-      } else if let error = info?[PHImageErrorKey] as? Error {
-        self?.updateMediaStatus(.failed(.commonError(error)), forMediaAt: index)
+      DispatchQueue.main.async {
+        if let image = image {
+          self?.updateMediaImageStatus(.loaded(image), forMediaAt: index)
+        } else if let error = info?[PHImageErrorKey] as? Error {
+          self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: index)
+        }
+      }
+    }
+  }
+
+  private func fetchPHAssetVideo(_ phAssetVideo: MediaPHAssetVideo, at index: Int) {
+    let options = PHVideoRequestOptions()
+    options.version = .original
+    options.isNetworkAccessAllowed = true
+
+    phImageManager.requestAVAsset(
+      forVideo: phAssetVideo.asset,
+      options: options
+    ) { [weak self] asset, _, info in
+
+      DispatchQueue.main.async {
+        if let urlAsset = asset as? AVURLAsset {
+          self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlAsset.url), forMediaAt: index)
+        } else if let error = info?[PHImageErrorKey] as? Error {
+          self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: index)
+        }
       }
     }
   }
@@ -122,13 +152,18 @@ private extension PagingBrowser {
     return medias[index]
   }
 
-  func updateMediaStatus(_ status: MediaStatus, forMediaAt index: Int) {
-    guard let media = media(at: index) else {
+  func updateMediaImageStatus(_ status: MediaImageStatus, forMediaAt index: Int) {
+    guard let mediaImage = media(at: index) as? MediaImageStatusEditable else {
       return
     }
-    if let mediaEditable = media as? MediaStatusEditable {
-      medias[index] = mediaEditable.status(status)
+    medias[index] = mediaImage.status(status)
+  }
+
+  func updateMediaVideoStatus(_ status: MediaVideoStatus, forMediaAt index: Int) {
+    guard let mediaVideo = media(at: index) as? MediaVideoStatusEditable else {
+      return
     }
+    medias[index] = mediaVideo.status(status)
   }
 
   func validatedPage(_ page: Int) -> Int {

@@ -1,31 +1,11 @@
-public protocol MediaType {
-  var status: MediaStatus { get }
-}
+public protocol MediaType { }
 
 extension MediaType {
-  var isLoading: Bool {
-    switch status {
-    case .loading: return true
-    default:       return false
-    }
+  var isImage: Bool {
+    self is MediaImageType
   }
 
-  var isLoaded: Bool {
-    switch status {
-    case .loaded: return true
-    default:      return false
-    }
-  }
-}
-
-// MARK: - MediaStatusEditable
-
-protocol MediaStatusEditable: MediaType, Buildable {
-  var status: MediaStatus { get set }
-}
-
-extension MediaStatusEditable {
-  func status(_ value: MediaStatus) -> Self {
-    mutating(keyPath: \.status, value: value)
+  var isVideo: Bool {
+    self is MediaVideoType
   }
 }

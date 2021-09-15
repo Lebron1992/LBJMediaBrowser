@@ -14,7 +14,19 @@ public struct LBJPagingMediaBrowser: View {
       TabView(selection: currentPage) {
         ForEach(0..<browser.medias.count, id: \.self) { index in
           let media = browser.medias[index]
-          mediaContent(for: media, at: index, in: geometry)
+          Group {
+            switch media {
+            case let mediaImage as MediaImageType:
+              PagingMediaImageView(status: mediaImage.status)
+            case let mediaVideo as MediaVideoType:
+              PagingMediaVideoView(status: mediaVideo.status)
+            default:
+              EmptyView()
+            }
+          }
+          .frame(size: geometry.size)
+          .tag(index)
+          .onAppear { browser.loadMedia(at: index) }
         }
       }
       .background(.black)
@@ -29,26 +41,13 @@ public struct LBJPagingMediaBrowser: View {
   }
 }
 
-private extension LBJPagingMediaBrowser {
-  func mediaContent(
-    for media: MediaType,
-    at index: Int,
-    in geometry: GeometryProxy
-  ) -> some View {
-    PagingMediaView(status: media.status)
-      .frame(size: geometry.size)
-      .tag(index)
-      .onAppear { browser.loadMedia(at: index) }
-  }
-}
-
 #if DEBUG
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.uiImages, currentPage: 0))
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.urlImages, currentPage: 0))
     let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages]
-      .compactMap { $0 as? [MediaType] }
+      .compactMap { $0 as? [MediaImageType] }
       .reduce([], +)
     LBJPagingMediaBrowser(browser: .init(medias: mixed.shuffled(), currentPage: 0))
   }

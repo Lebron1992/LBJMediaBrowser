@@ -1,6 +1,6 @@
 import UIKit
 
-public enum MediaStatus {
+public enum MediaImageStatus {
   case idle
   case loading(Float)
   case loaded(UIImage)

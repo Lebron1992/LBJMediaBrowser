@@ -1,12 +1,12 @@
 import SwiftUI
 import LBJImagePreviewer
 
-struct PagingMediaView: View {
+struct PagingMediaImageView: View {
 
   @EnvironmentObject
   private var browser: PagingBrowser
 
-  let status: MediaStatus
+  let status: MediaImageStatus
 
   var body: some View {
     switch status {
@@ -23,7 +23,7 @@ struct PagingMediaView: View {
 }
 
 // MARK: - Display Content
-private extension PagingMediaView {
+private extension PagingMediaImageView {
   func loadingView(progress: Float) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
@@ -51,9 +51,9 @@ private extension PagingMediaView {
 #if DEBUG
 struct PagingMediaView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingMediaView(status: MediaUIImage.uiImages.first!.status)
-    PagingMediaView(status: .loading(0.5))
-    PagingMediaView(status: .failed(.invalidURL("fakeUrl")))
+    PagingMediaImageView(status: MediaUIImage.uiImages.first!.status)
+    PagingMediaImageView(status: .loading(0.5))
+    PagingMediaImageView(status: .failed(.invalidURL("fakeUrl")))
   }
 }
 #endif

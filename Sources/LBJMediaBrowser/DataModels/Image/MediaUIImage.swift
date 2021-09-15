@@ -8,9 +8,9 @@ public struct MediaUIImage {
   }
 }
 
-// MARK: - MediaType
-extension MediaUIImage: MediaType {
-  public var status: MediaStatus {
+// MARK: - MediaImageType
+extension MediaUIImage: MediaImageType {
+  public var status: MediaImageStatus {
     .loaded(uiImage)
   }
 }

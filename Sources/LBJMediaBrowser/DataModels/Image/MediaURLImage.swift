@@ -1,9 +1,9 @@
 import UIKit
 
-public struct MediaURLImage: MediaStatusEditable {
+public struct MediaURLImage: MediaImageStatusEditable {
 
   let url: String
-  public internal(set) var status: MediaStatus = .idle
+  public internal(set) var status: MediaImageStatus = .idle
 
   public init(url: String) {
     self.url = url
