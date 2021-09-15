@@ -39,15 +39,12 @@ private extension PagingMediaView {
   }
 
   func failedView(error: MediaLoadingError) -> some View {
-    VStack(spacing: 20) {
-      Text("加载错误: \(error.localizedDescription)")
-        .foregroundColor(.white)
-      Button {
-        browser.loadMedia(at: browser.currentPage)
-      } label: {
-        Text("重试")
-      }
+    GeometryReader { geo in
+      let frame = geo.frame(in: .local)
+      PagingErrorView(browser: browser, error: error)
+        .position(x: frame.midX, y: frame.midY)
     }
+    .background(.black)
   }
 }
 
@@ -62,6 +59,10 @@ struct PagingMediaView_Previews: PreviewProvider {
     PagingMediaView(
       browser: browser,
       status: .loading(0.5)
+    )
+    PagingMediaView(
+      browser: browser,
+      status: .failed(.invalidURL("fakeUrl"))
     )
   }
 }
