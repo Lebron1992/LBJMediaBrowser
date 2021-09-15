@@ -1,4 +1,5 @@
 import Combine
+import Photos
 import SwiftUI
 import UIKit
 
@@ -19,6 +20,7 @@ public final class PagingBrowser: ObservableObject {
   }
 
   private lazy var imageDownloader = ImageDownloader()
+  private lazy var phImageManager = PHImageManager()
 
   // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
   public func setCurrentPage(_ page: Int, animated: Bool = true) {
@@ -48,8 +50,14 @@ extension PagingBrowser {
         return
       }
 
+      // URL Image
       if let urlImage = media as? MediaURLImage {
         downloadUrlImage(urlImage, at: indexToLoad)
+      }
+
+      // PHAsset Image
+      if let phAssetImage = media as? MediaPHAsset {
+        fetchPHAssetImageIfNeeded(phAssetImage, at: indexToLoad)
       }
     }
   }
@@ -77,6 +85,29 @@ extension PagingBrowser {
         }
       }
     )
+  }
+
+  private func fetchPHAssetImageIfNeeded(_ phAssetImage: MediaPHAsset, at index: Int) {
+    guard phAssetImage.isLoaded == false else {
+      return
+    }
+
+    let options = PHImageRequestOptions()
+    options.version = .original
+
+    phImageManager.requestImage(
+      for: phAssetImage.phAsset,
+      targetSize: phAssetImage.targetSize,
+      contentMode: phAssetImage.contentMode,
+      options: options
+    ) { [weak self] image, info in
+
+      if let image = image {
+        self?.updateMediaStatus(.loaded(image), forMediaAt: index)
+      } else if let error = info?[PHImageErrorKey] as? Error {
+        self?.updateMediaStatus(.failed(.commonError(error)), forMediaAt: index)
+      }
+    }
   }
 }
 

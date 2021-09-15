@@ -10,24 +10,10 @@ public struct MediaURLImage: MediaType {
   }
 }
 
-// MARK: - Equatable
-extension MediaURLImage: Equatable {
-  public static func == (lhs: MediaURLImage, rhs: MediaURLImage) -> Bool {
-    lhs.url == rhs.url
-  }
-}
-
 // MARK: - Buildable
 extension MediaURLImage: Buildable {
   func status(_ value: MediaStatus) -> Self {
     mutating(keyPath: \.status, value: value)
-  }
-}
-
-// MARK: - Hashable
-extension MediaURLImage: Hashable {
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(url)
   }
 }
 

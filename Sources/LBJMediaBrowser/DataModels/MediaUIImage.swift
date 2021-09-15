@@ -15,13 +15,6 @@ extension MediaUIImage: MediaType {
   }
 }
 
-// MARK: - Hashable
-extension MediaUIImage: Hashable {
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(uiImage)
-  }
-}
-
 // MARK: - Templates
 extension MediaUIImage {
   static let uiImages = (1...3)
