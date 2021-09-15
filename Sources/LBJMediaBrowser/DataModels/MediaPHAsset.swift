@@ -18,13 +18,3 @@ public struct MediaPHAsset: MediaStatusEditable {
     self.contentMode = contentMode
   }
 }
-
-// MARK: - Getters
-extension MediaPHAsset {
-  var isLoaded: Bool {
-    switch status {
-    case .loaded: return true
-    default: return false
-    }
-  }
-}

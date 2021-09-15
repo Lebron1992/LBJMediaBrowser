@@ -45,7 +45,8 @@ extension PagingBrowser {
     indicesToLoad.forEach { indexToLoad in
       guard
         let media = media(at: indexToLoad),
-        (media is MediaUIImage) == false
+        media.isLoading == false,
+        media.isLoaded == false
       else {
         return
       }
