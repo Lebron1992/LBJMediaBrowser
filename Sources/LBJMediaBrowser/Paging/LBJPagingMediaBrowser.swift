@@ -3,7 +3,11 @@ import SwiftUI
 public struct LBJPagingMediaBrowser: View {
 
   @ObservedObject
-  public var browser: PagingBrowser
+  private var browser: PagingBrowser
+
+  public init(browser: PagingBrowser) {
+    self.browser = browser
+  }
 
   public var body: some View {
     GeometryReader { geometry in
