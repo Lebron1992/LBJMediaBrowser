@@ -2,8 +2,8 @@ import SwiftUI
 
 struct PagingErrorView: View {
 
-  @ObservedObject
-  var browser: PagingBrowser
+  @EnvironmentObject
+  private var browser: PagingBrowser
 
   let error: MediaLoadingError
 
@@ -17,7 +17,7 @@ struct PagingErrorView: View {
         .foregroundColor(.white)
 
       Button {
-        browser.loadMedia(at: browser.currentPage)
+        browser.loadMedia(at: browser.currentPage, withAdjacent: false)
       } label: {
         Text("Retry")
           .font(.system(size: 16, weight: .regular))
@@ -32,10 +32,7 @@ struct PagingErrorView: View {
 
 struct PagingErrorView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingErrorView(
-      browser: PagingBrowser.init(medias: MediaUIImage.uiImages),
-      error: .invalidURL("fakeUrl")
-    )
+    PagingErrorView(error: .invalidURL("fakeUrl"))
       .padding()
       .background(.black)
   }

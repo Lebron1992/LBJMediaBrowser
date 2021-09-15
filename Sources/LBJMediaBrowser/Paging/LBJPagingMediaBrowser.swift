@@ -16,6 +16,7 @@ public struct LBJPagingMediaBrowser: View {
       .background(.black)
       .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
       .ignoresSafeArea()
+      .environmentObject(browser)
     }
   }
 
@@ -30,7 +31,7 @@ private extension LBJPagingMediaBrowser {
     at index: Int,
     in geometry: GeometryProxy
   ) -> some View {
-    PagingMediaView(browser: browser, status: media.status)
+    PagingMediaView(status: media.status)
       .frame(size: geometry.size)
       .tag(index)
       .onAppear { browser.loadMedia(at: index) }

@@ -3,8 +3,8 @@ import LBJImagePreviewer
 
 struct PagingMediaView: View {
 
-  @ObservedObject
-  var browser: PagingBrowser
+  @EnvironmentObject
+  private var browser: PagingBrowser
 
   let status: MediaStatus
 
@@ -41,7 +41,7 @@ private extension PagingMediaView {
   func failedView(error: MediaLoadingError) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
-      PagingErrorView(browser: browser, error: error)
+      PagingErrorView(error: error)
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)
@@ -51,19 +51,9 @@ private extension PagingMediaView {
 #if DEBUG
 struct PagingMediaView_Previews: PreviewProvider {
   static var previews: some View {
-    let browser = PagingBrowser.init(medias: MediaUIImage.uiImages)
-    PagingMediaView(
-      browser: browser,
-      status: MediaUIImage.uiImages.first!.status
-    )
-    PagingMediaView(
-      browser: browser,
-      status: .loading(0.5)
-    )
-    PagingMediaView(
-      browser: browser,
-      status: .failed(.invalidURL("fakeUrl"))
-    )
+    PagingMediaView(status: MediaUIImage.uiImages.first!.status)
+    PagingMediaView(status: .loading(0.5))
+    PagingMediaView(status: .failed(.invalidURL("fakeUrl")))
   }
 }
 #endif

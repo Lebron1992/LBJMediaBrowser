@@ -36,12 +36,9 @@ public final class PagingBrowser: ObservableObject {
 
 // MARK: - Loading Media
 extension PagingBrowser {
-  func loadMedia(at index: Int) {
-    let indicesToLoad = (
-      index - PagingBrowser.Constant.mediaPreloadSize
-      ...
-      index + PagingBrowser.Constant.mediaPreloadSize
-    )
+  func loadMedia(at index: Int, withAdjacent with: Bool = true) {
+    let preloadSize = with ? PagingBrowser.Constant.adjacentPreloadSize : 0
+    let indicesToLoad = (index - preloadSize)...(index + preloadSize)
 
     indicesToLoad.forEach { indexToLoad in
       guard
@@ -109,6 +106,6 @@ private extension PagingBrowser {
 
 private extension PagingBrowser {
   enum Constant {
-    static let mediaPreloadSize = 2
+    static let adjacentPreloadSize = 2
   }
 }
