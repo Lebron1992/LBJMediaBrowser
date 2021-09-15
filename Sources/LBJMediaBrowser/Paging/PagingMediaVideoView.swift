@@ -11,6 +11,9 @@ struct PagingMediaVideoView: View {
   @State
   private var hasTappedPlayButton = false
 
+  @State
+  private var avPlayer: AVPlayer?
+
   var body: some View {
     switch status {
     case .idle:
@@ -41,7 +44,9 @@ private extension PagingMediaVideoView {
   func loadedView(previewImage: UIImage?, videoUrl: URL) -> some View {
     Group {
       if hasTappedPlayButton {
-        VideoPlayer(player: AVPlayer(url: videoUrl))
+        if let player = avPlayer {
+          VideoPlayer(player: player)
+        }
       } else {
         ZStack {
           if let preview = previewImage {
@@ -49,22 +54,20 @@ private extension PagingMediaVideoView {
               .resizable()
               .aspectRatio(contentMode: .fit)
           }
-          playButton
+          Button {
+            hasTappedPlayButton = true
+            avPlayer = AVPlayer(url: videoUrl)
+            avPlayer?.play()
+          } label: {
+            Image(systemName: "play.circle")
+              .font(.system(size: 50, weight: .light))
+              .foregroundColor(.white)
+          }
         }
       }
     }
     .onDisappear {
       hasTappedPlayButton = false
-    }
-  }
-
-  var playButton: some View {
-    Button {
-      hasTappedPlayButton = true
-    } label: {
-      Image(systemName: "play.circle")
-        .font(.system(size: 50, weight: .light))
-        .foregroundColor(.white)
     }
   }
 
@@ -82,9 +85,9 @@ struct PagingMediaVideoView_Previews: PreviewProvider {
   static var previews: some View {
     PagingMediaVideoView(status: .loaded(
       previewImage: MediaUIImage.uiImages.first!.uiImage,
-      videoUrl: URL(string: "http://www.example.com/test.mp4")!)
+      videoUrl: URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!)
     )
-    PagingMediaVideoView(status: .loading)
-    PagingMediaVideoView(status: .failed(.invalidURL("fakeUrl")))
+//    PagingMediaVideoView(status: .loading)
+//    PagingMediaVideoView(status: .failed(.invalidURL("fakeUrl")))
   }
 }
