@@ -15,6 +15,17 @@ struct PagingMediaVideoView: View {
   private var avPlayer: AVPlayer?
 
   var body: some View {
+    content
+      .onDisappear {
+        avPlayer?.pause()
+      }
+  }
+}
+
+// MARK: - Display Content
+private extension PagingMediaVideoView {
+  @ViewBuilder
+  var content: some View {
     switch status {
     case .idle:
       Color.clear
@@ -26,10 +37,7 @@ struct PagingMediaVideoView: View {
       failedView(error: error)
     }
   }
-}
 
-// MARK: - Display Content
-private extension PagingMediaVideoView {
   var loadingView: some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
@@ -41,33 +49,29 @@ private extension PagingMediaVideoView {
     .background(.black)
   }
 
+  @ViewBuilder
   func loadedView(previewImage: UIImage?, videoUrl: URL) -> some View {
-    Group {
-      if hasTappedPlayButton {
-        if let player = avPlayer {
-          VideoPlayer(player: player)
+    if hasTappedPlayButton {
+      if let player = avPlayer {
+        VideoPlayer(player: player)
+      }
+    } else {
+      ZStack {
+        if let preview = previewImage {
+          Image(uiImage: preview)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
         }
-      } else {
-        ZStack {
-          if let preview = previewImage {
-            Image(uiImage: preview)
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-          }
-          Button {
-            hasTappedPlayButton = true
-            avPlayer = AVPlayer(url: videoUrl)
-            avPlayer?.play()
-          } label: {
-            Image(systemName: "play.circle")
-              .font(.system(size: 50, weight: .light))
-              .foregroundColor(.white)
-          }
+        Button {
+          hasTappedPlayButton = true
+          avPlayer = AVPlayer(url: videoUrl)
+          avPlayer?.play()
+        } label: {
+          Image(systemName: "play.circle")
+            .font(.system(size: 50, weight: .light))
+            .foregroundColor(.white)
         }
       }
-    }
-    .onDisappear {
-      hasTappedPlayButton = false
     }
   }
 
