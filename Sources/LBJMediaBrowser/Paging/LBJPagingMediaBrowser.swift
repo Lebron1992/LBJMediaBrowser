@@ -26,13 +26,15 @@ public struct LBJPagingMediaBrowser: View {
           }
           .frame(size: geometry.size)
           .tag(index)
-          .onAppear { browser.loadMedia(at: index) }
         }
       }
       .background(.black)
       .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
       .ignoresSafeArea()
       .environmentObject(browser)
+      .onAppear {
+        browser.loadMedia(at: currentPage.wrappedValue)
+      }
     }
   }
 

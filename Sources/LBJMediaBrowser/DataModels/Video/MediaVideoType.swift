@@ -3,6 +3,13 @@ public protocol MediaVideoType: MediaType {
 }
 
 extension MediaVideoType {
+  var isIdle: Bool {
+    switch status {
+    case .idle:    return true
+    default:       return false
+    }
+  }
+
   var isLoading: Bool {
     switch status {
     case .loading: return true
