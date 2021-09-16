@@ -27,7 +27,7 @@ public final class PagingBrowser: ObservableObject {
   private lazy var imageDownloader = ImageDownloader()
   private lazy var phImageManager = PHImageManager()
 
-  private lazy var startedURLRequest: [String: RequestReceipt] = [:]
+  private lazy var startedURLRequest: [URL: RequestReceipt] = [:]
   private lazy var startedPHAssetRequest: [PHAsset: PHImageRequestID] = [:]
 
   // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
@@ -94,6 +94,14 @@ extension PagingBrowser {
             fetchPHAssetVideo(assetVideo, at: pageToLoad)
           }
         }
+
+        // URL Video
+        if let urlVideo = media as? MediaURLVideo,
+           urlVideo.isLoaded == false,
+           let previewUrl = urlVideo.previewImageUrl,
+           startedURLRequest.keys.contains(previewUrl) == false {
+          downloadUrlVideoPreview(urlVideo: urlVideo, at: pageToLoad)
+        }
       default:
         break
       }
@@ -101,13 +109,8 @@ extension PagingBrowser {
   }
 
   private func downloadUrlImage(_ urlImage: MediaURLImage, at page: Int) {
-    guard let url = URL(string: urlImage.url) else {
-      updateMediaImageStatus(.failed(.invalidURL(urlImage.url)), forMediaAt: page)
-      return
-    }
-
     let receipt = imageDownloader.download(
-      URLRequest(url: url),
+      URLRequest(url: urlImage.url),
       progress: { [weak self] progress in
         let percentage = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
         self?.updateMediaImageStatus(.loading(percentage), forMediaAt: page)
@@ -173,6 +176,29 @@ extension PagingBrowser {
     startedPHAssetRequest[phAssetVideo.asset] = requestId
   }
 
+  private func downloadUrlVideoPreview(urlVideo: MediaURLVideo, at page: Int) {
+    guard let previewUrl = urlVideo.previewImageUrl else {
+      updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+      return
+    }
+
+    let receipt = imageDownloader.download(
+      URLRequest(url: previewUrl),
+      completion: { [weak self] response in
+        DispatchQueue.main.async {
+          switch response.result {
+          case .success(let image):
+            self?.updateMediaVideoStatus(.loaded(previewImage: image, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+          case .failure:
+            self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+          }
+        }
+      }
+    )
+
+    startedURLRequest[previewUrl] = receipt
+  }
+
   // MARK: - Cancel Loading
 
   func cancelLoadingMediaExceptPageAndAdjacent(page: Int) {
@@ -221,6 +247,17 @@ extension PagingBrowser {
         startedPHAssetRequest.removeValue(forKey: assetVideo.asset)
         if assetVideo.isIdle == false {
           updateMediaVideoStatus(.idle, forMediaAt: pageToCancel)
+        }
+      }
+
+      // URL Video
+      if let urlVideo = media as? MediaURLVideo {
+        if let previewUrl = urlVideo.previewImageUrl {
+          startedURLRequest.removeValue(forKey: previewUrl)
+        }
+        if case let .loaded(previewImage, videoUrl) = urlVideo.status,
+         previewImage != nil {
+          updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: videoUrl), forMediaAt: pageToCancel)
         }
       }
     }
