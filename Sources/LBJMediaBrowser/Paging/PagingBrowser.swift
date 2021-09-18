@@ -97,10 +97,14 @@ extension PagingBrowser {
 
         // URL Video
         if let urlVideo = media as? MediaURLVideo,
-           urlVideo.isLoaded == false,
-           let previewUrl = urlVideo.previewImageUrl,
-           startedURLRequest.keys.contains(previewUrl) == false {
-          downloadUrlVideoPreview(urlVideo: urlVideo, at: pageToLoad)
+           urlVideo.isLoaded == false {
+          if let previewUrl = urlVideo.previewImageUrl {
+            if startedURLRequest.keys.contains(previewUrl) == false {
+              downloadUrlVideoPreview(urlVideo: urlVideo, at: pageToLoad)
+            }
+          } else {
+            updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: pageToLoad)
+          }
         }
       default:
         break

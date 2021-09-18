@@ -61,9 +61,12 @@ private extension PagingMediaVideoView {
             .aspectRatio(contentMode: .fit)
         }
         Button {
-          hasTappedPlayButton = true
           avPlayer = AVPlayer(url: videoUrl)
-          avPlayer?.play()
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            // wait for the view rebuild completion triggered by avPlayer channges
+            hasTappedPlayButton = true
+            avPlayer?.play()
+          }
         } label: {
           Image(systemName: "play.circle")
             .font(.system(size: 50, weight: .light))

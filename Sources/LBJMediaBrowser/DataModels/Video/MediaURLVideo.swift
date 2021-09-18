@@ -29,21 +29,29 @@ extension MediaURLVideo {
 
 // MARK: - Templates
 extension MediaURLVideo {
-  static let urlVideos = [
-    "BigBuckBunny",
-    "ElephantsDream",
-    "ForBiggerBlazes",
-    "ForBiggerEscapes",
-    "ForBiggerFun",
-    "ForBiggerJoyrides",
-    "ForBiggerMeltdowns",
-    "Sintel"
-  ]
-    .map { name -> MediaURLVideo in
-      let prefix = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample"
-      return MediaURLVideo(
-        previewImageUrl: URL(string: "\(prefix)/images/\(name).jpg")!,
-        videoUrl: URL(string: "\(prefix)/\(name).mp4")!
-      )
-    }
+  static let urlVideos: [MediaURLVideo] = {
+    var videos = [
+      "BigBuckBunny",
+      "ElephantsDream",
+      "ForBiggerBlazes",
+      "ForBiggerEscapes",
+      "ForBiggerJoyrides",
+      "ForBiggerMeltdowns",
+      "Sintel"
+    ]
+      .map { name -> MediaURLVideo in
+        let prefix = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample"
+        return MediaURLVideo(
+          previewImageUrl: URL(string: "\(prefix)/images/\(name).jpg")!,
+          videoUrl: URL(string: "\(prefix)/\(name).mp4")!
+        )
+      }
+
+    videos.append(.init(
+      previewImageUrl: nil,
+      videoUrl: Bundle.module.url(forResource: "ForBiggerFun", withExtension: "mp4")!
+    ))
+
+    return videos
+  }()
 }
