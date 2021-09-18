@@ -87,7 +87,7 @@ extension PagingBrowser {
         }
 
       case let mediaVideo as MediaVideoType:
-        if mediaVideo.isLoading == false && mediaVideo.isLoaded == false {
+        if mediaVideo.isLoaded == false {
           // PHAsset Video
           if let assetVideo = media as? MediaPHAssetVideo,
              startedPHAssetRequest.keys.contains(assetVideo.asset) == false {
@@ -121,7 +121,7 @@ extension PagingBrowser {
           case .success(let image):
             self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
           case .failure(let error):
-            self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: page)
+            self?.updateMediaImageStatus(.failed(error), forMediaAt: page)
           }
         }
       }
@@ -146,7 +146,7 @@ extension PagingBrowser {
         if let image = image {
           self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
         } else if let error = info?[PHImageErrorKey] as? Error {
-          self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: page)
+          self?.updateMediaImageStatus(.failed(error), forMediaAt: page)
         }
       }
     }
@@ -168,7 +168,7 @@ extension PagingBrowser {
         if let urlAsset = asset as? AVURLAsset {
           self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlAsset.url), forMediaAt: page)
         } else if let error = info?[PHImageErrorKey] as? Error {
-          self?.updateMediaImageStatus(.failed(.commonError(error)), forMediaAt: page)
+          self?.updateMediaVideoStatus(.failed(error), forMediaAt: page)
         }
       }
     }

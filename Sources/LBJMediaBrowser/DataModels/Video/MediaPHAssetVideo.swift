@@ -8,7 +8,7 @@ public struct MediaPHAssetVideo: MediaVideoStatusEditable {
 
   public init(asset: PHAsset) {
     guard asset.mediaType == .video else {
-      fatalError("[MediaPHAssetVideo] The asset should be a type of video.")
+      fatalError("[MediaPHAssetVideo] The `asset` should be a type of video.")
     }
     self.asset = asset
   }

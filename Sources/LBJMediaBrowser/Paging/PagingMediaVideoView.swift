@@ -29,8 +29,6 @@ private extension PagingMediaVideoView {
     switch status {
     case .idle:
       Color.clear
-    case .loading:
-      loadingView
     case .loaded(let previewImage, let videoUrl):
       loadedView(previewImage: previewImage, videoUrl: videoUrl)
     case .failed(let error):
@@ -75,7 +73,7 @@ private extension PagingMediaVideoView {
     }
   }
 
-  func failedView(error: MediaLoadingError) -> some View {
+  func failedView(error: Error) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
       PagingErrorView(error: error)

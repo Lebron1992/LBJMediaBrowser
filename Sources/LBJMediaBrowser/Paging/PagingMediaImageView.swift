@@ -38,7 +38,7 @@ private extension PagingMediaImageView {
     LBJUIImagePreviewer(uiImage: uiImage)
   }
 
-  func failedView(error: MediaLoadingError) -> some View {
+  func failedView(error: Error) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
       PagingErrorView(error: error)
@@ -53,7 +53,7 @@ struct PagingMediaView_Previews: PreviewProvider {
   static var previews: some View {
     PagingMediaImageView(status: MediaUIImage.uiImages.first!.status)
     PagingMediaImageView(status: .loading(0.5))
-    PagingMediaImageView(status: .failed(.invalidURL("fakeUrl")))
+    PagingMediaImageView(status: .failed(NSError.unknownError))
   }
 }
 #endif

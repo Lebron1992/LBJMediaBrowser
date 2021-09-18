@@ -14,7 +14,7 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     contentMode: PHImageContentMode = .aspectFit
   ) {
     guard asset.mediaType == .image else {
-      fatalError("[MediaPHAssetImage] The asset should be a type of image.")
+      fatalError("[MediaPHAssetImage] The `asset` should be a type of image.")
     }
     self.asset = asset
     self.targetSize = targetSize

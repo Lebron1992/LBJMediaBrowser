@@ -5,7 +5,7 @@ struct PagingErrorView: View {
   @EnvironmentObject
   private var browser: PagingBrowser
 
-  let error: MediaLoadingError
+  let error: Error
 
   var body: some View {
     VStack(spacing: 20) {
@@ -30,10 +30,12 @@ struct PagingErrorView: View {
   }
 }
 
+#if DEBUG
 struct PagingErrorView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingErrorView(error: .invalidURL("fakeUrl"))
+    PagingErrorView(error: NSError.unknownError)
       .padding()
       .background(.black)
   }
 }
+#endif

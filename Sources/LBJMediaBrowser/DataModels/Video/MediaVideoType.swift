@@ -10,13 +10,6 @@ extension MediaVideoType {
     }
   }
 
-  var isLoading: Bool {
-    switch status {
-    case .loading: return true
-    default:       return false
-    }
-  }
-
   var isLoaded: Bool {
     switch status {
     case .loaded: return true
