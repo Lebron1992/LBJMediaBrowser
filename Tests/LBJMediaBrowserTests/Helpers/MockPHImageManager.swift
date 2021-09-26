@@ -5,13 +5,13 @@ import UIKit
 struct MockPHImageManager: PHImageManagerType {
 
   /// the value is UIImage or Error
-  private let requestImageResults: [MockPHAsset: Any]
+  private let requestImageResults: [MockPHAsset: Any]?
   private let requestAVAssetURLResponse: URL?
   private let requestAVAssetError: Error?
   private let completionInterval: TimeInterval
 
   init(
-    requestImageResults: [MockPHAsset: Any],
+    requestImageResults: [MockPHAsset: Any]? = nil,
     requestAVAssetURLResponse: URL? = nil,
     requestAVAssetError: Error? = nil,
     completionInterval: TimeInterval = 1
@@ -32,9 +32,9 @@ struct MockPHImageManager: PHImageManagerType {
     let mockAsset = asset as! MockPHAsset
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
-      if let image = requestImageResults[mockAsset] as? UIImage {
+      if let image = requestImageResults?[mockAsset] as? UIImage {
         completion(.success(image))
-      } else if let error = requestImageResults[mockAsset] as? Error {
+      } else if let error = requestImageResults?[mockAsset] as? Error {
         completion(.failure(error))
       } else {
         completion(.failure(NSError.unknownError))

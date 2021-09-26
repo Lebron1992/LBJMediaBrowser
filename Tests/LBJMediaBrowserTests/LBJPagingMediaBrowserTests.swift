@@ -175,6 +175,46 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
     }
   }
 
+  func test_fetchPHAssetVideo_startedPHAssetRequestGotUpdated() {
+    prepare_fetchPHAssetVideo(error: NSError.unknownError)
+    let assetToFetch = MediaPHAssetVideo.mockTemplates.first!
+
+    XCTAssertNil(browser.startedPHAssetRequest[assetToFetch.asset.id])
+
+    browser.fetchPHAssetVideo(assetToFetch, at: 0)
+
+    XCTAssertNotNil(browser.startedPHAssetRequest[assetToFetch.asset.id])
+  }
+
+  func test_fetchPHAssetVideo_success() {
+    let url = URL(string: "https://www.example.com/test.mp4")!
+    prepare_fetchPHAssetVideo(url: url)
+    let assetToFetch = MediaPHAssetVideo.mockTemplates.first!
+
+    browser.fetchPHAssetVideo(assetToFetch, at: 0)
+
+    wait(interval: 1.1) {
+      XCTAssertEqual(
+        (self.browser.medias.first as! MediaPHAssetVideo).status,
+        .loaded(previewImage: nil, videoUrl: url)
+      )
+    }
+  }
+
+  func test_fetchPHAssetVideo_failed() {
+    prepare_fetchPHAssetVideo(error: NSError.unknownError)
+    let assetToFetch = MediaPHAssetVideo.mockTemplates.first!
+
+    browser.fetchPHAssetVideo(assetToFetch, at: 0)
+
+    wait(interval: 1.1) {
+      XCTAssertEqual(
+        (self.browser.medias.first as! MediaPHAssetVideo).status,
+        .failed(NSError.unknownError)
+      )
+    }
+  }
+
   func test_mediaAtPage() {
     browser = PagingBrowser(medias: MediaUIImage.uiImages)
     XCTAssertNil(browser.media(at: -1))
@@ -294,5 +334,10 @@ private extension LBJPagingMediaBrowserTests {
 
     let mockPHManager = MockPHImageManager(requestImageResults: result)
     browser = PagingBrowser(medias: MediaPHAssetImage.mockTemplates, currentPage: 0, phImageManager: mockPHManager)
+  }
+
+  func prepare_fetchPHAssetVideo(url: URL? = nil, error: Error? = nil) {
+    let mockPHManager = MockPHImageManager(requestAVAssetURLResponse: url, requestAVAssetError: error)
+    browser = PagingBrowser(medias: MediaPHAssetVideo.mockTemplates, currentPage: 0, phImageManager: mockPHManager)
   }
 }

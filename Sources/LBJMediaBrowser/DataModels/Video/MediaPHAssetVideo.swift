@@ -12,4 +12,8 @@ public struct MediaPHAssetVideo: MediaVideoStatusEditable {
     }
     self.asset = PHAssetWrapper(asset: asset)
   }
+
+  init(asset: PHAssetWrapper) {
+    self.asset = asset
+  }
 }
