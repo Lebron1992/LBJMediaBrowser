@@ -8,27 +8,43 @@ import AlamofireImage
 
 public final class PagingBrowser: ObservableObject {
 
+  private let imageDownloader: ImageDownloaderType
+  private let phImageManager: PHImageManagerType
+
+  public convenience init(medias: [MediaType], currentPage: Int = 0) {
+    self.init(
+      medias: medias,
+      currentPage: currentPage,
+      imageDownloader: ImageDownloader(),
+      phImageManager: PHImageManager()
+    )
+  }
+
+  init(
+    medias: [MediaType],
+    currentPage: Int = 0,
+    imageDownloader: ImageDownloaderType = ImageDownloader(),
+    phImageManager: PHImageManagerType = PHImageManager()
+  ) {
+    self.medias = medias
+    self.imageDownloader = imageDownloader
+    self.phImageManager = phImageManager
+    self.currentPage = validatedPage(currentPage)
+  }
+
   @Published
   public private(set) var currentPage: Int = 0
 
   @Published
-  private(set) var medias: [MediaType]
-
-  public init(medias: [MediaType], currentPage: Int = 0) {
-    self.medias = medias
-    self.currentPage = validatedPage(currentPage)
-  }
+  public private(set) var medias: [MediaType]
 
   private let mediaLoadingQueue: DispatchQueue = {
     let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())
     return DispatchQueue(label: name)
   }()
 
-  private lazy var imageDownloader = ImageDownloader()
-  private lazy var phImageManager = PHImageManager()
-
-  private lazy var startedURLRequest: [URL: RequestReceipt] = [:]
-  private lazy var startedPHAssetRequest: [PHAsset: PHImageRequestID] = [:]
+  private(set) lazy var startedURLRequest: [URL: String] = [:]
+  private(set) lazy var startedPHAssetRequest: [PHAssetID: PHImageRequestID] = [:]
 
   // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
   public func setCurrentPage(_ page: Int, animated: Bool = true) {
@@ -81,7 +97,7 @@ extension PagingBrowser {
 
           // PHAsset Image
           if let phAssetImage = media as? MediaPHAssetImage,
-             startedPHAssetRequest.keys.contains(phAssetImage.asset) == false {
+             startedPHAssetRequest.keys.contains(phAssetImage.asset.id) == false {
             fetchPHAssetImage(phAssetImage, at: pageToLoad)
           }
         }
@@ -90,7 +106,7 @@ extension PagingBrowser {
         if mediaVideo.isLoaded == false {
           // PHAsset Video
           if let assetVideo = media as? MediaPHAssetVideo,
-             startedPHAssetRequest.keys.contains(assetVideo.asset) == false {
+             startedPHAssetRequest.keys.contains(assetVideo.asset.id) == false {
             fetchPHAssetVideo(assetVideo, at: pageToLoad)
           }
         }
@@ -112,16 +128,15 @@ extension PagingBrowser {
     }
   }
 
-  private func downloadUrlImage(_ urlImage: MediaURLImage, at page: Int) {
+  func downloadUrlImage(_ urlImage: MediaURLImage, at page: Int) {
     let receipt = imageDownloader.download(
       URLRequest(url: urlImage.url),
       progress: { [weak self] progress in
-        let percentage = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
-        self?.updateMediaImageStatus(.loading(percentage), forMediaAt: page)
+        self?.updateMediaImageStatus(.loading(progress), forMediaAt: page)
       },
-      completion: { [weak self] response in
+      completion: { [weak self] result in
         DispatchQueue.main.async {
-          switch response.result {
+          switch result {
           case .success(let image):
             self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
           case .failure(let error):
@@ -134,53 +149,55 @@ extension PagingBrowser {
     startedURLRequest[urlImage.url] = receipt
   }
 
-  private func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage, at page: Int) {
+  func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage, at page: Int) {
     let options = PHImageRequestOptions()
     options.version = .original
     options.isNetworkAccessAllowed = true
 
     let requestId = phImageManager.requestImage(
-      for: phAssetImage.asset,
+      for: phAssetImage.asset.asset,
       targetSize: phAssetImage.targetSize,
       contentMode: phAssetImage.contentMode,
       options: options
-    ) { [weak self] image, info in
+    ) { [weak self] result in
 
       DispatchQueue.main.async {
-        if let image = image {
+        switch result {
+        case .success(let image):
           self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
-        } else if let error = info?[PHImageErrorKey] as? Error {
+        case .failure(let error):
           self?.updateMediaImageStatus(.failed(error), forMediaAt: page)
         }
       }
     }
 
-    startedPHAssetRequest[phAssetImage.asset] = requestId
+    startedPHAssetRequest[phAssetImage.asset.id] = requestId
   }
 
-  private func fetchPHAssetVideo(_ phAssetVideo: MediaPHAssetVideo, at page: Int) {
+  func fetchPHAssetVideo(_ phAssetVideo: MediaPHAssetVideo, at page: Int) {
     let options = PHVideoRequestOptions()
     options.version = .original
     options.isNetworkAccessAllowed = true
 
     let requestId = phImageManager.requestAVAsset(
-      forVideo: phAssetVideo.asset,
+      forVideo: phAssetVideo.asset.asset,
       options: options
-    ) { [weak self] asset, _, info in
+    ) { [weak self] result in
 
       DispatchQueue.main.async {
-        if let urlAsset = asset as? AVURLAsset {
-          self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlAsset.url), forMediaAt: page)
-        } else if let error = info?[PHImageErrorKey] as? Error {
+        switch result {
+        case .success(let url):
+          self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: url), forMediaAt: page)
+        case .failure(let error):
           self?.updateMediaVideoStatus(.failed(error), forMediaAt: page)
         }
       }
     }
 
-    startedPHAssetRequest[phAssetVideo.asset] = requestId
+    startedPHAssetRequest[phAssetVideo.asset.id] = requestId
   }
 
-  private func downloadUrlVideoPreview(urlVideo: MediaURLVideo, at page: Int) {
+  func downloadUrlVideoPreview(urlVideo: MediaURLVideo, at page: Int) {
     guard let previewUrl = urlVideo.previewImageUrl else {
       updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: page)
       return
@@ -188,9 +205,9 @@ extension PagingBrowser {
 
     let receipt = imageDownloader.download(
       URLRequest(url: previewUrl),
-      completion: { [weak self] response in
+      completion: { [weak self] result in
         DispatchQueue.main.async {
-          switch response.result {
+          switch result {
           case .success(let image):
             self?.updateMediaVideoStatus(.loaded(previewImage: image, videoUrl: urlVideo.videoUrl), forMediaAt: page)
           case .failure:
@@ -240,7 +257,7 @@ extension PagingBrowser {
 
       // PHAsset Image
       if let phAssetImage = media as? MediaPHAssetImage {
-        startedPHAssetRequest.removeValue(forKey: phAssetImage.asset)
+        startedPHAssetRequest.removeValue(forKey: phAssetImage.asset.id)
         if phAssetImage.isIdle == false {
           updateMediaImageStatus(.idle, forMediaAt: pageToCancel)
         }
@@ -248,7 +265,7 @@ extension PagingBrowser {
 
       // PHAsset Video
       if let assetVideo = media as? MediaPHAssetVideo {
-        startedPHAssetRequest.removeValue(forKey: assetVideo.asset)
+        startedPHAssetRequest.removeValue(forKey: assetVideo.asset.id)
         if assetVideo.isIdle == false {
           updateMediaVideoStatus(.idle, forMediaAt: pageToCancel)
         }
@@ -269,7 +286,7 @@ extension PagingBrowser {
 }
 
 // MARK: - Helper Methods
-private extension PagingBrowser {
+extension PagingBrowser {
 
   func media(at page: Int) -> MediaType? {
     guard page >= 0 && page < medias.count else {
@@ -301,7 +318,7 @@ private extension PagingBrowser {
   }
 }
 
-private extension PagingBrowser {
+extension PagingBrowser {
   enum Constant {
     static let adjacentPreloadSize = 1
     static let adjacentAvoidCancelLoadingSize = 2

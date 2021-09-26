@@ -15,6 +15,9 @@ extension MediaUIImage: MediaImageType {
   }
 }
 
+// MARK: - Equatable
+extension MediaUIImage: Equatable { }
+
 // MARK: - Templates
 extension MediaUIImage {
   static let uiImages = (1...3)

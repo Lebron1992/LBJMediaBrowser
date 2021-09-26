@@ -2,7 +2,7 @@ import Photos
 
 public struct MediaPHAssetVideo: MediaVideoStatusEditable {
 
-  let asset: PHAsset
+  let asset: PHAssetWrapper
 
   public internal(set) var status: MediaVideoStatus = .idle
 
@@ -10,6 +10,6 @@ public struct MediaPHAssetVideo: MediaVideoStatusEditable {
     guard asset.mediaType == .video else {
       fatalError("[MediaPHAssetVideo] The `asset` should be a type of video.")
     }
-    self.asset = asset
+    self.asset = PHAssetWrapper(asset: asset)
   }
 }

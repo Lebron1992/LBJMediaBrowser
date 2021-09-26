@@ -2,7 +2,7 @@ import Photos
 
 public struct MediaPHAssetImage: MediaImageStatusEditable {
 
-  let asset: PHAsset
+  let asset: PHAssetWrapper
   let targetSize: CGSize
   let contentMode: PHImageContentMode
 
@@ -16,6 +16,16 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     guard asset.mediaType == .image else {
       fatalError("[MediaPHAssetImage] The `asset` should be a type of image.")
     }
+    self.asset = PHAssetWrapper(asset: asset)
+    self.targetSize = targetSize
+    self.contentMode = contentMode
+  }
+
+  init(
+    asset: PHAssetWrapper,
+    targetSize: CGSize = PHImageManagerMaximumSize,
+    contentMode: PHImageContentMode = .aspectFit
+  ) {
     self.asset = asset
     self.targetSize = targetSize
     self.contentMode = contentMode

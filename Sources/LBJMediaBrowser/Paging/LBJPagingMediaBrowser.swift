@@ -48,8 +48,8 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.uiImages, currentPage: 0))
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.urlImages, currentPage: 0))
-//    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages, MediaURLVideo.urlVideos]
-    let mixed = [MediaURLVideo.urlVideos]
+    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages, MediaURLVideo.urlVideos]
+//    let mixed = [MediaURLVideo.urlVideos]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     LBJPagingMediaBrowser(browser: .init(medias: mixed.shuffled(), currentPage: 0))
