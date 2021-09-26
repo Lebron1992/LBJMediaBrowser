@@ -3,6 +3,14 @@ import XCTest
 
 final class LBJPagingMediaBrowserTests: XCTestCase {
 
+  private let urlImage = MediaURLImage.urlImages.first!
+  private let phAssetImage = MediaPHAssetImage.mockTemplates.first!
+  private let phAssetVideo = MediaPHAssetVideo.mockTemplates.first!
+  private let urlVideo = MediaURLVideo.urlVideos.first!
+
+  private let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
+  private let videoUrl = URL(string: "https://www.example.com/test.mp4")!
+
   private var browser: PagingBrowser!
 
   override func tearDown() {
@@ -23,6 +31,78 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
 
     browser.setCurrentPage(2)
     XCTAssertEqual(browser.currentPage, 2)
+  }
+
+  func test_loadMediaAtFirstPage_firstTwoMediasLoaded_whenAdjacentPreloadSizeIsOne() {
+    XCTAssertEqual(PagingBrowser.Constant.adjacentPreloadSize, 1)
+
+    prepare_loadMediaAtPage()
+    browser.loadMedia(at: 0)
+
+    wait(interval: 2.1) {
+      XCTAssertEqual(
+        (self.browser.medias[0] as! MediaURLImage).status,
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        (self.browser.medias[1] as! MediaPHAssetImage).status,
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        (self.browser.medias[2] as! MediaPHAssetVideo).status,
+        .idle
+      )
+      XCTAssertFalse((self.browser.medias[3] as! MediaURLVideo).isLoaded)
+    }
+  }
+
+  func test_loadMediaAtCenterPage_centerThreeMediasLoaded_whenAdjacentPreloadSizeIsOne() {
+    XCTAssertEqual(PagingBrowser.Constant.adjacentPreloadSize, 1)
+
+    prepare_loadMediaAtPage()
+    browser.loadMedia(at: 1)
+
+    wait(interval: 2.1) {
+      XCTAssertEqual(
+        (self.browser.medias[0] as! MediaURLImage).status,
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        (self.browser.medias[1] as! MediaPHAssetImage).status,
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        (self.browser.medias[2] as! MediaPHAssetVideo).status,
+        .loaded(previewImage: nil, videoUrl: self.videoUrl)
+      )
+      XCTAssertFalse((self.browser.medias[3] as! MediaURLVideo).isLoaded)
+    }
+  }
+
+  func test_loadMediaAtLastPage_lastTwoMediasLoaded_whenAdjacentPreloadSizeIsOne() {
+    XCTAssertEqual(PagingBrowser.Constant.adjacentPreloadSize, 1)
+
+    prepare_loadMediaAtPage()
+    browser.loadMedia(at: 3)
+
+    wait(interval: 2.1) {
+      XCTAssertEqual(
+        (self.browser.medias[0] as! MediaURLImage).status,
+        .idle
+      )
+      XCTAssertEqual(
+        (self.browser.medias[1] as! MediaPHAssetImage).status,
+        .idle
+      )
+      XCTAssertEqual(
+        (self.browser.medias[2] as! MediaPHAssetVideo).status,
+        .loaded(previewImage: nil, videoUrl: self.videoUrl)
+      )
+      XCTAssertEqual(
+        (self.browser.medias[3] as! MediaURLVideo).status,
+        .loaded(previewImage: self.uiImage, videoUrl: self.urlVideo.videoUrl)
+      )
+    }
   }
 
   func test_downloadUrlImage_startedURLRequestGotUpdated() {
@@ -309,6 +389,21 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
 
 // MARK: - Helper Methods
 private extension LBJPagingMediaBrowserTests {
+
+  func prepare_loadMediaAtPage() {
+    let imageDownloader = MockImageDownloader(imageDownloadResponse: uiImage)
+    let phManager = MockPHImageManager(
+      requestImageResults: [phAssetImage.asset.asset as! MockPHAsset: uiImage],
+      requestAVAssetURLResponse: videoUrl
+    )
+
+    browser = PagingBrowser(
+      medias: [urlImage, phAssetImage, phAssetVideo, urlVideo],
+      currentPage: 0,
+      imageDownloader: imageDownloader,
+      phImageManager: phManager
+    )
+  }
 
   func prepare_downloadUrlImage(image: UIImage? = nil, error: Error? = nil) {
     let downloader = MockImageDownloader(imageDownloadProgress: 0.5, imageDownloadResponse: image, imageDownloadError: error)
