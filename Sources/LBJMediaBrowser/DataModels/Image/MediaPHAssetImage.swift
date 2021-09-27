@@ -21,13 +21,16 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     self.contentMode = contentMode
   }
 
+  // for test
   init(
     asset: PHAssetWrapper,
     targetSize: CGSize = PHImageManagerMaximumSize,
-    contentMode: PHImageContentMode = .aspectFit
+    contentMode: PHImageContentMode = .aspectFit,
+    status: MediaImageStatus = .idle
   ) {
     self.asset = asset
     self.targetSize = targetSize
     self.contentMode = contentMode
+    self.status = status
   }
 }

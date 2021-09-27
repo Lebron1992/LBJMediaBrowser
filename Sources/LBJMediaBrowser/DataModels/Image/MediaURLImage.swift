@@ -8,6 +8,12 @@ public struct MediaURLImage: MediaImageStatusEditable {
   public init(url: URL) {
     self.url = url
   }
+
+  // for test
+  init(url: URL, status: MediaImageStatus = .idle) {
+    self.url = url
+    self.status = status
+  }
 }
 
 // MARK: - Templates

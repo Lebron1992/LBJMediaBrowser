@@ -11,6 +11,13 @@ public struct MediaURLVideo: MediaVideoStatusEditable {
     self.previewImageUrl = previewImageUrl
     self.videoUrl = videoUrl
   }
+
+  // for test
+  init(previewImageUrl: URL? = nil, videoUrl: URL, status: MediaVideoStatus = .idle) {
+    self.previewImageUrl = previewImageUrl
+    self.videoUrl = videoUrl
+    self.status = status
+  }
 }
 
 extension MediaURLVideo {

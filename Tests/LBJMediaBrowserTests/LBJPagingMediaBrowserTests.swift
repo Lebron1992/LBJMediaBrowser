@@ -105,6 +105,73 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
     }
   }
 
+  func test_cancelLoadingMediaExceptPageAndAdjacent_whenAdjacentAvoidCancelLoadingSizeIsTwo() {
+    let urlImages = [
+      "https://i.picsum.photos/id/249/1000/2000.jpg?hmac=LuHPEUVkziRf9usKW97DBxEzcifzgiCiRtm8vuJNZ9Q",
+      "https://i.picsum.photos/id/17/1000/1000.jpg?hmac=5FRnLOBphDqiw_x9GZSSzNW0nfUgQ7kAVZdigKUxZvg"
+    ]
+      .map { MediaURLImage(url: URL(string: $0)!, status: .loaded(uiImage)) }
+
+    let phAssetImage = MediaPHAssetImage(
+      asset: .init(asset: MockPHAsset(id: 1)),
+      status: .loaded(uiImage)
+    )
+
+    let phAssetVideo = MediaPHAssetVideo(
+      asset: .init(asset: MockPHAsset(id: 2)),
+      status: .loaded(previewImage: nil, videoUrl: videoUrl)
+    )
+
+    let urlVideos = ["BigBuckBunny", "ElephantsDream", "ForBiggerBlazes"]
+      .map { name -> MediaURLVideo in
+        let prefix = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample"
+        let videoUrl = URL(string: "\(prefix)/\(name).mp4")!
+        return MediaURLVideo(
+          previewImageUrl: URL(string: "\(prefix)/images/\(name).jpg")!,
+          videoUrl: videoUrl,
+          status: .loaded(previewImage: uiImage, videoUrl: videoUrl)
+        )
+      }
+
+    let medias = [urlImages, [phAssetImage], [phAssetVideo], urlVideos]
+      .compactMap { $0 as? [MediaType] }
+      .reduce([], +)
+
+    browser = PagingBrowser(medias: medias, currentPage: 0)
+    browser.cancelLoadingMediaExceptPageAndAdjacent(page: 3)
+
+    //   0     1  2  3  4  5     6
+    //  idle   ----loaded----   idle
+    XCTAssertEqual(
+      (browser.medias[0] as! MediaURLImage).status,
+      .idle
+    )
+    XCTAssertEqual(
+      (browser.medias[1] as! MediaURLImage).status,
+      .loaded(uiImage)
+    )
+    XCTAssertEqual(
+      (browser.medias[2] as! MediaPHAssetImage).status,
+      .loaded(uiImage)
+    )
+    XCTAssertEqual(
+      (browser.medias[3] as! MediaPHAssetVideo).status,
+      .loaded(previewImage: nil, videoUrl: videoUrl)
+    )
+    XCTAssertEqual(
+      (browser.medias[4] as! MediaURLVideo).status,
+      .loaded(previewImage: uiImage, videoUrl: urlVideos[0].videoUrl)
+    )
+    XCTAssertEqual(
+      (browser.medias[5] as! MediaURLVideo).status,
+      .loaded(previewImage: uiImage, videoUrl: urlVideos[1].videoUrl)
+    )
+    XCTAssertEqual(
+      (browser.medias[6] as! MediaURLVideo).status,
+      .loaded(previewImage: nil, videoUrl: urlVideos[2].videoUrl)
+    )
+  }
+
   func test_downloadUrlImage_startedURLRequestGotUpdated() {
     prepare_downloadUrlImage()
     let imageToDownload = MediaURLImage.urlImages.first!
