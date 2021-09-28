@@ -20,7 +20,7 @@ struct GridPHAssetImageView: View {
     case .loading(let progress):
       if progress > 0 && progress < 1 {
         MediaLoadingProgressView(progress: progress)
-          .frame(size: .init(width: 40, height: 40))
+          .frame(size: Constant.progressSize)
           .onDisappear {
             imageManager.cancelRequest()
           }
@@ -41,5 +41,11 @@ struct GridPHAssetImageView: View {
           imageManager.reset()
         }
     }
+  }
+}
+
+private extension GridPHAssetImageView {
+  enum Constant {
+    static let progressSize = CGSize(width: 40, height: 40)
   }
 }

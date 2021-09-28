@@ -8,10 +8,10 @@ struct PagingErrorView: View {
   let error: Error
 
   var body: some View {
-    VStack(spacing: 20) {
+    VStack(spacing: Constant.stackSpacing) {
       Image(systemName: "multiply")
         .foregroundColor(.white)
-        .font(.system(size: 80, weight: .light))
+        .font(.system(size: Constant.multiplyFontSize, weight: .light))
 
       Text(error.localizedDescription)
         .foregroundColor(.white)
@@ -20,13 +20,23 @@ struct PagingErrorView: View {
         browser.loadMedia(at: browser.currentPage, withAdjacent: false)
       } label: {
         Text("Retry")
-          .font(.system(size: 16, weight: .regular))
+          .font(.system(size: Constant.retryFontSize, weight: .regular))
           .foregroundColor(.black)
-          .frame(size: .init(width: 100, height: 40))
+          .frame(size: Constant.retryFrameSize)
           .background(.white)
-          .cornerRadius(20)
+          .cornerRadius(Constant.retryCornerRadius)
       }
     }
+  }
+}
+
+private extension PagingErrorView {
+  enum Constant {
+    static let stackSpacing: CGFloat = 20
+    static let multiplyFontSize: CGFloat = 80
+    static let retryFontSize: CGFloat = 16
+    static let retryFrameSize: CGSize = .init(width: 100, height: 40)
+    static let retryCornerRadius: CGFloat = 20
   }
 }
 

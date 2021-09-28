@@ -8,8 +8,14 @@ struct GridMediaURLVideoView: View {
       if let previewUrl = urlVideo.previewImageUrl {
         GridMediaURLImageView(urlImage: .init(url: previewUrl))
       }
-      PlayButton(size: 30)
+      PlayButton(size: Constant.playButtonSize)
     }
+  }
+}
+
+private extension GridMediaURLVideoView {
+  enum Constant {
+    static let playButtonSize: CGFloat = 30
   }
 }
 

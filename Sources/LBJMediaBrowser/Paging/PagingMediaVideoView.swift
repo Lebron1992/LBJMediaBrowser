@@ -41,7 +41,7 @@ private extension PagingMediaVideoView {
       let frame = geo.frame(in: .local)
       ProgressView()
         .progressViewStyle(CircularProgressViewStyle(tint: .white))
-        .scaleEffect(1.5)
+        .scaleEffect(Constant.progressScale)
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)
@@ -60,7 +60,7 @@ private extension PagingMediaVideoView {
             .resizable()
             .aspectRatio(contentMode: .fit)
         }
-        PlayButton(size: 50) {
+        PlayButton(size: Constant.playButtonSize) {
           avPlayer = AVPlayer(url: videoUrl)
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             // wait for the view rebuild completion triggered by avPlayer channges
@@ -79,6 +79,13 @@ private extension PagingMediaVideoView {
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)
+  }
+}
+
+private extension PagingMediaVideoView {
+  enum Constant {
+    static let progressScale: CGFloat = 1.5
+    static let playButtonSize: CGFloat = 50
   }
 }
 

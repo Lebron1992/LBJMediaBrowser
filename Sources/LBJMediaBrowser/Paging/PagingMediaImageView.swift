@@ -27,9 +27,9 @@ private extension PagingMediaImageView {
   func loadingView(progress: Float) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
-        MediaLoadingProgressView(progress: progress)
-          .frame(width: 40, height: 40)
-          .position(x: frame.midX, y: frame.midY)
+      MediaLoadingProgressView(progress: progress)
+        .frame(size: Constant.progressSize)
+        .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)
   }
@@ -45,6 +45,12 @@ private extension PagingMediaImageView {
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)
+  }
+}
+
+private extension PagingMediaImageView {
+  enum Constant {
+    static let progressSize: CGSize = .init(width: 100, height: 40)
   }
 }
 

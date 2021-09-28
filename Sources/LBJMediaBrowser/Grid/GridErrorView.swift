@@ -4,7 +4,13 @@ struct GridErrorView: View {
   var body: some View {
     Image(systemName: "multiply")
       .foregroundColor(.white)
-      .font(.system(size: 40, weight: .light))
+      .font(.system(size: Constant.multiplyFontSize, weight: .light))
+  }
+}
+
+private extension GridErrorView {
+  enum Constant {
+    static let multiplyFontSize: CGFloat = 40
   }
 }
 

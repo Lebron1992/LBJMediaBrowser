@@ -14,7 +14,7 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     asset: PHAsset,
     targetSize: CGSize = PHImageManagerMaximumSize,
     contentMode: PHImageContentMode = .aspectFit,
-    thumbnailTargetSize: CGSize = .init(width: 80, height: 80),
+    thumbnailTargetSize: CGSize = Constant.thumbnailTargetSize,
     thumbnailContentMode: PHImageContentMode = .aspectFill
   ) {
     guard asset.mediaType == .image else {
@@ -32,7 +32,7 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     asset: PHAssetWrapper,
     targetSize: CGSize = PHImageManagerMaximumSize,
     contentMode: PHImageContentMode = .aspectFit,
-    thumbnailTargetSize: CGSize = .init(width: 80, height: 80),
+    thumbnailTargetSize: CGSize = Constant.thumbnailTargetSize,
     thumbnailContentMode: PHImageContentMode = .aspectFill,
     status: MediaImageStatus = .idle
   ) {
@@ -42,5 +42,11 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     self.thumbnailTargetSize = thumbnailTargetSize
     self.thumbnailContentMode = thumbnailContentMode
     self.status = status
+  }
+}
+
+private extension MediaPHAssetImage {
+  public enum Constant {
+    public static let thumbnailTargetSize = CGSize(width: 160, height: 160)
   }
 }

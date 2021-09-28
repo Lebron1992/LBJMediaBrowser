@@ -24,11 +24,17 @@ struct GridPHAssetVideoView: View {
             .resizable()
             .aspectRatio(contentMode: .fill)
         }
-        PlayButton(size: 30)
+        PlayButton(size: Constant.playButtonSize)
       }
 
     case .failed:
       GridErrorView()
     }
+  }
+}
+
+private extension GridPHAssetVideoView {
+  enum Constant {
+    static let playButtonSize: CGFloat = 30
   }
 }
