@@ -19,11 +19,15 @@ struct GridMediaURLImageView: View {
         }
 
     case .loading(let progress):
-      MediaLoadingProgressView(progress: progress)
-        .frame(size: .init(width: 40, height: 40))
-        .onDisappear {
-          imageDownloader.cancelDownload()
-        }
+      if progress > 0 && progress < 1 {
+        MediaLoadingProgressView(progress: progress)
+          .frame(size: .init(width: 40, height: 40))
+          .onDisappear {
+            imageDownloader.cancelDownload()
+          }
+      } else {
+        Color.clear
+      }
 
     case .loaded(let uiImage):
       Image(uiImage: uiImage)

@@ -18,12 +18,15 @@ struct GridPHAssetImageView: View {
         }
 
     case .loading(let progress):
-      MediaLoadingProgressView(progress: progress)
-        .frame(size: .init(width: 40, height: 40))
-        .onDisappear {
-          imageManager.cancelRequest()
-          imageManager.reset()
-        }
+      if progress > 0 && progress < 1 {
+        MediaLoadingProgressView(progress: progress)
+          .frame(size: .init(width: 40, height: 40))
+          .onDisappear {
+            imageManager.cancelRequest()
+          }
+      } else {
+        Color.clear
+      }
 
     case .loaded(let uiImage):
       Image(uiImage: uiImage)

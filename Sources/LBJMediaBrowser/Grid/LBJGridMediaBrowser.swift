@@ -75,7 +75,7 @@ extension LBJGridMediaBrowser {
 #if DEBUG
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-    LBJGridMediaBrowser(medias: MediaUIImage.uiImages)
+//    LBJGridMediaBrowser(medias: MediaUIImage.uiImages)
     LBJGridMediaBrowser(medias: MediaURLImage.urlImages)
   }
 }
