@@ -184,10 +184,15 @@ extension PagingBrowser {
       options: options
     ) { [weak self] result in
 
+      var previewImage: UIImage?
+      if case let .success(url) = result {
+        previewImage = generateThumbnailForPHAsset(with: url)
+      }
+
       DispatchQueue.main.async {
         switch result {
         case .success(let url):
-          self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: url), forMediaAt: page)
+          self?.updateMediaVideoStatus(.loaded(previewImage: previewImage, videoUrl: url), forMediaAt: page)
         case .failure(let error):
           self?.updateMediaVideoStatus(.failed(error), forMediaAt: page)
         }

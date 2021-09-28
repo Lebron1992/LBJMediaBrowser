@@ -1,4 +1,5 @@
 import Photos
+import UIKit
 
 final class AssetVideoManager: ObservableObject {
 
@@ -41,10 +42,15 @@ final class AssetVideoManager: ObservableObject {
 
         self?.requestId = nil
 
+        var previewImage: UIImage?
+        if case let .success(url) = result {
+          previewImage = generateThumbnailForPHAsset(with: url)
+        }
+
         DispatchQueue.main.async {
           switch result {
           case .success(let url):
-            self?.videoStatus = .loaded(previewImage: nil, videoUrl: url)
+            self?.videoStatus = .loaded(previewImage: previewImage, videoUrl: url)
           case .failure(let error):
             self?.videoStatus = .failed(error)
           }

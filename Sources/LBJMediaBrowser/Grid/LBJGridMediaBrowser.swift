@@ -71,16 +71,21 @@ private extension LBJGridMediaBrowser {
 
   @ViewBuilder
   func videoView(for video: MediaVideoType) -> some View {
-    switch video {
-    case let urlVideo as MediaURLVideo:
-      GridMediaURLVideoView(urlVideo: urlVideo)
+    Group {
+      switch video {
+      case let urlVideo as MediaURLVideo:
+        GridMediaURLVideoView(urlVideo: urlVideo)
 
-    case let assetVideo as MediaPHAssetVideo:
-      GridPHAssetVideoView(assetVideo: assetVideo)
+      case let assetVideo as MediaPHAssetVideo:
+        GridPHAssetVideoView(assetVideo: assetVideo)
 
-    default:
-      EmptyView()
+      default:
+        EmptyView()
+      }
     }
+    .aspectRatio(contentMode: .fill)
+    .frame(minWidth: minItemSize, minHeight: minItemSize, alignment: .center)
+    .clipped()
   }
 }
 

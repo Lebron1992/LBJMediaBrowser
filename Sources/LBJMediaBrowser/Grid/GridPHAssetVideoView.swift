@@ -17,8 +17,15 @@ struct GridPHAssetVideoView: View {
           videoManager.startRequestVideoUrl()
         }
 
-    case .loaded:
-      PlayButton(size: 30)
+    case .loaded(let previewImage, _):
+      ZStack {
+        if let previewImage = previewImage {
+          Image(uiImage: previewImage)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+        }
+        PlayButton(size: 30)
+      }
 
     case .failed:
       GridErrorView()
