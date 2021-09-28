@@ -60,17 +60,13 @@ private extension PagingMediaVideoView {
             .resizable()
             .aspectRatio(contentMode: .fit)
         }
-        Button {
+        PlayButton(size: 50) {
           avPlayer = AVPlayer(url: videoUrl)
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             // wait for the view rebuild completion triggered by avPlayer channges
             hasTappedPlayButton = true
             avPlayer?.play()
           }
-        } label: {
-          Image(systemName: "play.circle")
-            .font(.system(size: 50, weight: .light))
-            .foregroundColor(.white)
         }
       }
     }

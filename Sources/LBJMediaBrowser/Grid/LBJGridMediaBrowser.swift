@@ -17,15 +17,13 @@ public struct LBJGridMediaBrowser: View {
   }
 
   public var body: some View {
-    GeometryReader { geometry in
-      ScrollView {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: minItemSize), spacing: itemSpacing)], spacing: itemSpacing) {
-          ForEach(0..<medias.count, id: \.self) { index in
-            item(for: medias[index])
-          }
+    ScrollView {
+      LazyVGrid(columns: [GridItem(.adaptive(minimum: minItemSize), spacing: itemSpacing)], spacing: itemSpacing) {
+        ForEach(0..<medias.count, id: \.self) { index in
+          item(for: medias[index])
         }
-        .padding(0)
       }
+      .padding(0)
     }
   }
 }
@@ -38,6 +36,8 @@ private extension LBJGridMediaBrowser {
       switch media {
       case let image as MediaImageType:
         imageView(for: image)
+      case let video as MediaVideoType:
+        videoView(for: video)
       default:
         EmptyView()
       }
@@ -49,15 +49,34 @@ private extension LBJGridMediaBrowser {
 
   @ViewBuilder
   func imageView(for image: MediaImageType) -> some View {
-    switch image {
-    case let uiImage as MediaUIImage:
-      Image(uiImage: uiImage.uiImage).resizable()
+    Group {
+      switch image {
+      case let uiImage as MediaUIImage:
+        Image(uiImage: uiImage.uiImage).resizable()
 
-    case let urlImage as MediaURLImage:
-      GridMediaURLImageView(urlImage: urlImage)
+      case let urlImage as MediaURLImage:
+        GridMediaURLImageView(urlImage: urlImage)
 
-    case let assetImage as MediaPHAssetImage:
-      GridPHAssetImageView(assetImage: assetImage)
+      case let assetImage as MediaPHAssetImage:
+        GridPHAssetImageView(assetImage: assetImage)
+
+      default:
+        EmptyView()
+      }
+    }
+    .aspectRatio(contentMode: .fill)
+    .frame(minWidth: minItemSize, minHeight: minItemSize, alignment: .center)
+    .clipped()
+  }
+
+  @ViewBuilder
+  func videoView(for video: MediaVideoType) -> some View {
+    switch video {
+    case let urlVideo as MediaURLVideo:
+      GridMediaURLVideoView(urlVideo: urlVideo)
+
+    case let assetVideo as MediaPHAssetVideo:
+      GridPHAssetVideoView(assetVideo: assetVideo)
 
     default:
       EmptyView()
@@ -75,8 +94,10 @@ extension LBJGridMediaBrowser {
 #if DEBUG
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-//    LBJGridMediaBrowser(medias: MediaUIImage.uiImages)
-    LBJGridMediaBrowser(medias: MediaURLImage.urlImages)
+    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages, MediaURLVideo.urlVideos]
+      .compactMap { $0 as? [MediaType] }
+      .reduce([], +)
+    LBJGridMediaBrowser(medias: mixed)
   }
 }
 #endif

@@ -2,11 +2,11 @@ import Photos
 
 final class AssetImageManager: ObservableObject {
 
-  private let asset: MediaPHAssetImage
+  private let assetImage: MediaPHAssetImage
   private let manager: PHImageManagerType
 
   init(assetImage: MediaPHAssetImage, manager: PHImageManagerType = PHImageManager()) {
-    self.asset = assetImage
+    self.assetImage = assetImage
     self.manager = manager
   }
 
@@ -20,17 +20,17 @@ final class AssetImageManager: ObservableObject {
       return
     }
 
-    self.imageStatus = .loading(0)
+    imageStatus = .loading(0)
 
-    let targetSize = imageType.isThumbnail ? asset.thumbnailTargetSize : asset.targetSize
-    let contentMode = imageType.isThumbnail ? asset.thumbnailContentMode : asset.contentMode
+    let targetSize = imageType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
+    let contentMode = imageType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
 
     let options = PHImageRequestOptions()
     options.version = .original
     options.isNetworkAccessAllowed = true
 
     requestId = manager.requestImage(
-      for: asset.asset.asset,
+      for: assetImage.asset.asset,
       targetSize: targetSize,
       contentMode: contentMode,
       options: options
