@@ -3,15 +3,18 @@ import UIKit
 public struct MediaURLImage: MediaImageStatusEditable {
 
   let url: URL
+  let thumbnailURL: URL?
   public internal(set) var status: MediaImageStatus = .idle
 
-  public init(url: URL) {
+  public init(url: URL, thumbnailURL: URL? = nil) {
     self.url = url
+    self.thumbnailURL = thumbnailURL
   }
 
   // for test
-  init(url: URL, status: MediaImageStatus = .idle) {
+  init(url: URL, thumbnailURL: URL? = nil, status: MediaImageStatus = .idle) {
     self.url = url
+    self.thumbnailURL = thumbnailURL
     self.status = status
   }
 }

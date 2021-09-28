@@ -3,13 +3,16 @@ import Alamofire
 import AlamofireImage
 @testable import LBJMediaBrowser
 
-struct MockImageDownloader: ImageDownloaderType {
+final class MockImageDownloader: ImageDownloaderType {
 
   private let imageDownloadProgress: Float?
   private let imageDownloadResponse: UIImage?
   private let imageDownloadError: Error?
   private let progressInterval: TimeInterval
   private let completionInterval: TimeInterval
+
+  private(set) var startedDownloads: [URL : Any] = [:]
+  private var cancelledDownloads: [URL] = []
 
   init(
     imageDownloadProgress: Float? = nil,
@@ -25,12 +28,17 @@ struct MockImageDownloader: ImageDownloaderType {
     self.completionInterval = completionInterval
   }
 
-  func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<Image, Error>) -> Void) -> String? {
+  func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
-      if let image = imageDownloadResponse {
+
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+        return
+      }
+
+      if let image = self.imageDownloadResponse {
         completion(.success(image))
-      } else if let error = imageDownloadError {
+      } else if let error = self.imageDownloadError {
         completion(.failure(error))
       }
     }
@@ -38,22 +46,36 @@ struct MockImageDownloader: ImageDownloaderType {
     return UUID().uuidString
   }
 
-  func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<Image, Error>) -> Void) -> String? {
+  func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
-      if let pgs = imageDownloadProgress {
+
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+        return
+      }
+
+      if let pgs = self.imageDownloadProgress {
         progress?(pgs)
       }
     }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
-      if let image = imageDownloadResponse {
+
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+        return
+      }
+
+      if let image = self.imageDownloadResponse {
         completion(.success(image))
-      } else if let error = imageDownloadError {
+      } else if let error = self.imageDownloadError {
         completion(.failure(error))
       }
     }
 
     return UUID().uuidString
+  }
+
+  func cancelRequest(for url: URL) {
+    cancelledDownloads.append(url)
   }
 }

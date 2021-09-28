@@ -15,6 +15,8 @@ protocol PHImageManagerType {
     options: PHVideoRequestOptions?,
     completion: @escaping (Result<URL, Error>) -> Void
   ) -> PHImageRequestID
+
+  func cancelImageRequest(_ requestID: PHImageRequestID)
 }
 
 extension PHImageManager: PHImageManagerType {

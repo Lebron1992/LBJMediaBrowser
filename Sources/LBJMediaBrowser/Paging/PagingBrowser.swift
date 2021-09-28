@@ -15,7 +15,7 @@ public final class PagingBrowser: ObservableObject {
     self.init(
       medias: medias,
       currentPage: currentPage,
-      imageDownloader: ImageDownloader(),
+      imageDownloader: CustomImageDownloader(),
       phImageManager: PHImageManager()
     )
   }
@@ -23,7 +23,7 @@ public final class PagingBrowser: ObservableObject {
   init(
     medias: [MediaType],
     currentPage: Int = 0,
-    imageDownloader: ImageDownloaderType = ImageDownloader(),
+    imageDownloader: ImageDownloaderType = CustomImageDownloader(),
     phImageManager: PHImageManagerType = PHImageManager()
   ) {
     self.medias = medias
