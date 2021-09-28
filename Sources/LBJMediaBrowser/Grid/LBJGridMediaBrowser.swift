@@ -36,8 +36,8 @@ private extension LBJGridMediaBrowser {
   func item(for media: MediaType) -> some View {
     Group {
       switch media {
-      case let mediaImage as MediaImageType:
-        GridMediaImageView(mediaImage: mediaImage)
+      case let image as MediaImageType:
+        imageView(for: image)
       default:
         EmptyView()
       }
@@ -45,6 +45,23 @@ private extension LBJGridMediaBrowser {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .aspectRatio(1, contentMode: .fill)
     .background(.black)
+  }
+
+  @ViewBuilder
+  func imageView(for image: MediaImageType) -> some View {
+    switch image {
+    case let uiImage as MediaUIImage:
+      Image(uiImage: uiImage.uiImage).resizable()
+
+    case let urlImage as MediaURLImage:
+      GridMediaURLImageView(urlImage: urlImage)
+
+    case let assetImage as MediaPHAssetImage:
+      GridPHAssetImageView(assetImage: assetImage)
+
+    default:
+      EmptyView()
+    }
   }
 }
 
