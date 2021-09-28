@@ -15,6 +15,11 @@ final class AssetImageManager: ObservableObject {
 
   private(set) var requestId: PHImageRequestID?
 
+  private let requestQueue: DispatchQueue = {
+    let name = String(format: "com.lebron.lbjmediabrowser.requestqueue-%08x%08x", arc4random(), arc4random())
+    return DispatchQueue(label: name)
+  }()
+
   func startRequestImage(imageType: ImageType = .thumbnail) {
     guard requestId == nil else {
       return
@@ -29,21 +34,27 @@ final class AssetImageManager: ObservableObject {
     options.version = .original
     options.isNetworkAccessAllowed = true
 
-    requestId = manager.requestImage(
-      for: assetImage.asset.asset,
-      targetSize: targetSize,
-      contentMode: contentMode,
-      options: options
-    ) { [weak self] result in
+    requestQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
 
-      self?.requestId = nil
+      self.requestId = self.manager.requestImage(
+        for: self.assetImage.asset.asset,
+        targetSize: targetSize,
+        contentMode: contentMode,
+        options: options
+      ) { [weak self] result in
 
-      DispatchQueue.main.async {
-        switch result {
-        case .success(let image):
-          self?.imageStatus = .loaded(image)
-        case .failure(let error):
-          self?.imageStatus = .failed(error)
+        self?.requestId = nil
+
+        DispatchQueue.main.async {
+          switch result {
+          case .success(let image):
+            self?.imageStatus = .loaded(image)
+          case .failure(let error):
+            self?.imageStatus = .failed(error)
+          }
         }
       }
     }

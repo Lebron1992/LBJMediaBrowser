@@ -15,6 +15,11 @@ final class AssetVideoManager: ObservableObject {
 
   private(set) var requestId: PHImageRequestID?
 
+  private let requestQueue: DispatchQueue = {
+    let name = String(format: "com.lebron.lbjmediabrowser.requestqueue-%08x%08x", arc4random(), arc4random())
+    return DispatchQueue(label: name)
+  }()
+
   func startRequestVideoUrl() {
     guard requestId == nil else {
       return
@@ -24,19 +29,25 @@ final class AssetVideoManager: ObservableObject {
     options.version = .original
     options.isNetworkAccessAllowed = true
 
-    requestId = manager.requestAVAsset(
-      forVideo: assetVideo.asset.asset,
-      options: options
-    ) { [weak self] result in
+    requestQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
 
-      self?.requestId = nil
+      self.requestId = self.manager.requestAVAsset(
+        forVideo: self.assetVideo.asset.asset,
+        options: options
+      ) { [weak self] result in
 
-      DispatchQueue.main.async {
-        switch result {
-        case .success(let url):
-          self?.videoStatus = .loaded(previewImage: nil, videoUrl: url)
-        case .failure(let error):
-          self?.videoStatus = .failed(error)
+        self?.requestId = nil
+
+        DispatchQueue.main.async {
+          switch result {
+          case .success(let url):
+            self?.videoStatus = .loaded(previewImage: nil, videoUrl: url)
+          case .failure(let error):
+            self?.videoStatus = .failed(error)
+          }
         }
       }
     }

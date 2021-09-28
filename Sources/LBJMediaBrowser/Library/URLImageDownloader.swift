@@ -16,29 +16,44 @@ final class URLImageDownloader: ObservableObject {
 
   private(set) var receipt: String?
 
+  private let downloadQueue: DispatchQueue = {
+    let name = String(format: "com.lebron.lbjmediabrowser.downlaodqueue-%08x%08x", arc4random(), arc4random())
+    return DispatchQueue(label: name)
+  }()
+
   func startDownload() {
     guard receipt == nil else {
       return
     }
 
-    receipt = downloader.download(
-      URLRequest(url: imageUrl),
-      progress: { [weak self] in self?.imageStatus = .loading($0) },
-      completion: { [weak self] result in
+    downloadQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
 
-        self?.receipt = nil
+      self.receipt = self.downloader.download(
+        URLRequest(url: self.imageUrl),
+        progress: { [weak self] progress in
+          DispatchQueue.main.async {
+            self?.imageStatus = .loading(progress)
+          }
+        },
+        completion: { [weak self] result in
 
-        DispatchQueue.main.async {
-          switch result {
-          case .success(let image):
-            self?.imageStatus = .loaded(image)
+          self?.receipt = nil
 
-          case .failure(let error):
-            self?.imageStatus = .failed(error)
+          DispatchQueue.main.async {
+            switch result {
+            case .success(let image):
+              self?.imageStatus = .loaded(image)
+
+            case .failure(let error):
+              self?.imageStatus = .failed(error)
+            }
           }
         }
-      }
-    )
+      )
+    }
   }
 
   func cancelDownload() {
