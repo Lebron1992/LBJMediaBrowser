@@ -2,6 +2,8 @@ import SwiftUI
 
 public struct LBJGridMediaBrowser: View {
 
+  var browseInPageOnTapItem = true
+
   private let medias: [MediaType]
   private let minItemSize: CGFloat
   private let itemSpacing: CGFloat
@@ -20,7 +22,13 @@ public struct LBJGridMediaBrowser: View {
     ScrollView {
       LazyVGrid(columns: [GridItem(.adaptive(minimum: minItemSize), spacing: itemSpacing)], spacing: itemSpacing) {
         ForEach(0..<medias.count, id: \.self) { index in
-          item(for: medias[index])
+          if browseInPageOnTapItem {
+            NavigationLink(destination: pagingMediaBrowser(page: index)) {
+              item(for: medias[index])
+            }
+          } else {
+            item(for: medias[index])
+          }
         }
       }
       .padding(0)
@@ -86,6 +94,11 @@ private extension LBJGridMediaBrowser {
     .aspectRatio(contentMode: .fill)
     .frame(minWidth: minItemSize, minHeight: minItemSize, alignment: .center)
     .clipped()
+  }
+
+  func pagingMediaBrowser(page: Int) -> some View {
+    let browser = PagingBrowser(medias: medias, currentPage: page)
+    return LBJPagingMediaBrowser(browser: browser)
   }
 }
 
