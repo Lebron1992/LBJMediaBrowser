@@ -19,3 +19,10 @@ public struct MediaPHAssetVideo: MediaVideoStatusEditable {
     self.status = status
   }
 }
+
+extension MediaPHAssetVideo {
+  // We don't implement `Equatable` to make sure SwiftUI can trigger view update after `status` changed
+  func isTheSameAs(_ another: MediaPHAssetVideo) -> Bool {
+    asset.id == another.asset.id
+  }
+}

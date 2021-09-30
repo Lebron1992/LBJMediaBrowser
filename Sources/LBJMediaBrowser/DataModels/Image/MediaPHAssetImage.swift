@@ -45,7 +45,7 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
   }
 }
 
-private extension MediaPHAssetImage {
+extension MediaPHAssetImage {
   public enum Constant {
     public static let thumbnailTargetSize = CGSize(width: 160, height: 160)
   }

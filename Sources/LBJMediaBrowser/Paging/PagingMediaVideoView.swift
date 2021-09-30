@@ -3,7 +3,7 @@ import AVKit
 
 struct PagingMediaVideoView: View {
 
-  let status: MediaVideoStatus
+  let video: MediaVideoType
 
   @EnvironmentObject
   private var browser: PagingBrowser
@@ -26,7 +26,7 @@ struct PagingMediaVideoView: View {
 private extension PagingMediaVideoView {
   @ViewBuilder
   var content: some View {
-    switch status {
+    switch video.status {
     case .idle:
       Color.clear
     case .loaded(let previewImage, let videoUrl):
@@ -49,23 +49,31 @@ private extension PagingMediaVideoView {
 
   @ViewBuilder
   func loadedView(previewImage: UIImage?, videoUrl: URL) -> some View {
-    if hasTappedPlayButton {
-      if let player = avPlayer {
-        VideoPlayer(player: player)
-      }
-    } else {
-      ZStack {
-        if let preview = previewImage {
-          Image(uiImage: preview)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
+    Group {
+      if hasTappedPlayButton {
+        if let player = avPlayer {
+          VideoPlayer(player: player)
         }
-        PlayButton(size: Constant.playButtonSize) {
-          avPlayer = AVPlayer(url: videoUrl)
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            // wait for the view rebuild completion triggered by avPlayer channges
-            hasTappedPlayButton = true
-            avPlayer?.play()
+      } else {
+        ZStack {
+          if let preview = previewImage {
+            Image(uiImage: preview)
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+          }
+          PlayButton(size: Constant.playButtonSize) {
+            handlePlayButtonAction(videoUrl: videoUrl)
+          }
+        }
+      }
+    }
+    .onChange(of: browser.currentPage) { _ in
+      execute(after: 0.3) {
+        if browser.playVideoOnAppear && isThePlayingVideo {
+          if let player = avPlayer {
+            player.play()
+          } else {
+            handlePlayButtonAction(videoUrl: videoUrl)
           }
         }
       }
@@ -83,6 +91,27 @@ private extension PagingMediaVideoView {
 }
 
 private extension PagingMediaVideoView {
+  func handlePlayButtonAction(videoUrl: URL) {
+    avPlayer = AVPlayer(url: videoUrl)
+    hasTappedPlayButton = true
+    avPlayer?.play()
+  }
+
+  var isThePlayingVideo: Bool {
+    switch (video, browser.playingVideo) {
+    case (let v1 as MediaURLVideo, let v2 as MediaURLVideo):
+      return v1.isTheSameAs(v2)
+
+    case (let v1 as MediaPHAssetVideo, let v2 as MediaPHAssetVideo):
+      return v1.isTheSameAs(v2)
+
+    default:
+      return false
+    }
+  }
+}
+
+private extension PagingMediaVideoView {
   enum Constant {
     static let progressScale: CGFloat = 1.5
     static let playButtonSize: CGFloat = 50
@@ -91,11 +120,13 @@ private extension PagingMediaVideoView {
 
 struct PagingMediaVideoView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingMediaVideoView(status: .loaded(
-      previewImage: MediaUIImage.uiImages.first!.uiImage,
-      videoUrl: URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!)
+    let url = URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!
+    let video = MediaURLVideo(
+      previewImageUrl: URL(string: "https://www.example.com/test.png")!,
+      videoUrl: url,
+      status: .loaded(previewImage: MediaUIImage.uiImages.first!.uiImage, videoUrl: url)
     )
-//    PagingMediaVideoView(status: .loading)
-//    PagingMediaVideoView(status: .failed(.invalidURL("fakeUrl")))
+    PagingMediaVideoView(video: video)
+      .environmentObject(PagingBrowser(medias: [video]))
   }
 }

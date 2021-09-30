@@ -32,6 +32,12 @@ extension MediaURLVideo {
       return false
     }
   }
+
+  // We don't implement `Equatable` to make sure SwiftUI can trigger view update after `status` changed
+  func isTheSameAs(_ another: MediaURLVideo) -> Bool {
+    previewImageUrl == another.previewImageUrl &&
+    videoUrl == another.videoUrl
+  }
 }
 
 // MARK: - Templates

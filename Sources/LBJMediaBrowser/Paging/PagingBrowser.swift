@@ -8,6 +8,8 @@ import AlamofireImage
 
 public final class PagingBrowser: ObservableObject {
 
+  public var playVideoOnAppear = false
+
   private let imageDownloader: ImageDownloaderType
   private let phImageManager: PHImageManagerType
 
@@ -33,10 +35,13 @@ public final class PagingBrowser: ObservableObject {
   }
 
   @Published
+  public private(set) var medias: [MediaType]
+
+  @Published
   public private(set) var currentPage: Int = 0
 
   @Published
-  public private(set) var medias: [MediaType]
+  public private(set) var playingVideo: MediaVideoType?
 
   private let mediaLoadingQueue: DispatchQueue = {
     let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())
@@ -51,6 +56,8 @@ public final class PagingBrowser: ObservableObject {
     guard currentPage != page else {
       return
     }
+
+    playingVideo = media(at: page) as? MediaVideoType
 
     cancelLoadingMediaExceptPageAndAdjacent(page: currentPage)
 

@@ -19,7 +19,7 @@ public struct LBJPagingMediaBrowser: View {
             case let mediaImage as MediaImageType:
               PagingMediaImageView(status: mediaImage.status)
             case let mediaVideo as MediaVideoType:
-              PagingMediaVideoView(status: mediaVideo.status)
+              PagingMediaVideoView(video: mediaVideo)
             default:
               EmptyView()
             }
@@ -48,11 +48,13 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.uiImages, currentPage: 0))
 //    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.urlImages, currentPage: 0))
-    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages, MediaURLVideo.urlVideos]
+    let mixed = [MediaUIImage.uiImages, MediaURLVideo.urlVideos, MediaURLImage.urlImages]
 //    let mixed = [MediaURLVideo.urlVideos]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
-    LBJPagingMediaBrowser(browser: .init(medias: mixed.shuffled(), currentPage: 0))
+    let browser = PagingBrowser(medias: mixed, currentPage: 0)
+    browser.playVideoOnAppear = true
+    return LBJPagingMediaBrowser(browser: browser)
   }
 }
 #endif
