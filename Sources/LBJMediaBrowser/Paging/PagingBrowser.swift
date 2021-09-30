@@ -35,13 +35,13 @@ public final class PagingBrowser: ObservableObject {
   }
 
   @Published
-  public private(set) var medias: [MediaType]
-
-  @Published
   public private(set) var currentPage: Int = 0
 
   @Published
-  public private(set) var playingVideo: MediaVideoType?
+  private(set) var medias: [MediaType]
+
+  @Published
+  private(set) var playingVideo: MediaVideoType?
 
   private let mediaLoadingQueue: DispatchQueue = {
     let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())

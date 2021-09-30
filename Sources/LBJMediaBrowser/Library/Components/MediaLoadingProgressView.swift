@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MediaLoadingProgressView: View {
+public struct MediaLoadingProgressView: View {
 
   let progress: Float
   let lineWidth: CGFloat
@@ -12,7 +12,7 @@ struct MediaLoadingProgressView: View {
     self.tintColor = tintColor
   }
 
-  var body: some View {
+  public var body: some View {
     ZStack {
       Circle()
         .stroke(lineWidth: lineWidth)

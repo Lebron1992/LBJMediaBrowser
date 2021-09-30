@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct GridErrorView: View {
-  var body: some View {
+public struct GridErrorView: View {
+  public var body: some View {
     Image(systemName: "multiply")
       .foregroundColor(.white)
       .font(.system(size: Constant.multiplyFontSize, weight: .light))

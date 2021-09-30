@@ -1,23 +1,27 @@
 import SwiftUI
 
-public struct LBJGridMediaBrowser: View {
+public struct LBJGridMediaBrowser<Progress: View, Failure: View>: View {
+
+  var minItemSize = LBJGridMediaBrowserConstant.minItemSize
+
+  var itemSpacing = LBJGridMediaBrowserConstant.itemSapcing
 
   var browseInPagingOnTapItem = true
 
   var playVideoOnAppearInPaging = false
 
   private let medias: [MediaType]
-  private let minItemSize: CGFloat
-  private let itemSpacing: CGFloat
+  private let progress: (Float) -> Progress
+  private let failure: (Error) -> Failure
 
   public init(
     medias: [MediaType],
-    minItemSize: CGFloat = Constant.minItemSize,
-    itemSpacing: CGFloat = Constant.itemSapcing
+    @ViewBuilder progress: @escaping (Float) -> Progress,
+    @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.medias = medias
-    self.minItemSize = minItemSize
-    self.itemSpacing = itemSpacing
+    self.progress = progress
+    self.failure = failure
   }
 
   public var body: some View {
@@ -65,7 +69,11 @@ private extension LBJGridMediaBrowser {
         Image(uiImage: uiImage.uiImage).resizable()
 
       case let urlImage as MediaURLImage:
-        GridMediaURLImageView(urlImage: urlImage)
+        GridMediaURLImageView(
+          urlImage: urlImage,
+          progress: progress,
+          failure: failure
+        )
 
       case let assetImage as MediaPHAssetImage:
         GridPHAssetImageView(assetImage: assetImage)
@@ -105,11 +113,9 @@ private extension LBJGridMediaBrowser {
   }
 }
 
-extension LBJGridMediaBrowser {
-  public enum Constant {
-     public static let minItemSize: CGFloat = 80
-     public static let itemSapcing: CGFloat = 2
-  }
+enum LBJGridMediaBrowserConstant {
+  static let minItemSize: CGFloat = 80
+  static let itemSapcing: CGFloat = 2
 }
 
 #if DEBUG
