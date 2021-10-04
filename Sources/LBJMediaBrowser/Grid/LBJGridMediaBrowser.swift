@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct LBJGridMediaBrowser<Progress: View, Failure: View>: View {
+public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   var minItemSize = LBJGridMediaBrowserConstant.minItemSize
 
@@ -11,17 +11,23 @@ public struct LBJGridMediaBrowser<Progress: View, Failure: View>: View {
   var playVideoOnAppearInPaging = false
 
   private let medias: [MediaType]
+  private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
+  private let content: (MediaResult) -> Content
 
   public init(
     medias: [MediaType],
+    @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.medias = medias
+    self.placeholder = placeholder
     self.progress = progress
     self.failure = failure
+    self.content = content
   }
 
   public var body: some View {
@@ -66,17 +72,25 @@ private extension LBJGridMediaBrowser {
     Group {
       switch image {
       case let uiImage as MediaUIImage:
-        Image(uiImage: uiImage.uiImage).resizable()
+        GridUIImageView(image: uiImage, content: content)
 
       case let urlImage as MediaURLImage:
         GridMediaURLImageView(
           urlImage: urlImage,
+          placeholder: placeholder,
           progress: progress,
-          failure: failure
+          failure: failure,
+          content: content
         )
 
       case let assetImage as MediaPHAssetImage:
-        GridPHAssetImageView(assetImage: assetImage)
+        GridPHAssetImageView(
+          assetImage: assetImage,
+          placeholder: placeholder,
+          progress: progress,
+          failure: failure,
+          content: content
+        )
 
       default:
         EmptyView()
@@ -92,10 +106,19 @@ private extension LBJGridMediaBrowser {
     Group {
       switch video {
       case let urlVideo as MediaURLVideo:
-        GridMediaURLVideoView(urlVideo: urlVideo)
+        GridMediaURLVideoView(
+          urlVideo: urlVideo,
+          placeholder: placeholder,
+          content: content
+        )
 
       case let assetVideo as MediaPHAssetVideo:
-        GridPHAssetVideoView(assetVideo: assetVideo)
+        GridPHAssetVideoView(
+          assetVideo: assetVideo,
+          placeholder: placeholder,
+          failure: failure,
+          content: content
+        )
 
       default:
         EmptyView()
@@ -116,6 +139,7 @@ private extension LBJGridMediaBrowser {
 enum LBJGridMediaBrowserConstant {
   static let minItemSize: CGFloat = 80
   static let itemSapcing: CGFloat = 2
+  static let progressSize: CGSize = .init(width: 40, height: 40)
 }
 
 #if DEBUG

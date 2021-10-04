@@ -1,40 +1,45 @@
 import SwiftUI
 
-struct GridPHAssetVideoView: View {
+struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var videoManager: AssetVideoManager
 
-  init(assetVideo: MediaPHAssetVideo) {
+  private let assetVideo: MediaPHAssetVideo
+  private let placeholder: () -> Placeholder
+  private let failure: (Error) -> Failure
+  private let content: (MediaResult) -> Content
+
+  init(
+    assetVideo: MediaPHAssetVideo,
+    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder content: @escaping (MediaResult) -> Content
+  ) {
     videoManager = AssetVideoManager(assetVideo: assetVideo)
+    self.assetVideo = assetVideo
+    self.placeholder = placeholder
+    self.failure = failure
+    self.content = content
   }
 
   var body: some View {
     switch videoManager.videoStatus {
     case .idle:
-      GridMediaPlaceholder()
+      placeholder()
         .onAppear {
           videoManager.startRequestVideoUrl()
         }
 
-    case .loaded(let previewImage, _):
-      ZStack {
-        if let previewImage = previewImage {
-          Image(uiImage: previewImage)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-        }
-        PlayButton(size: Constant.playButtonSize)
-      }
+    case .loaded(let previewImage, let videoUrl):
+      content(.video(
+        video: assetVideo,
+        previewImage: previewImage,
+        videoUrl: videoUrl
+      ))
 
-    case .failed:
-      GridErrorView()
+    case .failed(let error):
+      failure(error)
     }
-  }
-}
-
-private extension GridPHAssetVideoView {
-  enum Constant {
-    static let playButtonSize: CGFloat = 30
   }
 }

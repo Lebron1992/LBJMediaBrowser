@@ -1,28 +1,36 @@
 import SwiftUI
 
-struct GridMediaURLImageView<Progress: View, Failure: View>: View {
+struct GridMediaURLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var imageDownloader: URLImageDownloader
 
+  private let urlImage: MediaURLImage
+  private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  
+  private let content: (MediaResult) -> Content
+
   init(
     urlImage: MediaURLImage,
+    @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     let url = urlImage.thumbnailURL ?? urlImage.url
     self.imageDownloader = URLImageDownloader(imageUrl: url)
+    self.urlImage = urlImage
+    self.placeholder = placeholder
     self.progress = progress
     self.failure = failure
+    self.content = content
   }
 
   var body: some View {
     switch imageDownloader.imageStatus {
     case .idle:
-      GridMediaPlaceholder()
+      placeholder()
         .onAppear {
           imageDownloader.startDownload()
         }
@@ -30,7 +38,6 @@ struct GridMediaURLImageView<Progress: View, Failure: View>: View {
     case .loading(let progress):
       if progress > 0 && progress < 1 {
         self.progress(progress)
-          .frame(size: GridMediaURLImageViewConstant.progressSize)
           .onDisappear {
             imageDownloader.cancelDownload()
           }
@@ -39,8 +46,7 @@ struct GridMediaURLImageView<Progress: View, Failure: View>: View {
       }
 
     case .loaded(let uiImage):
-      Image(uiImage: uiImage)
-        .resizable()
+      content(.image(image: urlImage, uiImage: uiImage))
         .onDisappear {
           imageDownloader.reset()
         }
@@ -51,16 +57,8 @@ struct GridMediaURLImageView<Progress: View, Failure: View>: View {
   }
 }
 
-enum GridMediaURLImageViewConstant {
-  static let progressSize = CGSize(width: 40, height: 40)
-}
-
 struct GridMediaURLImageView_Previews: PreviewProvider {
   static var previews: some View {
-    GridMediaURLImageView(
-      urlImage: MediaURLImage.urlImages[0],
-      progress: { MediaLoadingProgressView(progress: $0) },
-      failure: { _ in GridErrorView() }
-    )
+    GridMediaURLImageView(urlImage: MediaURLImage.urlImages[0])
   }
 }

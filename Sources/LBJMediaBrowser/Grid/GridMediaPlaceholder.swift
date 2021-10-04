@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct GridMediaPlaceholder: View {
-  var body: some View {
-    Color.gray
+public struct GridMediaPlaceholder: View {
+  public var body: some View {
+    Color.clear
   }
 }
 

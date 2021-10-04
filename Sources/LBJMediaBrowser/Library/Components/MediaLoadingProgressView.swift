@@ -5,14 +5,30 @@ public struct MediaLoadingProgressView: View {
   let progress: Float
   let lineWidth: CGFloat
   let tintColor: Color
+  let size: CGSize?
 
-  init(progress: Float, lineWidth: CGFloat = 4, tintColor: Color = .white) {
+  init(
+    progress: Float,
+    lineWidth: CGFloat = 4,
+    tintColor: Color = .white,
+    size: CGSize? = nil
+  ) {
     self.progress = progress
     self.lineWidth = lineWidth
     self.tintColor = tintColor
+    self.size = size
   }
 
   public var body: some View {
+    if let size = size {
+      content
+        .frame(width: size.width, height: size.height)
+    } else {
+      content
+    }
+  }
+  
+  var content: some View {
     ZStack {
       Circle()
         .stroke(lineWidth: lineWidth)
