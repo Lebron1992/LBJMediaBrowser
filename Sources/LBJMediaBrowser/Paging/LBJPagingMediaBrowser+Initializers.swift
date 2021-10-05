@@ -1,14 +1,14 @@
 import SwiftUI
 
-extension LBJGridMediaBrowser where Placeholder == MediaPlaceholderView {
+extension LBJPagingMediaBrowser where Placeholder == MediaPlaceholderView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
       progress: progress,
       failure: failure,
@@ -17,249 +17,249 @@ extension LBJGridMediaBrowser where Placeholder == MediaPlaceholderView {
   }
 }
 
-extension LBJGridMediaBrowser where Progress == LoadingProgressView {
+extension LBJPagingMediaBrowser where Progress == PagingLoadingProgressView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { PagingLoadingProgressView(progress: $0) },
       failure: failure,
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where Failure == GridMediaErrorView {
+extension LBJPagingMediaBrowser where Failure == PagingMediaErrorView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
       progress: progress,
-      failure: { _ in GridMediaErrorView() },
+      failure: { PagingMediaErrorView(error: $0) },
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where Content == GridMediaResultView {
+extension LBJPagingMediaBrowser where Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
       progress: progress,
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Progress == LoadingProgressView {
+Progress == PagingLoadingProgressView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { PagingLoadingProgressView(progress: $0) },
       failure: failure,
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Failure == GridMediaErrorView {
+Failure == PagingMediaErrorView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
       progress: progress,
-      failure: { _ in GridMediaErrorView() },
+      failure: { PagingMediaErrorView(error: $0) },
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Content == GridMediaResultView {
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
       progress: progress,
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
-Progress == LoadingProgressView,
-Failure == GridMediaErrorView {
+extension LBJPagingMediaBrowser where
+Progress == PagingLoadingProgressView,
+Failure == PagingMediaErrorView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
-      failure: { _ in GridMediaErrorView() },
+      progress: { PagingLoadingProgressView(progress: $0) },
+      failure: { PagingMediaErrorView(error: $0) },
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where
-Progress == LoadingProgressView,
-Content == GridMediaResultView {
+extension LBJPagingMediaBrowser where
+Progress == PagingLoadingProgressView,
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { PagingLoadingProgressView(progress: $0) },
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
-Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+extension LBJPagingMediaBrowser where
+Failure == PagingMediaErrorView,
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
       progress: progress,
-      failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      failure: { PagingMediaErrorView(error: $0) },
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Progress == LoadingProgressView,
-Failure == GridMediaErrorView {
+Progress == PagingLoadingProgressView,
+Failure == PagingMediaErrorView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
-      failure: { _ in GridMediaErrorView() },
+      progress: { PagingLoadingProgressView(progress: $0) },
+      failure: { PagingMediaErrorView(error: $0) },
       content: content
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Progress == LoadingProgressView,
-Content == GridMediaResultView {
+Progress == PagingLoadingProgressView,
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { PagingLoadingProgressView(progress: $0) },
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Failure == PagingMediaErrorView,
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
       progress: progress,
-      failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      failure: { PagingMediaErrorView(error: $0) },
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
-Progress == LoadingProgressView,
-Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+extension LBJPagingMediaBrowser where
+Progress == PagingLoadingProgressView,
+Failure == PagingMediaErrorView,
+Content == PagingMediaResultView {
   public init(
-    medias: [MediaType],
+    browser: PagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder
   ) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: placeholder,
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
-      failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      progress: { PagingLoadingProgressView(progress: $0) },
+      failure: { PagingMediaErrorView(error: $0) },
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }
 
-extension LBJGridMediaBrowser where
+extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Progress == LoadingProgressView,
-Failure == GridMediaErrorView,
-Content == GridMediaResultView {
-  public init(medias: [MediaType]) {
+Progress == PagingLoadingProgressView,
+Failure == PagingMediaErrorView,
+Content == PagingMediaResultView {
+  public init(browser: PagingBrowser) {
     self.init(
-      medias: medias,
+      browser: browser,
       placeholder: { MediaPlaceholderView() },
-      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
-      failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      progress: { PagingLoadingProgressView(progress: $0) },
+      failure: { PagingMediaErrorView(error: $0) },
+      content: { PagingMediaResultView(result: $0) }
     )
   }
 }

@@ -1,9 +1,11 @@
-import SwiftUI
 import AVKit
+import SwiftUI
 
-struct PagingMediaVideoView: View {
+struct PagingVideoResultView: View {
 
   let video: MediaVideoType
+  let previewImage: UIImage?
+  let videoUrl: URL
 
   @EnvironmentObject
   private var browser: PagingBrowser
@@ -20,35 +22,9 @@ struct PagingMediaVideoView: View {
         avPlayer?.pause()
       }
   }
-}
 
-// MARK: - Display Content
-private extension PagingMediaVideoView {
   @ViewBuilder
   var content: some View {
-    switch video.status {
-    case .idle:
-      Color.clear
-    case .loaded(let previewImage, let videoUrl):
-      loadedView(previewImage: previewImage, videoUrl: videoUrl)
-    case .failed(let error):
-      failedView(error: error)
-    }
-  }
-
-  var loadingView: some View {
-    GeometryReader { geo in
-      let frame = geo.frame(in: .local)
-      ProgressView()
-        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-        .scaleEffect(Constant.progressScale)
-        .position(x: frame.midX, y: frame.midY)
-    }
-    .background(.black)
-  }
-
-  @ViewBuilder
-  func loadedView(previewImage: UIImage?, videoUrl: URL) -> some View {
     Group {
       if hasTappedPlayButton {
         if let player = avPlayer {
@@ -79,18 +55,9 @@ private extension PagingMediaVideoView {
       }
     }
   }
-
-  func failedView(error: Error) -> some View {
-    GeometryReader { geo in
-      let frame = geo.frame(in: .local)
-      PagingMediaErrorView(error: error)
-        .position(x: frame.midX, y: frame.midY)
-    }
-    .background(.black)
-  }
 }
 
-private extension PagingMediaVideoView {
+private extension PagingVideoResultView {
   func handlePlayButtonAction(videoUrl: URL) {
     avPlayer = AVPlayer(url: videoUrl)
     hasTappedPlayButton = true
@@ -111,22 +78,19 @@ private extension PagingMediaVideoView {
   }
 }
 
-private extension PagingMediaVideoView {
+private extension PagingVideoResultView {
   enum Constant {
-    static let progressScale: CGFloat = 1.5
     static let playButtonSize: CGFloat = 50
   }
 }
 
-struct PagingMediaVideoView_Previews: PreviewProvider {
+struct PagingVideoResultView_Previews: PreviewProvider {
   static var previews: some View {
-    let url = URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!
-    let video = MediaURLVideo(
-      previewImageUrl: URL(string: "https://www.example.com/test.png")!,
-      videoUrl: url,
-      status: .loaded(previewImage: MediaUIImage.uiImages.first!.uiImage, videoUrl: url)
+    let video = MediaURLVideo.urlVideos[0]
+    PagingVideoResultView(
+      video: video,
+      previewImage: nil,
+      videoUrl: video.videoUrl
     )
-    PagingMediaVideoView(video: video)
-      .environmentObject(PagingBrowser(medias: [video]))
   }
 }

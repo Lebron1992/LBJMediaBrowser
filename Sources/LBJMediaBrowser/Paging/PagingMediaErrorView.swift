@@ -1,13 +1,21 @@
 import SwiftUI
 
-struct PagingMediaErrorView: View {
+public struct PagingMediaErrorView: View {
+  let error: Error
 
   @EnvironmentObject
   private var browser: PagingBrowser
 
-  let error: Error
+  public var body: some View {
+    GeometryReader { geo in
+      let frame = geo.frame(in: .local)
+      content
+        .position(x: frame.midX, y: frame.midY)
+    }
+    .background(.black)
+  }
 
-  var body: some View {
+  private var content: some View {
     VStack(spacing: Constant.stackSpacing) {
       Image(systemName: "multiply")
         .foregroundColor(.white)
@@ -41,7 +49,7 @@ private extension PagingMediaErrorView {
 }
 
 #if DEBUG
-struct PagingErrorView_Previews: PreviewProvider {
+struct PagingMediaErrorView_Previews: PreviewProvider {
   static var previews: some View {
     PagingMediaErrorView(error: NSError.unknownError)
       .padding()

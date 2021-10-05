@@ -57,6 +57,23 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
   }
 }
 
+extension GridURLImageView where
+Placeholder == MediaPlaceholderView,
+Progress == LoadingProgressView,
+Failure == GridMediaErrorView,
+Content == GridMediaResultView {
+
+  init(urlImage: MediaURLImage) {
+    self.init(
+      urlImage: urlImage,
+      placeholder: { MediaPlaceholderView() },
+      progress: { LoadingProgressView(progress: $0) },
+      failure: { _ in GridMediaErrorView() },
+      content: { GridMediaResultView(result: $0) }
+    )
+  }
+}
+
 struct GridMediaURLImageView_Previews: PreviewProvider {
   static var previews: some View {
     GridURLImageView(urlImage: MediaURLImage.urlImages[0])

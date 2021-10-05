@@ -50,13 +50,13 @@ struct GridURLVideoView<Placeholder: View, Content: View>: View {
 }
 
 extension GridURLVideoView where
-Placeholder == GridMediaPlaceholderView,
+Placeholder == MediaPlaceholderView,
 Content == GridMediaResultView {
 
   init(urlVideo: MediaURLVideo) {
     self.init(
       urlVideo: urlVideo,
-      placeholder: { GridMediaPlaceholderView() },
+      placeholder: { MediaPlaceholderView() },
       content: { GridMediaResultView(result: $0) }
     )
   }

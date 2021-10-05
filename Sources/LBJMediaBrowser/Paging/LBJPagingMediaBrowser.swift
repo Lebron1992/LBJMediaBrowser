@@ -1,12 +1,27 @@
 import SwiftUI
 
-public struct LBJPagingMediaBrowser: View {
+public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var browser: PagingBrowser
 
-  public init(browser: PagingBrowser) {
+  private let placeholder: () -> Placeholder
+  private let progress: (Float) -> Progress
+  private let failure: (Error) -> Failure
+  private let content: (MediaResult) -> Content
+
+  public init(
+    browser: PagingBrowser,
+    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder progress: @escaping (Float) -> Progress,
+    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder content: @escaping (MediaResult) -> Content
+  ) {
     self.browser = browser
+    self.placeholder = placeholder
+    self.progress = progress
+    self.failure = failure
+    self.content = content
   }
 
   public var body: some View {
@@ -16,10 +31,21 @@ public struct LBJPagingMediaBrowser: View {
           let media = browser.medias[index]
           Group {
             switch media {
-            case let mediaImage as MediaImageType:
-              PagingMediaImageView(status: mediaImage.status)
-            case let mediaVideo as MediaVideoType:
-              PagingMediaVideoView(video: mediaVideo)
+            case let image as MediaImageType:
+              PagingImageView(
+                image: image,
+                placeholder: placeholder,
+                progress: progress,
+                failure: failure,
+                content: content
+              )
+            case let video as MediaVideoType:
+              PagingVideoView(
+                video: video,
+                placeholder: placeholder,
+                failure: failure,
+                content: content
+              )
             default:
               EmptyView()
             }
