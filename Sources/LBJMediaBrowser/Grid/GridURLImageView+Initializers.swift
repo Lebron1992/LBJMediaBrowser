@@ -1,17 +1,17 @@
 import SwiftUI
 
-extension GridMediaURLImageView where
-Placeholder == GridMediaPlaceholder,
+extension GridURLImageView where
+Placeholder == GridMediaPlaceholderView,
 Progress == MediaLoadingProgressView,
-Failure == GridErrorView,
+Failure == GridMediaErrorView,
 Content == GridMediaResultView {
 
   init(urlImage: MediaURLImage) {
     self.init(
       urlImage: urlImage,
-      placeholder: { GridMediaPlaceholder() },
+      placeholder: { GridMediaPlaceholderView() },
       progress: { MediaLoadingProgressView(progress: $0) },
-      failure: { _ in GridErrorView() },
+      failure: { _ in GridMediaErrorView() },
       content: { GridMediaResultView(result: $0) }
     )
   }

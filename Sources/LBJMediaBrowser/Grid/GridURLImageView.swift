@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GridMediaURLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
+struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var imageDownloader: URLImageDownloader
@@ -59,6 +59,6 @@ struct GridMediaURLImageView<Placeholder: View, Progress: View, Failure: View, C
 
 struct GridMediaURLImageView_Previews: PreviewProvider {
   static var previews: some View {
-    GridMediaURLImageView(urlImage: MediaURLImage.urlImages[0])
+    GridURLImageView(urlImage: MediaURLImage.urlImages[0])
   }
 }

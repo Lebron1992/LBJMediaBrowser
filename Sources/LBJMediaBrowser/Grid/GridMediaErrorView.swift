@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct GridErrorView: View {
+public struct GridMediaErrorView: View {
   public var body: some View {
     Image(systemName: "multiply")
       .foregroundColor(.white)
@@ -8,16 +8,16 @@ public struct GridErrorView: View {
   }
 }
 
-private extension GridErrorView {
+private extension GridMediaErrorView {
   enum Constant {
     static let multiplyFontSize: CGFloat = 40
   }
 }
 
 #if DEBUG
-struct GridErrorView_Previews: PreviewProvider {
+struct GridMediaErrorView_Previews: PreviewProvider {
   static var previews: some View {
-    GridErrorView()
+    GridMediaErrorView()
       .padding()
       .background(.black)
   }

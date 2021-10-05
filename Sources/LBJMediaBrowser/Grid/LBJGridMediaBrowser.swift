@@ -75,7 +75,7 @@ private extension LBJGridMediaBrowser {
         GridUIImageView(image: uiImage, content: content)
 
       case let urlImage as MediaURLImage:
-        GridMediaURLImageView(
+        GridURLImageView(
           urlImage: urlImage,
           placeholder: placeholder,
           progress: progress,
@@ -106,7 +106,7 @@ private extension LBJGridMediaBrowser {
     Group {
       switch video {
       case let urlVideo as MediaURLVideo:
-        GridMediaURLVideoView(
+        GridURLVideoView(
           urlVideo: urlVideo,
           placeholder: placeholder,
           content: content

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GridMediaURLVideoView<Placeholder: View, Content: View>: View {
+struct GridURLVideoView<Placeholder: View, Content: View>: View {
 
   private let urlVideo: MediaURLVideo
   private let placeholder: () -> Placeholder
@@ -18,7 +18,7 @@ struct GridMediaURLVideoView<Placeholder: View, Content: View>: View {
   
   var body: some View {
     if let previewUrl = urlVideo.previewImageUrl {
-      GridMediaURLImageView(
+      GridURLImageView(
         urlImage: .init(url: previewUrl),
         placeholder: placeholder,
         progress: { _ in EmptyView() },
@@ -49,14 +49,14 @@ struct GridMediaURLVideoView<Placeholder: View, Content: View>: View {
   }
 }
 
-extension GridMediaURLVideoView where
-Placeholder == GridMediaPlaceholder,
+extension GridURLVideoView where
+Placeholder == GridMediaPlaceholderView,
 Content == GridMediaResultView {
 
   init(urlVideo: MediaURLVideo) {
     self.init(
       urlVideo: urlVideo,
-      placeholder: { GridMediaPlaceholder() },
+      placeholder: { GridMediaPlaceholderView() },
       content: { GridMediaResultView(result: $0) }
     )
   }
@@ -64,6 +64,6 @@ Content == GridMediaResultView {
 
 struct GridMediaURLVideoView_Previews: PreviewProvider {
   static var previews: some View {
-    GridMediaURLVideoView(urlVideo: MediaURLVideo.urlVideos[0])
+    GridURLVideoView(urlVideo: MediaURLVideo.urlVideos[0])
   }
 }
