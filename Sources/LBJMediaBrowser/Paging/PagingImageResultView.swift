@@ -11,7 +11,7 @@ struct PagingImageResultView: View {
 
 struct PagingImageResultView_Previews: PreviewProvider {
   static var previews: some View {
-    let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)
+    let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
     PagingImageResultView(uiImage: uiImage)
   }
 }

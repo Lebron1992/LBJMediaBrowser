@@ -33,6 +33,23 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
     XCTAssertEqual(browser.currentPage, 2)
   }
 
+  func test_setCurrentPage_playingVideoUpdated() {
+    let video = MediaURLVideo.urlVideos[0]
+    browser = PagingBrowser(medias: [
+      MediaUIImage.uiImages[0],
+      video,
+      MediaURLImage.urlImages[0]
+    ])
+
+    XCTAssertNil(browser.playingVideo)
+
+    browser.setCurrentPage(1)
+    XCTAssertTrue((browser.playingVideo as! MediaURLVideo).isTheSameAs(video))
+
+    browser.setCurrentPage(2)
+    XCTAssertNil(browser.playingVideo)
+  }
+
   func test_loadMediaAtFirstPage_firstTwoMediasLoaded_whenAdjacentPreloadSizeIsOne() {
     XCTAssertEqual(PagingBrowser.Constant.adjacentPreloadSize, 1)
 
