@@ -27,7 +27,7 @@ private extension PagingMediaImageView {
   func loadingView(progress: Float) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
-      MediaLoadingProgressView(progress: progress)
+      LoadingProgressView(progress: progress)
         .frame(size: Constant.progressSize)
         .position(x: frame.midX, y: frame.midY)
     }
@@ -41,7 +41,7 @@ private extension PagingMediaImageView {
   func failedView(error: Error) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
-      PagingErrorView(error: error)
+      PagingMediaErrorView(error: error)
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)

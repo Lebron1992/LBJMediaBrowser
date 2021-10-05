@@ -2,7 +2,7 @@ import SwiftUI
 
 extension GridURLImageView where
 Placeholder == GridMediaPlaceholderView,
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
 Content == GridMediaResultView {
 
@@ -10,7 +10,7 @@ Content == GridMediaResultView {
     self.init(
       urlImage: urlImage,
       placeholder: { GridMediaPlaceholderView() },
-      progress: { MediaLoadingProgressView(progress: $0) },
+      progress: { LoadingProgressView(progress: $0) },
       failure: { _ in GridMediaErrorView() },
       content: { GridMediaResultView(result: $0) }
     )

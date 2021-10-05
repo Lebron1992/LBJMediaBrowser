@@ -17,7 +17,7 @@ extension LBJGridMediaBrowser where Placeholder == GridMediaPlaceholderView {
   }
 }
 
-extension LBJGridMediaBrowser where Progress == MediaLoadingProgressView {
+extension LBJGridMediaBrowser where Progress == LoadingProgressView {
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
@@ -27,7 +27,7 @@ extension LBJGridMediaBrowser where Progress == MediaLoadingProgressView {
     self.init(
       medias: medias,
       placeholder: placeholder,
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
       content: content
     )
@@ -70,7 +70,7 @@ extension LBJGridMediaBrowser where Content == GridMediaResultView {
 
 extension LBJGridMediaBrowser where
 Placeholder == GridMediaPlaceholderView,
-Progress == MediaLoadingProgressView {
+Progress == LoadingProgressView {
   public init(
     medias: [MediaType],
     @ViewBuilder failure: @escaping (Error) -> Failure,
@@ -79,7 +79,7 @@ Progress == MediaLoadingProgressView {
     self.init(
       medias: medias,
       placeholder: { GridMediaPlaceholderView() },
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
       content: content
     )
@@ -123,7 +123,7 @@ Content == GridMediaResultView {
 }
 
 extension LBJGridMediaBrowser where
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Failure == GridMediaErrorView {
   public init(
     medias: [MediaType],
@@ -133,7 +133,7 @@ Failure == GridMediaErrorView {
     self.init(
       medias: medias,
       placeholder: placeholder,
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
       content: content
     )
@@ -141,7 +141,7 @@ Failure == GridMediaErrorView {
 }
 
 extension LBJGridMediaBrowser where
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Content == GridMediaResultView {
   public init(
     medias: [MediaType],
@@ -151,7 +151,7 @@ Content == GridMediaResultView {
     self.init(
       medias: medias,
       placeholder: placeholder,
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
       content: { GridMediaResultView(result: $0) }
     )
@@ -178,7 +178,7 @@ Content == GridMediaResultView {
 
 extension LBJGridMediaBrowser where
 Placeholder == GridMediaPlaceholderView,
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Failure == GridMediaErrorView {
   public init(
     medias: [MediaType],
@@ -187,7 +187,7 @@ Failure == GridMediaErrorView {
     self.init(
       medias: medias,
       placeholder: { GridMediaPlaceholderView() },
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
       content: content
     )
@@ -196,7 +196,7 @@ Failure == GridMediaErrorView {
 
 extension LBJGridMediaBrowser where
 Placeholder == GridMediaPlaceholderView,
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Content == GridMediaResultView {
   public init(
     medias: [MediaType],
@@ -205,7 +205,7 @@ Content == GridMediaResultView {
     self.init(
       medias: medias,
       placeholder: { GridMediaPlaceholderView() },
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
       content: { GridMediaResultView(result: $0) }
     )
@@ -231,7 +231,7 @@ Content == GridMediaResultView {
 }
 
 extension LBJGridMediaBrowser where
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
 Content == GridMediaResultView {
   public init(
@@ -241,7 +241,7 @@ Content == GridMediaResultView {
     self.init(
       medias: medias,
       placeholder: placeholder,
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
       content: { GridMediaResultView(result: $0) }
     )
@@ -250,14 +250,14 @@ Content == GridMediaResultView {
 
 extension LBJGridMediaBrowser where
 Placeholder == GridMediaPlaceholderView,
-Progress == MediaLoadingProgressView,
+Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
 Content == GridMediaResultView {
   public init(medias: [MediaType]) {
     self.init(
       medias: medias,
       placeholder: { GridMediaPlaceholderView() },
-      progress: { MediaLoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
+      progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
       content: { GridMediaResultView(result: $0) }
     )

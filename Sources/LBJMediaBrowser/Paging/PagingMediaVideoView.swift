@@ -83,7 +83,7 @@ private extension PagingMediaVideoView {
   func failedView(error: Error) -> some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
-      PagingErrorView(error: error)
+      PagingMediaErrorView(error: error)
         .position(x: frame.midX, y: frame.midY)
     }
     .background(.black)

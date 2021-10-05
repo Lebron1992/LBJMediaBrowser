@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct MediaLoadingProgressView: View {
+public struct LoadingProgressView: View {
 
   let progress: Float
   let lineWidth: CGFloat
@@ -51,8 +51,8 @@ public struct MediaLoadingProgressView: View {
 struct MediaLoadingProgressView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
-      MediaLoadingProgressView(progress: 0.5)
-      MediaLoadingProgressView(progress: 0)
+      LoadingProgressView(progress: 0.5)
+      LoadingProgressView(progress: 0)
     }
       .foregroundColor(.white)
       .frame(width: 40, height: 40)

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PagingErrorView: View {
+struct PagingMediaErrorView: View {
 
   @EnvironmentObject
   private var browser: PagingBrowser
@@ -30,7 +30,7 @@ struct PagingErrorView: View {
   }
 }
 
-private extension PagingErrorView {
+private extension PagingMediaErrorView {
   enum Constant {
     static let stackSpacing: CGFloat = 20
     static let multiplyFontSize: CGFloat = 80
@@ -43,7 +43,7 @@ private extension PagingErrorView {
 #if DEBUG
 struct PagingErrorView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingErrorView(error: NSError.unknownError)
+    PagingMediaErrorView(error: NSError.unknownError)
       .padding()
       .background(.black)
   }
