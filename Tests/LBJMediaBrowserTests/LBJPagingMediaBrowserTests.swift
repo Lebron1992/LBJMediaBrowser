@@ -357,7 +357,7 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
 
     browser.fetchPHAssetVideo(assetToFetch, at: 0)
 
-    wait(interval: 1.1) {
+    wait(interval: 3) {
       XCTAssertEqual(
         (self.browser.medias.first as! MediaPHAssetVideo).status,
         .loaded(previewImage: nil, videoUrl: url)

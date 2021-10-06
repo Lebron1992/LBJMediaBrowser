@@ -23,8 +23,8 @@ final class AssetVideoManagerTests: XCTestCase {
       XCTAssertNotNil(self.manager.requestId)
     }
 
-    wait(interval: 1.1) {
-      XCTAssertNil(self.manager.requestId)
+    wait(interval: 3) {
+      XCTAssertNil(self.manager?.requestId)
     }
   }
 
@@ -35,8 +35,11 @@ final class AssetVideoManagerTests: XCTestCase {
 
     manager.startRequestVideoUrl()
 
-    wait(interval: 1.1) {
-      XCTAssertEqual(self.manager.videoStatus, .loaded(previewImage: nil, videoUrl: self.videoUrl))
+    wait(interval: 3) {
+      XCTAssertEqual(
+        self.manager.videoStatus,
+        .loaded(previewImage: nil, videoUrl: self.videoUrl)
+      )
     }
   }
 
