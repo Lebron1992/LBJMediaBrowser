@@ -4,7 +4,7 @@ import LBJImagePreviewer
 struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @EnvironmentObject
-  private var browser: PagingBrowser
+  private var browser: LBJPagingBrowser
 
   let image: MediaImageType
   private let placeholder: () -> Placeholder

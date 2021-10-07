@@ -4,7 +4,7 @@ public struct PagingMediaErrorView: View {
   let error: Error
 
   @EnvironmentObject
-  private var browser: PagingBrowser
+  private var browser: LBJPagingBrowser
 
   public var body: some View {
     GeometryReader { geo in

@@ -3,7 +3,7 @@ import SwiftUI
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var browser: PagingBrowser
+  private var browser: LBJPagingBrowser
 
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
@@ -11,7 +11,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   private let content: (MediaResult) -> Content
 
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
@@ -78,7 +78,7 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
 //    let mixed = [MediaURLVideo.urlVideos]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
-    let browser = PagingBrowser(medias: mixed, currentPage: 0)
+    let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)
     browser.playVideoOnAppear = true
     return LBJPagingMediaBrowser(browser: browser)
   }

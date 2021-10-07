@@ -6,7 +6,7 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
-public final class PagingBrowser: ObservableObject {
+public final class LBJPagingBrowser: ObservableObject {
 
   public var playVideoOnAppear = false
 
@@ -76,7 +76,7 @@ public final class PagingBrowser: ObservableObject {
   }
 }
 
-extension PagingBrowser {
+extension LBJPagingBrowser {
 
   // MARK: - Start Loading
 
@@ -85,7 +85,7 @@ extension PagingBrowser {
       return
     }
 
-    let preloadSize = with ? PagingBrowser.Constant.adjacentPreloadSize : 0
+    let preloadSize = with ? LBJPagingBrowser.Constant.adjacentPreloadSize : 0
     let pagesToLoad = (page - preloadSize)...(page + preloadSize)
 
     pagesToLoad.forEach { pageToLoad in
@@ -298,7 +298,7 @@ extension PagingBrowser {
 }
 
 // MARK: - Helper Methods
-extension PagingBrowser {
+extension LBJPagingBrowser {
 
   func media(at page: Int) -> MediaType? {
     guard page >= 0 && page < medias.count else {
@@ -330,7 +330,7 @@ extension PagingBrowser {
   }
 }
 
-extension PagingBrowser {
+extension LBJPagingBrowser {
   enum Constant {
     static let adjacentPreloadSize = 1
     static let adjacentAvoidCancelLoadingSize = 2

@@ -56,6 +56,6 @@ struct PagingVideoView_Previews: PreviewProvider {
       status: .loaded(previewImage: MediaUIImage.uiImages.first!.uiImage, videoUrl: url)
     )
     PagingVideoView(video: video)
-      .environmentObject(PagingBrowser(medias: [video]))
+      .environmentObject(LBJPagingBrowser(medias: [video]))
   }
 }

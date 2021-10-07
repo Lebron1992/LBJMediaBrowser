@@ -130,7 +130,7 @@ private extension LBJGridMediaBrowser {
   }
 
   func pagingMediaBrowser(page: Int) -> some View {
-    let browser = PagingBrowser(medias: medias, currentPage: page)
+    let browser = LBJPagingBrowser(medias: medias, currentPage: page)
     browser.playVideoOnAppear = playVideoOnAppearInPaging
     return LBJPagingMediaBrowser(browser: browser)
   }

@@ -8,7 +8,7 @@ struct PagingVideoResultView: View {
   let videoUrl: URL
 
   @EnvironmentObject
-  private var browser: PagingBrowser
+  private var browser: LBJPagingBrowser
 
   @State
   private var hasTappedPlayButton = false

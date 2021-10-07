@@ -2,7 +2,7 @@ import SwiftUI
 
 extension LBJPagingMediaBrowser where Placeholder == MediaPlaceholderView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
@@ -19,7 +19,7 @@ extension LBJPagingMediaBrowser where Placeholder == MediaPlaceholderView {
 
 extension LBJPagingMediaBrowser where Progress == PagingLoadingProgressView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
@@ -36,7 +36,7 @@ extension LBJPagingMediaBrowser where Progress == PagingLoadingProgressView {
 
 extension LBJPagingMediaBrowser where Failure == PagingMediaErrorView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaResult) -> Content
@@ -53,7 +53,7 @@ extension LBJPagingMediaBrowser where Failure == PagingMediaErrorView {
 
 extension LBJPagingMediaBrowser where Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
@@ -72,7 +72,7 @@ extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Progress == PagingLoadingProgressView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
@@ -90,7 +90,7 @@ extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Failure == PagingMediaErrorView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
@@ -108,7 +108,7 @@ extension LBJPagingMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -126,7 +126,7 @@ extension LBJPagingMediaBrowser where
 Progress == PagingLoadingProgressView,
 Failure == PagingMediaErrorView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
@@ -144,7 +144,7 @@ extension LBJPagingMediaBrowser where
 Progress == PagingLoadingProgressView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -162,7 +162,7 @@ extension LBJPagingMediaBrowser where
 Failure == PagingMediaErrorView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
@@ -181,7 +181,7 @@ Placeholder == MediaPlaceholderView,
 Progress == PagingLoadingProgressView,
 Failure == PagingMediaErrorView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder content: @escaping (MediaResult) -> Content
   ) {
     self.init(
@@ -199,7 +199,7 @@ Placeholder == MediaPlaceholderView,
 Progress == PagingLoadingProgressView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
@@ -217,7 +217,7 @@ Placeholder == MediaPlaceholderView,
 Failure == PagingMediaErrorView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
@@ -235,7 +235,7 @@ Progress == PagingLoadingProgressView,
 Failure == PagingMediaErrorView,
 Content == PagingMediaResultView {
   public init(
-    browser: PagingBrowser,
+    browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder
   ) {
     self.init(
@@ -253,7 +253,7 @@ Placeholder == MediaPlaceholderView,
 Progress == PagingLoadingProgressView,
 Failure == PagingMediaErrorView,
 Content == PagingMediaResultView {
-  public init(browser: PagingBrowser) {
+  public init(browser: LBJPagingBrowser) {
     self.init(
       browser: browser,
       placeholder: { MediaPlaceholderView() },
