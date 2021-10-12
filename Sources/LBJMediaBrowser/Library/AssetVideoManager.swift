@@ -3,10 +3,10 @@ import UIKit
 
 final class AssetVideoManager: ObservableObject {
 
-  private let assetVideo: MediaPHAssetVideo
+  private let assetVideo: MediaPHAssetVideoType
   private let manager: PHImageManagerType
 
-  init(assetVideo: MediaPHAssetVideo, manager: PHImageManagerType = PHImageManager()) {
+  init(assetVideo: MediaPHAssetVideoType, manager: PHImageManagerType = PHImageManager()) {
     self.assetVideo = assetVideo
     self.manager = manager
   }
@@ -36,7 +36,7 @@ final class AssetVideoManager: ObservableObject {
       }
 
       self.requestId = self.manager.requestAVAsset(
-        forVideo: self.assetVideo.asset.asset,
+        forVideo: self.assetVideo.asset,
         options: options
       ) { [weak self] result in
 

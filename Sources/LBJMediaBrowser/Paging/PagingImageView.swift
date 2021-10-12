@@ -27,15 +27,19 @@ struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content
   }
 
   var body: some View {
-    switch image.status {
-    case .idle:
+    if let status = browser.imageStatus(for: image) {
+      switch status {
+      case .idle:
+        placeholder()
+      case .loading(let progress):
+        self.progress(progress)
+      case .loaded(let uiImage):
+        content(.image(image: image, uiImage: uiImage))
+      case .failed(let error):
+        failure(error)
+      }
+    } else {
       placeholder()
-    case .loading(let progress):
-      self.progress(progress)
-    case .loaded(let uiImage):
-      content(.image(image: image, uiImage: uiImage))
-    case .failed(let error):
-      failure(error)
     }
   }
 }
@@ -60,9 +64,7 @@ Content == PagingMediaResultView {
 #if DEBUG
 struct PagingMediaView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingImageView(image: MediaUIImage.uiImages[0])
-    PagingImageView(image: MediaURLImage.urlImages[0].status(.loading(0.5)))
-    PagingImageView(image: MediaURLImage.urlImages[0].status(.failed(NSError.unknownError)))
+    PagingImageView(image: MediaUIImage.templates[0])
   }
 }
 #endif

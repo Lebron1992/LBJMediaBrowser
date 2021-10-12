@@ -29,7 +29,7 @@ extension GridMediaResultView {
 struct GridMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
     GridMediaResultView(result: .video(
-      video: MediaURLVideo.urlVideos[0],
+      video: MediaURLVideo.templates[0],
       previewImage: nil,
       videoUrl: .init(string: "https://www.example.com/test.mp4")!
     ))

@@ -64,6 +64,6 @@ Content == GridMediaResultView {
 
 struct GridMediaURLVideoView_Previews: PreviewProvider {
   static var previews: some View {
-    GridURLVideoView(urlVideo: MediaURLVideo.urlVideos[0])
+    GridURLVideoView(urlVideo: MediaURLVideo.templates[0])
   }
 }

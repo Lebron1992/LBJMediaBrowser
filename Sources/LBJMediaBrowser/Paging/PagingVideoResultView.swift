@@ -67,10 +67,10 @@ private extension PagingVideoResultView {
   var isThePlayingVideo: Bool {
     switch (video, browser.playingVideo) {
     case (let v1 as MediaURLVideo, let v2 as MediaURLVideo):
-      return v1.isTheSameAs(v2)
+      return v1 == v2
 
     case (let v1 as MediaPHAssetVideo, let v2 as MediaPHAssetVideo):
-      return v1.isTheSameAs(v2)
+      return v1 == v2
 
     default:
       return false
@@ -86,7 +86,7 @@ private extension PagingVideoResultView {
 
 struct PagingVideoResultView_Previews: PreviewProvider {
   static var previews: some View {
-    let video = MediaURLVideo.urlVideos[0]
+    let video = MediaURLVideo.templates[0]
     PagingVideoResultView(
       video: video,
       previewImage: nil,

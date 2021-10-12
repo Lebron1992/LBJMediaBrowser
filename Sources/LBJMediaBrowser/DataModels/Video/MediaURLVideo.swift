@@ -1,48 +1,22 @@
 import UIKit
 
-public struct MediaURLVideo: MediaVideoStatusEditable {
+public struct MediaURLVideo: MediaURLVideoType {
 
-  let previewImageUrl: URL?
-  let videoUrl: URL
-
-  public internal(set) var status: MediaVideoStatus = .idle
+  public let id = UUID().uuidString
+  public let previewImageUrl: URL?
+  public let videoUrl: URL
 
   public init(previewImageUrl: URL? = nil, videoUrl: URL) {
     self.previewImageUrl = previewImageUrl
     self.videoUrl = videoUrl
   }
-
-  // for test
-  init(previewImageUrl: URL? = nil, videoUrl: URL, status: MediaVideoStatus = .idle) {
-    self.previewImageUrl = previewImageUrl
-    self.videoUrl = videoUrl
-    self.status = status
-  }
 }
 
-extension MediaURLVideo {
-  var isLoaded: Bool {
-    switch status {
-    case .loaded(let previewImgae, _):
-      if previewImageUrl == nil {
-        return true
-      }
-      return previewImgae != nil
-    default:
-      return false
-    }
-  }
-
-  // We don't implement `Equatable` to make sure SwiftUI can trigger view update after `status` changed
-  func isTheSameAs(_ another: MediaURLVideo) -> Bool {
-    previewImageUrl == another.previewImageUrl &&
-    videoUrl == another.videoUrl
-  }
-}
+extension MediaURLVideo: Equatable { }
 
 // MARK: - Templates
 extension MediaURLVideo {
-  static let urlVideos: [MediaURLVideo] = {
+  static let templates: [MediaURLVideo] = {
     var videos = [
       "BigBuckBunny",
       "ElephantsDream",

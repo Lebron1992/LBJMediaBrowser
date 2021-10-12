@@ -87,10 +87,10 @@ final class AssetImageManagerTests: XCTestCase {
 
 private extension AssetImageManagerTests {
   func prepare_startRequestImage(uiImage: UIImage? = nil, error: Error? = nil) {
-    let mockAsset = MockPHAsset(id: 1)
+    let mockAsset = PHAssetMock(id: 1, assetType: .image)
     manager = AssetImageManager(
-      assetImage: .init(asset: .init(asset: mockAsset)),
-      manager: MockPHImageManager(requestImageResults: [mockAsset: uiImage ?? error as Any])
+      assetImage: MediaPHAssetImage(asset: mockAsset),
+      manager: PHImageManagerMock(requestImageResults: [mockAsset: uiImage ?? error as Any])
     )
   }
 }

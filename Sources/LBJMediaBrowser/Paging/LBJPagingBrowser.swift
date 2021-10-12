@@ -10,6 +10,27 @@ public final class LBJPagingBrowser: ObservableObject {
 
   public var playVideoOnAppear = false
 
+  @Published
+  public private(set) var currentPage: Int = 0
+
+  @Published
+  public private(set) var playingVideo: MediaVideoType?
+
+  @Published
+  public private(set) var mediaImageStatuses: [MediaId: MediaImageStatus] = [:]
+
+  @Published
+  public private(set) var mediaVideoStatuses: [MediaId: MediaVideoStatus] = [:]
+
+  private let mediaLoadingQueue: DispatchQueue = {
+    let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())
+    return DispatchQueue(label: name)
+  }()
+
+  private(set) lazy var startedURLRequest: [URL: String] = [:]
+  private(set) lazy var startedPHAssetRequest: [MediaId: PHImageRequestID] = [:]
+
+  public private(set) var medias: [MediaType]
   private let imageDownloader: ImageDownloaderType
   private let phImageManager: PHImageManagerType
 
@@ -26,30 +47,17 @@ public final class LBJPagingBrowser: ObservableObject {
     medias: [MediaType],
     currentPage: Int = 0,
     imageDownloader: ImageDownloaderType = CustomImageDownloader(),
-    phImageManager: PHImageManagerType = PHImageManager()
+    phImageManager: PHImageManagerType = PHImageManager(),
+    mediaImageStatuses: [MediaId: MediaImageStatus] = [:],
+    mediaVideoStatuses: [MediaId: MediaVideoStatus] = [:]
   ) {
     self.medias = medias
     self.imageDownloader = imageDownloader
     self.phImageManager = phImageManager
+    self.mediaImageStatuses = mediaImageStatuses
+    self.mediaVideoStatuses = mediaVideoStatuses
     self.currentPage = validatedPage(currentPage)
   }
-
-  @Published
-  public private(set) var medias: [MediaType]
-
-  @Published
-  public private(set) var currentPage: Int = 0
-
-  @Published
-  public private(set) var playingVideo: MediaVideoType?
-
-  private let mediaLoadingQueue: DispatchQueue = {
-    let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())
-    return DispatchQueue(label: name)
-  }()
-
-  private(set) lazy var startedURLRequest: [URL: String] = [:]
-  private(set) lazy var startedPHAssetRequest: [PHAssetID: PHImageRequestID] = [:]
 
   // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
   public func setCurrentPage(_ page: Int, animated: Bool = true) {
@@ -74,6 +82,14 @@ public final class LBJPagingBrowser: ObservableObject {
       self.loadMedia(at: self.currentPage)
     }
   }
+
+  public func imageStatus(for image: MediaImageType) -> MediaImageStatus? {
+    mediaImageStatuses[image.id]
+  }
+
+  public func videoStatus(for video: MediaVideoType) -> MediaVideoStatus? {
+    mediaVideoStatuses[video.id]
+  }
 }
 
 extension LBJPagingBrowser {
@@ -95,38 +111,44 @@ extension LBJPagingBrowser {
 
       switch media {
       case let mediaImage as MediaImageType:
-        if mediaImage.isLoading == false && mediaImage.isLoaded == false {
+        if imageIsLoading(mediaImage) == false && imageIsLoaded(mediaImage) == false {
+
+          // UIImage
+          if let uiImage = media as? MediaUIImage {
+            updateMediaImageStatus(.loaded(uiImage.uiImage), for: uiImage)
+          }
+
           // URL Image
           if let urlImage = media as? MediaURLImage,
              startedURLRequest.keys.contains(urlImage.url) == false {
-            downloadUrlImage(urlImage, at: pageToLoad)
+            downloadUrlImage(urlImage)
           }
 
           // PHAsset Image
           if let phAssetImage = media as? MediaPHAssetImage,
-             startedPHAssetRequest.keys.contains(phAssetImage.asset.id) == false {
-            fetchPHAssetImage(phAssetImage, at: pageToLoad)
+             startedPHAssetRequest.keys.contains(phAssetImage.id) == false {
+            fetchPHAssetImage(phAssetImage)
           }
         }
 
       case let mediaVideo as MediaVideoType:
-        if mediaVideo.isLoaded == false {
+        if videoIsLoaded(mediaVideo) == false {
           // PHAsset Video
           if let assetVideo = media as? MediaPHAssetVideo,
-             startedPHAssetRequest.keys.contains(assetVideo.asset.id) == false {
-            fetchPHAssetVideo(assetVideo, at: pageToLoad)
+             startedPHAssetRequest.keys.contains(assetVideo.id) == false {
+            fetchPHAssetVideo(assetVideo)
           }
         }
 
         // URL Video
         if let urlVideo = media as? MediaURLVideo,
-           urlVideo.isLoaded == false {
+           urlVideoIsLoaded(urlVideo) == false {
           if let previewUrl = urlVideo.previewImageUrl {
             if startedURLRequest.keys.contains(previewUrl) == false {
-              downloadUrlVideoPreview(urlVideo: urlVideo, at: pageToLoad)
+              downloadUrlVideoPreview(urlVideo: urlVideo)
             }
           } else {
-            updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: pageToLoad)
+            updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), for: urlVideo)
           }
         }
       default:
@@ -135,19 +157,19 @@ extension LBJPagingBrowser {
     }
   }
 
-  func downloadUrlImage(_ urlImage: MediaURLImage, at page: Int) {
+  func downloadUrlImage(_ urlImage: MediaURLImage) {
     let receipt = imageDownloader.download(
       URLRequest(url: urlImage.url),
       progress: { [weak self] progress in
-        self?.updateMediaImageStatus(.loading(progress), forMediaAt: page)
+        self?.updateMediaImageStatus(.loading(progress), for: urlImage)
       },
       completion: { [weak self] result in
         DispatchQueue.main.async {
           switch result {
           case .success(let image):
-            self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
+            self?.updateMediaImageStatus(.loaded(image), for: urlImage)
           case .failure(let error):
-            self?.updateMediaImageStatus(.failed(error), forMediaAt: page)
+            self?.updateMediaImageStatus(.failed(error), for: urlImage)
           }
         }
       }
@@ -156,13 +178,13 @@ extension LBJPagingBrowser {
     startedURLRequest[urlImage.url] = receipt
   }
 
-  func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage, at page: Int) {
+  func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage) {
     let options = PHImageRequestOptions()
     options.version = .original
     options.isNetworkAccessAllowed = true
 
     let requestId = phImageManager.requestImage(
-      for: phAssetImage.asset.asset,
+      for: phAssetImage.asset,
       targetSize: phAssetImage.targetSize,
       contentMode: phAssetImage.contentMode,
       options: options
@@ -171,23 +193,23 @@ extension LBJPagingBrowser {
       DispatchQueue.main.async {
         switch result {
         case .success(let image):
-          self?.updateMediaImageStatus(.loaded(image), forMediaAt: page)
+          self?.updateMediaImageStatus(.loaded(image), for: phAssetImage)
         case .failure(let error):
-          self?.updateMediaImageStatus(.failed(error), forMediaAt: page)
+          self?.updateMediaImageStatus(.failed(error), for: phAssetImage)
         }
       }
     }
 
-    startedPHAssetRequest[phAssetImage.asset.id] = requestId
+    startedPHAssetRequest[phAssetImage.id] = requestId
   }
 
-  func fetchPHAssetVideo(_ phAssetVideo: MediaPHAssetVideo, at page: Int) {
+  func fetchPHAssetVideo(_ phAssetVideo: MediaPHAssetVideo) {
     let options = PHVideoRequestOptions()
     options.version = .original
     options.isNetworkAccessAllowed = true
 
     let requestId = phImageManager.requestAVAsset(
-      forVideo: phAssetVideo.asset.asset,
+      forVideo: phAssetVideo.asset,
       options: options
     ) { [weak self] result in
 
@@ -199,19 +221,19 @@ extension LBJPagingBrowser {
       DispatchQueue.main.async {
         switch result {
         case .success(let url):
-          self?.updateMediaVideoStatus(.loaded(previewImage: previewImage, videoUrl: url), forMediaAt: page)
+          self?.updateMediaVideoStatus(.loaded(previewImage: previewImage, videoUrl: url), for: phAssetVideo)
         case .failure(let error):
-          self?.updateMediaVideoStatus(.failed(error), forMediaAt: page)
+          self?.updateMediaVideoStatus(.failed(error), for: phAssetVideo)
         }
       }
     }
 
-    startedPHAssetRequest[phAssetVideo.asset.id] = requestId
+    startedPHAssetRequest[phAssetVideo.id] = requestId
   }
 
-  func downloadUrlVideoPreview(urlVideo: MediaURLVideo, at page: Int) {
+  func downloadUrlVideoPreview(urlVideo: MediaURLVideo) {
     guard let previewUrl = urlVideo.previewImageUrl else {
-      updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+      updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), for: urlVideo)
       return
     }
 
@@ -221,9 +243,9 @@ extension LBJPagingBrowser {
         DispatchQueue.main.async {
           switch result {
           case .success(let image):
-            self?.updateMediaVideoStatus(.loaded(previewImage: image, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+            self?.updateMediaVideoStatus(.loaded(previewImage: image, videoUrl: urlVideo.videoUrl), for: urlVideo)
           case .failure:
-            self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), forMediaAt: page)
+            self?.updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: urlVideo.videoUrl), for: urlVideo)
           }
         }
       }
@@ -259,28 +281,27 @@ extension LBJPagingBrowser {
         return
       }
 
+      // UIImage
+      if let uiImage = media as? MediaUIImage {
+        mediaImageStatuses.removeValue(forKey: uiImage.id)
+      }
+
       // URL Image
       if let urlImage = media as? MediaURLImage {
         startedURLRequest.removeValue(forKey: urlImage.url)
-        if urlImage.isIdle == false {
-          updateMediaImageStatus(.idle, forMediaAt: pageToCancel)
-        }
+        mediaImageStatuses.removeValue(forKey: urlImage.id)
       }
 
       // PHAsset Image
       if let phAssetImage = media as? MediaPHAssetImage {
-        startedPHAssetRequest.removeValue(forKey: phAssetImage.asset.id)
-        if phAssetImage.isIdle == false {
-          updateMediaImageStatus(.idle, forMediaAt: pageToCancel)
-        }
+        startedPHAssetRequest.removeValue(forKey: phAssetImage.id)
+        mediaImageStatuses.removeValue(forKey: phAssetImage.id)
       }
 
       // PHAsset Video
       if let assetVideo = media as? MediaPHAssetVideo {
-        startedPHAssetRequest.removeValue(forKey: assetVideo.asset.id)
-        if assetVideo.isIdle == false {
-          updateMediaVideoStatus(.idle, forMediaAt: pageToCancel)
-        }
+        startedPHAssetRequest.removeValue(forKey: assetVideo.id)
+        mediaVideoStatuses.removeValue(forKey: assetVideo.id)
       }
 
       // URL Video
@@ -288,9 +309,11 @@ extension LBJPagingBrowser {
         if let previewUrl = urlVideo.previewImageUrl {
           startedURLRequest.removeValue(forKey: previewUrl)
         }
-        if case let .loaded(previewImage, videoUrl) = urlVideo.status,
+        if let status = mediaVideoStatuses[urlVideo.id],
+           case let .loaded(previewImage, videoUrl) = status,
          previewImage != nil {
-          updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: videoUrl), forMediaAt: pageToCancel)
+          // remove previewImage ONLY when it exists
+          updateMediaVideoStatus(.loaded(previewImage: nil, videoUrl: videoUrl), for: urlVideo)
         }
       }
     }
@@ -307,18 +330,63 @@ extension LBJPagingBrowser {
     return medias[page]
   }
 
-  func updateMediaImageStatus(_ status: MediaImageStatus, forMediaAt page: Int) {
-    guard let mediaImage = media(at: page) as? MediaImageStatusEditable else {
-      return
-    }
-    medias[page] = mediaImage.status(status)
+  func updateMediaImageStatus(_ status: MediaImageStatus, for image: MediaImageType) {
+    mediaImageStatuses[image.id] = status
   }
 
-  func updateMediaVideoStatus(_ status: MediaVideoStatus, forMediaAt page: Int) {
-    guard let mediaVideo = media(at: page) as? MediaVideoStatusEditable else {
-      return
+  func updateMediaVideoStatus(_ status: MediaVideoStatus, for video: MediaVideoType) {
+    mediaVideoStatuses[video.id] = status
+  }
+
+  func imageIsLoading(_ image: MediaImageType) -> Bool {
+    guard let status = mediaImageStatuses[image.id] else {
+      return false
     }
-    medias[page] = mediaVideo.status(status)
+    switch status {
+    case .loading:
+      return true
+    default:
+      return false
+    }
+  }
+
+  func imageIsLoaded(_ image: MediaImageType) -> Bool {
+    guard let status = mediaImageStatuses[image.id] else {
+      return false
+    }
+    switch status {
+    case .loaded:
+      return true
+    default:
+      return false
+    }
+  }
+
+  func videoIsLoaded(_ video: MediaVideoType) -> Bool {
+    guard let status = mediaVideoStatuses[video.id] else {
+      return false
+    }
+    switch status {
+    case .loaded:
+      return true
+    default:
+      return false
+    }
+  }
+
+  func urlVideoIsLoaded(_ video: MediaURLVideoType) -> Bool {
+    guard let status = mediaVideoStatuses[video.id] else {
+      return false
+    }
+    switch status {
+    case .loaded(let previewImgae, _):
+      if video.previewImageUrl == nil {
+        return true
+      }
+      return previewImgae != nil
+    default:
+      return false
+    }
   }
 
   func validatedPage(_ page: Int) -> Int {

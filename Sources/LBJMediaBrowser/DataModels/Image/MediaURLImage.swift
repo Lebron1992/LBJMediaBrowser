@@ -1,27 +1,20 @@
 import UIKit
 
-public struct MediaURLImage: MediaImageStatusEditable {
+public struct MediaURLImage: MediaURLImageType {
 
-  let url: URL
-  let thumbnailURL: URL?
-  public internal(set) var status: MediaImageStatus = .idle
+  public let id = UUID().uuidString
+  public let url: URL
+  public let thumbnailURL: URL?
 
   public init(url: URL, thumbnailURL: URL? = nil) {
     self.url = url
     self.thumbnailURL = thumbnailURL
   }
-
-  // for test
-  init(url: URL, thumbnailURL: URL? = nil, status: MediaImageStatus = .idle) {
-    self.url = url
-    self.thumbnailURL = thumbnailURL
-    self.status = status
-  }
 }
 
 // MARK: - Templates
 extension MediaURLImage {
-  static let urlImages = [
+  static let templates = [
     "https://i.picsum.photos/id/249/1000/2000.jpg?hmac=LuHPEUVkziRf9usKW97DBxEzcifzgiCiRtm8vuJNZ9Q",
     "https://i.picsum.photos/id/17/1000/1000.jpg?hmac=5FRnLOBphDqiw_x9GZSSzNW0nfUgQ7kAVZdigKUxZvg",
     "https://www.example.com/test.png",

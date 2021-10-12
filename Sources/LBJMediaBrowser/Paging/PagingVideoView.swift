@@ -3,6 +3,9 @@ import SwiftUI
 
 struct PagingVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
+  @EnvironmentObject
+  private var browser: LBJPagingBrowser
+
   private let video: MediaVideoType
   private let placeholder: () -> Placeholder
   private let failure: (Error) -> Failure
@@ -21,13 +24,17 @@ struct PagingVideoView<Placeholder: View, Failure: View, Content: View>: View {
   }
 
   var body: some View {
-    switch video.status {
-    case .idle:
+    if let status = browser.videoStatus(for: video) {
+      switch status {
+      case .idle:
+        placeholder()
+      case .loaded(let previewImage, let videoUrl):
+        content(.video(video: video, previewImage: previewImage, videoUrl: videoUrl))
+      case .failed(let error):
+        failure(error)
+      }
+    } else {
       placeholder()
-    case .loaded(let previewImage, let videoUrl):
-      content(.video(video: video, previewImage: previewImage, videoUrl: videoUrl))
-    case .failed(let error):
-      failure(error)
     }
   }
 }
@@ -52,8 +59,7 @@ struct PagingVideoView_Previews: PreviewProvider {
     let url = URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!
     let video = MediaURLVideo(
       previewImageUrl: URL(string: "https://www.example.com/test.png")!,
-      videoUrl: url,
-      status: .loaded(previewImage: MediaUIImage.uiImages.first!.uiImage, videoUrl: url)
+      videoUrl: url
     )
     PagingVideoView(video: video)
       .environmentObject(LBJPagingBrowser(medias: [video]))

@@ -3,7 +3,7 @@ import Alamofire
 import AlamofireImage
 @testable import LBJMediaBrowser
 
-final class MockImageDownloader: ImageDownloaderType {
+final class ImageDownloaderMock: ImageDownloaderType {
 
   private let imageDownloadProgress: Float?
   private let imageDownloadResponse: UIImage?

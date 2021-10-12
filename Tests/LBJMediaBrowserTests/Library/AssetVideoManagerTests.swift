@@ -73,10 +73,10 @@ final class AssetVideoManagerTests: XCTestCase {
 
 private extension AssetVideoManagerTests {
   func prepare_startRequestVideoUrl(url: URL? = nil, error: Error? = nil) {
-    let mockAsset = MockPHAsset(id: 1)
+    let mockAsset = PHAssetMock(id: 1, assetType: .video)
     manager = AssetVideoManager(
-      assetVideo: .init(asset: .init(asset: mockAsset)),
-      manager: MockPHImageManager(requestAVAssetURLResponse: url, requestAVAssetError: error)
+      assetVideo: MediaPHAssetVideo(asset: mockAsset),
+      manager: PHImageManagerMock(requestAVAssetURLResponse: url, requestAVAssetError: error)
     )
   }
 }

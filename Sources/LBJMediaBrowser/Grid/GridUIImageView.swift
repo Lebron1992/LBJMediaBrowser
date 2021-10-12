@@ -17,6 +17,6 @@ extension GridUIImageView where Content == GridMediaResultView {
 
 struct GridUIImageView_Previews: PreviewProvider {
   static var previews: some View {
-    GridUIImageView(image: MediaUIImage.uiImages[0])
+    GridUIImageView(image: MediaUIImage.templates[0])
   }
 }

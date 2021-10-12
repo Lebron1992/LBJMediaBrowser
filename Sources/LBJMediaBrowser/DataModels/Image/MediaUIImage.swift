@@ -1,17 +1,12 @@
 import UIKit
 
-public struct MediaUIImage {
-  let uiImage: UIImage
+public struct MediaUIImage: MediaUIImageType {
+
+  public let id = UUID().uuidString
+  public let uiImage: UIImage
 
   public init(uiImage: UIImage) {
     self.uiImage = uiImage
-  }
-}
-
-// MARK: - MediaImageType
-extension MediaUIImage: MediaImageType {
-  public var status: MediaImageStatus {
-    .loaded(uiImage)
   }
 }
 
@@ -20,7 +15,7 @@ extension MediaUIImage: Equatable { }
 
 // MARK: - Templates
 extension MediaUIImage {
-  static let uiImages = (1...3)
+  static let templates = (1...3)
     .compactMap { UIImage(named: "IMG_000\($0)", in: .module, compatibleWith: nil) }
     .map { MediaUIImage(uiImage: $0) }
 }

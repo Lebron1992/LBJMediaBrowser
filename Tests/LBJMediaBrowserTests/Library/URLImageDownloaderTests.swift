@@ -103,7 +103,7 @@ private extension URLImageDownloaderTests {
   func prepare_startDownload(progress: Float? = nil, uiImage: UIImage? = nil, error: Error? = nil) {
     downloader = URLImageDownloader(
       imageUrl: URL(string: "https://www.example.com/test.png")!,
-      downloader: MockImageDownloader(
+      downloader: ImageDownloaderMock(
         imageDownloadProgress: progress,
         imageDownloadResponse: uiImage,
         imageDownloadError: error

@@ -3,7 +3,7 @@ import UIKit
 
 protocol PHImageManagerType {
   func requestImage(
-    for asset: PHAssetType,
+    for asset: PHAsset,
     targetSize: CGSize,
     contentMode: PHImageContentMode,
     options: PHImageRequestOptions?,
@@ -11,7 +11,7 @@ protocol PHImageManagerType {
   ) -> PHImageRequestID
 
   func requestAVAsset(
-    forVideo asset: PHAssetType,
+    forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,
     completion: @escaping (Result<URL, Error>) -> Void
   ) -> PHImageRequestID
@@ -22,7 +22,7 @@ protocol PHImageManagerType {
 extension PHImageManager: PHImageManagerType {
 
   func requestImage(
-    for asset: PHAssetType,
+    for asset: PHAsset,
     targetSize: CGSize,
     contentMode: PHImageContentMode,
     options: PHImageRequestOptions?,
@@ -30,7 +30,7 @@ extension PHImageManager: PHImageManagerType {
   ) -> PHImageRequestID {
 
     requestImage(
-      for: asset as! PHAsset,
+      for: asset,
       targetSize: targetSize,
       contentMode: contentMode,
       options: options
@@ -47,12 +47,12 @@ extension PHImageManager: PHImageManagerType {
   }
 
   func requestAVAsset(
-    forVideo asset: PHAssetType,
+    forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,
     completion: @escaping (Result<URL, Error>) -> Void
   ) -> PHImageRequestID {
     requestAVAsset(
-      forVideo: asset as! PHAsset,
+      forVideo: asset,
       options: options
     ) { asset, _, info in
 

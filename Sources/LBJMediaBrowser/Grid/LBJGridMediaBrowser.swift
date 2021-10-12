@@ -145,7 +145,7 @@ enum LBJGridMediaBrowserConstant {
 #if DEBUG
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-    let mixed = [MediaUIImage.uiImages, MediaURLImage.urlImages, MediaURLVideo.urlVideos]
+    let mixed = [MediaUIImage.templates, MediaURLImage.templates, MediaURLVideo.templates]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     LBJGridMediaBrowser(medias: mixed)

@@ -72,10 +72,10 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 #if DEBUG
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-//    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.uiImages, currentPage: 0))
-//    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.urlImages, currentPage: 0))
-    let mixed = [MediaUIImage.uiImages, MediaURLVideo.urlVideos, MediaURLImage.urlImages]
-//    let mixed = [MediaURLVideo.urlVideos]
+//    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.templates, currentPage: 0))
+//    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.templates, currentPage: 0))
+    let mixed = [MediaUIImage.templates, MediaURLVideo.templates, MediaURLImage.templates]
+//    let mixed = [MediaURLVideo.templates]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)

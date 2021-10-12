@@ -16,10 +16,10 @@ public struct PagingMediaResultView: View {
 
 struct PagingMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
-    let image = MediaUIImage.uiImages[0]
+    let image = MediaUIImage.templates[0]
     PagingMediaResultView(result: .image(image: image, uiImage: image.uiImage))
 
-    let video = MediaURLVideo.urlVideos[0]
+    let video = MediaURLVideo.templates[0]
     PagingMediaResultView(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))
   }
 }

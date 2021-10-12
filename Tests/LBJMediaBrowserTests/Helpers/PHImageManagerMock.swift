@@ -2,10 +2,10 @@ import Photos
 import UIKit
 @testable import LBJMediaBrowser
 
-final class MockPHImageManager: PHImageManagerType {
+final class PHImageManagerMock: PHImageManagerType {
 
   /// the value is UIImage or Error
-  private let requestImageResults: [MockPHAsset: Any]?
+  private let requestImageResults: [PHAssetMock: Any]?
   private let requestAVAssetURLResponse: URL?
   private let requestAVAssetError: Error?
   private let completionInterval: TimeInterval
@@ -13,7 +13,7 @@ final class MockPHImageManager: PHImageManagerType {
   private var cancelledImageRequests: [PHImageRequestID] = []
 
   init(
-    requestImageResults: [MockPHAsset: Any]? = nil,
+    requestImageResults: [PHAssetMock: Any]? = nil,
     requestAVAssetURLResponse: URL? = nil,
     requestAVAssetError: Error? = nil,
     completionInterval: TimeInterval = 1
@@ -25,13 +25,13 @@ final class MockPHImageManager: PHImageManagerType {
   }
 
   func requestImage(
-    for asset: PHAssetType,
+    for asset: PHAsset,
     targetSize: CGSize,
     contentMode: PHImageContentMode,
     options: PHImageRequestOptions?,
     completion: @escaping (Result<UIImage, Error>) -> Void
   ) -> PHImageRequestID {
-    let mockAsset = asset as! MockPHAsset
+    let mockAsset = asset as! PHAssetMock
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
@@ -52,11 +52,11 @@ final class MockPHImageManager: PHImageManagerType {
   }
 
   func requestAVAsset(
-    forVideo asset: PHAssetType,
+    forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,
     completion: @escaping (Result<URL, Error>) -> Void
   ) -> PHImageRequestID {
-    let mockAsset = asset as! MockPHAsset
+    let mockAsset = asset as! PHAssetMock
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 

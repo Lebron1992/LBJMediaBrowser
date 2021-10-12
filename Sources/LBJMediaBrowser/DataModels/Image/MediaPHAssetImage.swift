@@ -1,14 +1,13 @@
 import Photos
 
-public struct MediaPHAssetImage: MediaImageStatusEditable {
-
-  let asset: PHAssetWrapper
-  let targetSize: CGSize
-  let contentMode: PHImageContentMode
-  let thumbnailTargetSize: CGSize
-  let thumbnailContentMode: PHImageContentMode
-
-  public internal(set) var status: MediaImageStatus = .idle
+public struct MediaPHAssetImage: MediaPHAssetImageType {
+  
+  public let id = UUID().uuidString
+  public let asset: PHAsset
+  public let targetSize: CGSize
+  public let contentMode: PHImageContentMode
+  public let thumbnailTargetSize: CGSize
+  public let thumbnailContentMode: PHImageContentMode
 
   public init(
     asset: PHAsset,
@@ -20,28 +19,11 @@ public struct MediaPHAssetImage: MediaImageStatusEditable {
     guard asset.mediaType == .image else {
       fatalError("[MediaPHAssetImage] The `asset` should be a type of image.")
     }
-    self.asset = PHAssetWrapper(asset: asset)
-    self.targetSize = targetSize
-    self.contentMode = contentMode
-    self.thumbnailTargetSize = thumbnailTargetSize
-    self.thumbnailContentMode = thumbnailContentMode
-  }
-
-  // for test
-  init(
-    asset: PHAssetWrapper,
-    targetSize: CGSize = PHImageManagerMaximumSize,
-    contentMode: PHImageContentMode = .aspectFit,
-    thumbnailTargetSize: CGSize = Constant.thumbnailTargetSize,
-    thumbnailContentMode: PHImageContentMode = .aspectFill,
-    status: MediaImageStatus = .idle
-  ) {
     self.asset = asset
     self.targetSize = targetSize
     self.contentMode = contentMode
     self.thumbnailTargetSize = thumbnailTargetSize
     self.thumbnailContentMode = thumbnailContentMode
-    self.status = status
   }
 }
 
