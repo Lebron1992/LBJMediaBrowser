@@ -2,10 +2,10 @@ import Photos
 
 final class AssetImageManager: ObservableObject {
 
-  private let assetImage: MediaPHAssetImageType
+  private let assetImage: MediaPHAssetImage
   private let manager: PHImageManagerType
 
-  init(assetImage: MediaPHAssetImageType, manager: PHImageManagerType = PHImageManager()) {
+  init(assetImage: MediaPHAssetImage, manager: PHImageManagerType = PHImageManager()) {
     self.assetImage = assetImage
     self.manager = manager
   }

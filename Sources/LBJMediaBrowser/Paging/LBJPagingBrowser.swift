@@ -71,7 +71,6 @@ public final class LBJPagingBrowser: ObservableObject {
     self.currentPage = validatedPage(currentPage)
   }
 
-  // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
   /// 设置当前页。Set the current page.
   /// - Parameters:
   ///   - page: 当前页的索引。The index of the current page.
@@ -390,7 +389,7 @@ extension LBJPagingBrowser {
     }
   }
 
-  func urlVideoIsLoaded(_ video: MediaURLVideoType) -> Bool {
+  func urlVideoIsLoaded(_ video: MediaURLVideo) -> Bool {
     guard let status = mediaVideoStatuses[video.id] else {
       return false
     }

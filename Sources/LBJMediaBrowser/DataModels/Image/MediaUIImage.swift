@@ -2,9 +2,12 @@ import UIKit
 
 /// 图片格式是 `UIImage` 的图片类型。
 /// An image type with a `UIImage` object.
-public struct MediaUIImage: MediaUIImageType {
+open class MediaUIImage: MediaImageType {
 
   public let id = UUID().uuidString
+
+  /// `UIImage` 对象。
+  /// an `UIImage` object.
   public let uiImage: UIImage
 
   /// 创建 `MediaUIImage` 对象。Creates a `MediaUIImage` object.
@@ -15,7 +18,12 @@ public struct MediaUIImage: MediaUIImageType {
 }
 
 // MARK: - Equatable
-extension MediaUIImage: Equatable { }
+extension MediaUIImage: Equatable {
+  public static func == (lhs: MediaUIImage, rhs: MediaUIImage) -> Bool {
+    lhs.id == rhs.id &&
+    lhs.uiImage == rhs.uiImage
+  }
+}
 
 // MARK: - Templates
 extension MediaUIImage {

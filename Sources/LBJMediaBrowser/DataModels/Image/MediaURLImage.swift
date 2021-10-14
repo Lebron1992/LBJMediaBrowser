@@ -2,10 +2,16 @@ import UIKit
 
 /// 代表图片格式是 `URL` 的图片类型。
 /// An image type with a `URL` object.
-public struct MediaURLImage: MediaURLImageType {
+open class MediaURLImage: MediaImageType {
 
   public let id = UUID().uuidString
+
+  /// 图片路径。
+  /// The url of the image.
   public let imageUrl: URL
+
+  /// 缩略图路径。
+  /// The url of the thumbnail.
   public let thumbnailUrl: URL?
 
   /// 创建 `MediaURLImage` 对象。Creates a `MediaURLImage` object.

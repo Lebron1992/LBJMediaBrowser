@@ -2,10 +2,16 @@ import UIKit
 
 /// 代表视频格式是 `URL` 的视频类型。
 /// A video type with a `URL` object.
-public struct MediaURLVideo: MediaURLVideoType {
+open class MediaURLVideo: MediaVideoType {
 
   public let id = UUID().uuidString
+
+  /// 视频路径。
+  /// The url of the video.
   public let videoUrl: URL
+
+  /// 预览图路径。
+  /// The url of the  preview image.
   public let previewImageUrl: URL?
 
   /// 创建 `MediaURLVideo` 对象。Creates a `MediaURLVideo` object.
@@ -18,7 +24,13 @@ public struct MediaURLVideo: MediaURLVideoType {
   }
 }
 
-extension MediaURLVideo: Equatable { }
+extension MediaURLVideo: Equatable {
+  public static func == (lhs: MediaURLVideo, rhs: MediaURLVideo) -> Bool {
+    lhs.id == rhs.id &&
+    lhs.videoUrl == rhs.videoUrl &&
+    lhs.previewImageUrl == rhs.previewImageUrl
+  }
+}
 
 // MARK: - Templates
 extension MediaURLVideo {

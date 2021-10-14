@@ -2,13 +2,28 @@ import Photos
 
 /// 图片格式是 `PHAsset` 的图片类型。
 /// An image type with a `PHAsset` object whose `mediaType` is `image`.
-public struct MediaPHAssetImage: MediaPHAssetImageType {
+open class MediaPHAssetImage: MediaImageType {
   
   public let id = UUID().uuidString
+
+  /// `mediaType` 是 `image` 的 `PHAsset` 对象。
+  /// A `PHAsset` object whose `mediaType` is `image`.
   public let asset: PHAsset
+
+  /// 要返回的图片的目标大小。
+  /// The target size of image to be returned.
   public let targetSize: CGSize
+
+  /// 用于使图片与所请求大小的纵横比相匹配的选项。
+  /// An option for how to fit the image to the aspect ratio of the requested size.
   public let contentMode: PHImageContentMode
+
+  /// 要返回的缩略图的目标大小。
+  /// The target size of thumbnail to be returned.
   public let thumbnailTargetSize: CGSize
+
+  /// 用于使缩略图与所请求大小的纵横比相匹配的选项。
+  /// An option for how to fit the thumbnail to the aspect ratio of the requested size.
   public let thumbnailContentMode: PHImageContentMode
 
   /// 创建 `MediaPHAssetImage` 对象。Creates a `MediaPHAssetImage` object.
