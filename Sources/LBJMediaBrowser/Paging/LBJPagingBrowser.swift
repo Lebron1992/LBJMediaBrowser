@@ -290,25 +290,25 @@ extension LBJPagingBrowser {
 
       // UIImage
       if let uiImage = media as? MediaUIImage {
-        mediaImageStatuses.removeValue(forKey: uiImage.id)
+        removeImageStatus(for: uiImage)
       }
 
       // URL Image
       if let urlImage = media as? MediaURLImage {
         startedURLRequest.removeValue(forKey: urlImage.imageUrl)
-        mediaImageStatuses.removeValue(forKey: urlImage.id)
+        removeImageStatus(for: urlImage)
       }
 
       // PHAsset Image
       if let phAssetImage = media as? MediaPHAssetImage {
         startedPHAssetRequest.removeValue(forKey: phAssetImage.id)
-        mediaImageStatuses.removeValue(forKey: phAssetImage.id)
+        removeImageStatus(for: phAssetImage)
       }
 
       // PHAsset Video
       if let assetVideo = media as? MediaPHAssetVideo {
         startedPHAssetRequest.removeValue(forKey: assetVideo.id)
-        mediaVideoStatuses.removeValue(forKey: assetVideo.id)
+        removeVideoStatus(for: assetVideo)
       }
 
       // URL Video
@@ -338,11 +338,27 @@ extension LBJPagingBrowser {
   }
 
   func updateMediaImageStatus(_ status: MediaImageStatus, for image: MediaImageType) {
-    mediaImageStatuses[image.id] = status
+    DispatchQueue.main.async {
+      self.mediaImageStatuses[image.id] = status
+    }
   }
 
   func updateMediaVideoStatus(_ status: MediaVideoStatus, for video: MediaVideoType) {
-    mediaVideoStatuses[video.id] = status
+    DispatchQueue.main.async {
+      self.mediaVideoStatuses[video.id] = status
+    }
+  }
+
+  func removeImageStatus(for image: MediaImageType) {
+    DispatchQueue.main.async {
+      self.mediaImageStatuses.removeValue(forKey: image.id)
+    }
+  }
+
+  func removeVideoStatus(for video: MediaVideoType) {
+    DispatchQueue.main.async {
+      self.mediaVideoStatuses.removeValue(forKey: video.id)
+    }
   }
 
   func imageStatus(for image: MediaImageType) -> MediaImageStatus? {
