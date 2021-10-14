@@ -167,34 +167,36 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
 
     //   0     1  2  3  4  5     6
     //  nil   ----loaded----    nil
-    XCTAssertEqual(
-      browser.mediaImageStatuses[urlImages[0].id],
-      nil
-    )
-    XCTAssertEqual(
-      browser.mediaImageStatuses[urlImages[1].id],
-      .loaded(uiImage)
-    )
-    XCTAssertEqual(
-      browser.mediaImageStatuses[phAssetImage.id],
-      .loaded(uiImage)
-    )
-    XCTAssertEqual(
-      browser.mediaVideoStatuses[phAssetVideo.id],
-      .loaded(previewImage: nil, videoUrl: videoUrl)
-    )
-    XCTAssertEqual(
-      browser.mediaVideoStatuses[urlVideos[0].id],
-      .loaded(previewImage: uiImage, videoUrl: urlVideos[0].videoUrl)
-    )
-    XCTAssertEqual(
-      browser.mediaVideoStatuses[urlVideos[1].id],
-      .loaded(previewImage: uiImage, videoUrl: urlVideos[1].videoUrl)
-    )
-    XCTAssertEqual(
-      browser.mediaVideoStatuses[urlVideos[2].id],
-      .loaded(previewImage: nil, videoUrl: urlVideos[2].videoUrl)
-    )
+    wait(interval: 1) {
+      XCTAssertEqual(
+        self.browser.mediaImageStatuses[urlImages[0].id],
+        nil
+      )
+      XCTAssertEqual(
+        self.browser.mediaImageStatuses[urlImages[1].id],
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        self.browser.mediaImageStatuses[phAssetImage.id],
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        self.browser.mediaVideoStatuses[phAssetVideo.id],
+        .loaded(previewImage: nil, videoUrl: self.videoUrl)
+      )
+      XCTAssertEqual(
+        self.browser.mediaVideoStatuses[urlVideos[0].id],
+        .loaded(previewImage: self.uiImage, videoUrl: urlVideos[0].videoUrl)
+      )
+      XCTAssertEqual(
+        self.browser.mediaVideoStatuses[urlVideos[1].id],
+        .loaded(previewImage: self.uiImage, videoUrl: urlVideos[1].videoUrl)
+      )
+      XCTAssertEqual(
+        self.browser.mediaVideoStatuses[urlVideos[2].id],
+        .loaded(previewImage: nil, videoUrl: urlVideos[2].videoUrl)
+      )
+    }
   }
 
   func test_downloadUrlImage_startedURLRequestGotUpdated() {
@@ -393,10 +395,12 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
     )
 
     browser.updateMediaImageStatus(.loading(0.5), for: urlImage)
-    XCTAssertEqual(
-      browser.mediaImageStatuses[urlImage.id],
-      .loading(0.5)
-    )
+    wait(interval: 1) {
+      XCTAssertEqual(
+        self.browser.mediaImageStatuses[self.urlImage.id],
+        .loading(0.5)
+      )
+    }
   }
 
   func test_updateMediaVideoStatus() {
@@ -411,10 +415,12 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
       for: urlVideo
     )
 
-    XCTAssertEqual(
-      browser.mediaVideoStatuses[urlVideo.id],
-      .loaded(previewImage: nil, videoUrl: urlVideo.videoUrl)
-    )
+    wait(interval: 1) {
+      XCTAssertEqual(
+        self.browser.mediaVideoStatuses[self.urlVideo.id],
+        .loaded(previewImage: nil, videoUrl: self.urlVideo.videoUrl)
+      )
+    }
   }
 
   func test_imageStatusForImage_returnNil() {

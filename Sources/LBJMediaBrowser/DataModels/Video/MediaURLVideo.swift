@@ -45,7 +45,7 @@ extension MediaURLVideo {
       "Sintel"
     ]
       .map { name -> MediaURLVideo in
-        let prefix = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample"
+        let prefix = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample"
         return MediaURLVideo(
           videoUrl: URL(string: "\(prefix)/\(name).mp4")!,
           previewImageUrl: URL(string: "\(prefix)/images/\(name).jpg")!
