@@ -14,7 +14,7 @@ public struct PagingMediaErrorView: View {
       content
         .position(x: frame.midX, y: frame.midY)
     }
-    .background(.black)
+    .background(Color.black)
   }
 
   private var content: some View {
@@ -33,7 +33,7 @@ public struct PagingMediaErrorView: View {
           .font(.system(size: Constant.retryFontSize, weight: .regular))
           .foregroundColor(.black)
           .frame(size: Constant.retryFrameSize)
-          .background(.white)
+          .background(Color.white)
           .cornerRadius(Constant.retryCornerRadius)
       }
     }
@@ -55,7 +55,7 @@ struct PagingMediaErrorView_Previews: PreviewProvider {
   static var previews: some View {
     PagingMediaErrorView(error: NSError.unknownError)
       .padding()
-      .background(.black)
+      .background(Color.black)
   }
 }
 #endif

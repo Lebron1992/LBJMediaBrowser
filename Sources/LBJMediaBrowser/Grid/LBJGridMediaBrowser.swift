@@ -73,7 +73,7 @@ private extension LBJGridMediaBrowser {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .aspectRatio(1, contentMode: .fill)
-    .background(.black)
+    .background(Color.black)
   }
 
   @ViewBuilder

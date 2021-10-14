@@ -59,6 +59,6 @@ struct MediaLoadingProgressView_Previews: PreviewProvider {
       .foregroundColor(.white)
       .frame(width: 40, height: 40)
       .padding()
-      .background(.black)
+      .background(Color.black)
   }
 }

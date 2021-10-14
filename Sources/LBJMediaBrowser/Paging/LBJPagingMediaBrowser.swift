@@ -63,7 +63,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
           .tag(index)
         }
       }
-      .background(.black)
+      .background(Color.black)
       .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
       .ignoresSafeArea()
       .environmentObject(browser)

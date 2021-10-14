@@ -21,7 +21,7 @@ struct GridMediaErrorView_Previews: PreviewProvider {
   static var previews: some View {
     GridMediaErrorView()
       .padding()
-      .background(.black)
+      .background(Color.black)
   }
 }
 #endif

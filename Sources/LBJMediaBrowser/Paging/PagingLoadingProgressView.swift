@@ -12,7 +12,7 @@ public struct PagingLoadingProgressView: View {
         .frame(size: Constant.progressSize)
         .position(x: frame.midX, y: frame.midY)
     }
-    .background(.black)
+    .background(Color.black)
   }
 }
 
