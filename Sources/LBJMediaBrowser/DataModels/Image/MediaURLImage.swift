@@ -1,14 +1,20 @@
 import UIKit
 
+/// 代表图片格式是 `URL` 的图片类型。
+/// An image type with a `URL` object.
 public struct MediaURLImage: MediaURLImageType {
 
   public let id = UUID().uuidString
-  public let url: URL
-  public let thumbnailURL: URL?
+  public let imageUrl: URL
+  public let thumbnailUrl: URL?
 
-  public init(url: URL, thumbnailURL: URL? = nil) {
-    self.url = url
-    self.thumbnailURL = thumbnailURL
+  /// 创建 `MediaURLImage` 对象。Creates a `MediaURLImage` object.
+  /// - Parameters:
+  ///   - imageUrl: 图片路径。The url of the image.
+  ///   - thumbnailUrl: 缩略图路径。The url of the thumbnail.
+  public init(imageUrl: URL, thumbnailUrl: URL? = nil) {
+    self.imageUrl = imageUrl
+    self.thumbnailUrl = thumbnailUrl
   }
 }
 
@@ -26,5 +32,5 @@ extension MediaURLImage {
     "https://i.picsum.photos/id/550/1400/2500.jpg?hmac=wz6FC8u4baJmQU-B4-OOyu8nMXO-b7VmupGSt7wi-oE",
     "https://i.picsum.photos/id/260/1200/500.jpg?hmac=ZMJeETUAlzrHjlwB72i76bB0zJjzpyPB1BVNwunC3uY"
   ]
-    .map { MediaURLImage(url: URL(string: $0)!) }
+    .map { MediaURLImage(imageUrl: URL(string: $0)!) }
 }

@@ -9,14 +9,14 @@ struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Co
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
   init(
     assetImage: MediaPHAssetImage,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     imageManager = AssetImageManager(assetImage: assetImage)
     self.assetImage = assetImage

@@ -45,7 +45,7 @@ struct PagingVideoResultView: View {
     }
     .onChange(of: browser.currentPage) { _ in
       execute(after: 0.3) {
-        if browser.playVideoOnAppear && isThePlayingVideo {
+        if browser.autoPlayVideo && isThePlayingVideo {
           if let player = avPlayer {
             player.play()
           } else {

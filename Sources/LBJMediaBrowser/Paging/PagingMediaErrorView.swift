@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// 一个在分页模式下显示媒体加载错误的对象。
+/// An object that displays the loading error of a media in paging mode.
 public struct PagingMediaErrorView: View {
   let error: Error
 

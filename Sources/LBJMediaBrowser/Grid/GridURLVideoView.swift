@@ -4,12 +4,12 @@ struct GridURLVideoView<Placeholder: View, Content: View>: View {
 
   private let urlVideo: MediaURLVideo
   private let placeholder: () -> Placeholder
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
   init(
     urlVideo: MediaURLVideo,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.urlVideo = urlVideo
     self.placeholder = placeholder
@@ -19,7 +19,7 @@ struct GridURLVideoView<Placeholder: View, Content: View>: View {
   var body: some View {
     if let previewUrl = urlVideo.previewImageUrl {
       GridURLImageView(
-        urlImage: .init(url: previewUrl),
+        urlImage: .init(imageUrl: previewUrl),
         placeholder: placeholder,
         progress: { _ in EmptyView() },
         failure: { _ in
@@ -51,13 +51,13 @@ struct GridURLVideoView<Placeholder: View, Content: View>: View {
 
 extension GridURLVideoView where
 Placeholder == MediaPlaceholderView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
 
   init(urlVideo: MediaURLVideo) {
     self.init(
       urlVideo: urlVideo,
       placeholder: { MediaPlaceholderView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }

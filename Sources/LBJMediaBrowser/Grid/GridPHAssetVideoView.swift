@@ -8,13 +8,13 @@ struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: Vi
   private let assetVideo: MediaPHAssetVideo
   private let placeholder: () -> Placeholder
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
   init(
     assetVideo: MediaPHAssetVideo,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     videoManager = AssetVideoManager(assetVideo: assetVideo)
     self.assetVideo = assetVideo

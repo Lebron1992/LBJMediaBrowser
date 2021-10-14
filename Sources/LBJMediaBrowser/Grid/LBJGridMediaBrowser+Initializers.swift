@@ -1,11 +1,17 @@
 import SwiftUI
 
 extension LBJGridMediaBrowser where Placeholder == MediaPlaceholderView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -18,11 +24,17 @@ extension LBJGridMediaBrowser where Placeholder == MediaPlaceholderView {
 }
 
 extension LBJGridMediaBrowser where Progress == LoadingProgressView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -35,11 +47,16 @@ extension LBJGridMediaBrowser where Progress == LoadingProgressView {
 }
 
 extension LBJGridMediaBrowser where Failure == GridMediaErrorView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -51,7 +68,12 @@ extension LBJGridMediaBrowser where Failure == GridMediaErrorView {
   }
 }
 
-extension LBJGridMediaBrowser where Content == GridMediaResultView {
+extension LBJGridMediaBrowser where Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
@@ -63,7 +85,7 @@ extension LBJGridMediaBrowser where Content == GridMediaResultView {
       placeholder: placeholder,
       progress: progress,
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -71,10 +93,15 @@ extension LBJGridMediaBrowser where Content == GridMediaResultView {
 extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Progress == LoadingProgressView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -89,10 +116,15 @@ Progress == LoadingProgressView {
 extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Failure == GridMediaErrorView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -106,7 +138,12 @@ Failure == GridMediaErrorView {
 
 extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     medias: [MediaType],
     @ViewBuilder progress: @escaping (Float) -> Progress,
@@ -117,7 +154,7 @@ Content == GridMediaResultView {
       placeholder: { MediaPlaceholderView() },
       progress: progress,
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -125,10 +162,15 @@ Content == GridMediaResultView {
 extension LBJGridMediaBrowser where
 Progress == LoadingProgressView,
 Failure == GridMediaErrorView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -142,7 +184,12 @@ Failure == GridMediaErrorView {
 
 extension LBJGridMediaBrowser where
 Progress == LoadingProgressView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
@@ -153,14 +200,19 @@ Content == GridMediaResultView {
       placeholder: placeholder,
       progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
 
 extension LBJGridMediaBrowser where
 Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
@@ -171,7 +223,7 @@ Content == GridMediaResultView {
       placeholder: placeholder,
       progress: progress,
       failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -180,9 +232,13 @@ extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Progress == LoadingProgressView,
 Failure == GridMediaErrorView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
       medias: medias,
@@ -197,8 +253,12 @@ Failure == GridMediaErrorView {
 extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Progress == LoadingProgressView,
-Content == GridMediaResultView {
-  public init(
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  public init(s
     medias: [MediaType],
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -207,7 +267,7 @@ Content == GridMediaResultView {
       placeholder: { MediaPlaceholderView() },
       progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: failure,
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -215,7 +275,11 @@ Content == GridMediaResultView {
 extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   public init(
     medias: [MediaType],
     @ViewBuilder progress: @escaping (Float) -> Progress
@@ -225,7 +289,7 @@ Content == GridMediaResultView {
       placeholder: { MediaPlaceholderView() },
       progress: progress,
       failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -233,7 +297,11 @@ Content == GridMediaResultView {
 extension LBJGridMediaBrowser where
 Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder
@@ -243,7 +311,7 @@ Content == GridMediaResultView {
       placeholder: placeholder,
       progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }
@@ -252,14 +320,17 @@ extension LBJGridMediaBrowser where
 Placeholder == MediaPlaceholderView,
 Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   public init(medias: [MediaType]) {
     self.init(
       medias: medias,
       placeholder: { MediaPlaceholderView() },
       progress: { LoadingProgressView(progress: $0, size: LBJGridMediaBrowserConstant.progressSize) },
       failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }

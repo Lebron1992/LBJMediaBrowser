@@ -6,21 +6,29 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
+/// 一个管理分页模式浏览的对象。
+/// An object that manages the medias paging browser.
 public final class LBJPagingBrowser: ObservableObject {
 
-  public var playVideoOnAppear = false
+  /// 是否自动播放视频，默认是 `true`。
+  /// Weather auto play a video, `true` by default.
+  public var autoPlayVideo = false
 
+  /// 当前页所在的索引。
+  /// The index of the current page.
   @Published
   public private(set) var currentPage: Int = 0
 
+  /// 正在播放的视频，如果当前浏览的是视频，返回当前视频，否则返回 `nil`。
+  /// The playing video. If the current page displaying a video, return the video, nil otherwise.
   @Published
   public private(set) var playingVideo: MediaVideoType?
 
   @Published
-  public private(set) var mediaImageStatuses: [MediaId: MediaImageStatus] = [:]
+  private(set) var mediaImageStatuses: [MediaId: MediaImageStatus]
 
   @Published
-  public private(set) var mediaVideoStatuses: [MediaId: MediaVideoStatus] = [:]
+  private(set) var mediaVideoStatuses: [MediaId: MediaVideoStatus]
 
   private let mediaLoadingQueue: DispatchQueue = {
     let name = String(format: "com.lebron.lbjmediabrowser.medialoadingqueue-%08x%08x", arc4random(), arc4random())
@@ -34,6 +42,10 @@ public final class LBJPagingBrowser: ObservableObject {
   private let imageDownloader: ImageDownloaderType
   private let phImageManager: PHImageManagerType
 
+  /// 创建 LBJPagingBrowser 对象。Creates a `LBJPagingBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - currentPage: 当前页的索引。The index of the current page.
   public convenience init(medias: [MediaType], currentPage: Int = 0) {
     self.init(
       medias: medias,
@@ -60,6 +72,10 @@ public final class LBJPagingBrowser: ObservableObject {
   }
 
   // TODO: 手动改变 page 时，动画无效。原因是 medias 数据发生改变
+  /// 设置当前页。Set the current page.
+  /// - Parameters:
+  ///   - page: 当前页的索引。The index of the current page.
+  ///   - animated: 是否需要动画，默认是 `true`。Weather animate the page changes, `true` by default.
   public func setCurrentPage(_ page: Int, animated: Bool = true) {
     guard currentPage != page else {
       return
@@ -81,14 +97,6 @@ public final class LBJPagingBrowser: ObservableObject {
       guard let self = self else { return }
       self.loadMedia(at: self.currentPage)
     }
-  }
-
-  public func imageStatus(for image: MediaImageType) -> MediaImageStatus? {
-    mediaImageStatuses[image.id]
-  }
-
-  public func videoStatus(for video: MediaVideoType) -> MediaVideoStatus? {
-    mediaVideoStatuses[video.id]
   }
 }
 
@@ -120,7 +128,7 @@ extension LBJPagingBrowser {
 
           // URL Image
           if let urlImage = media as? MediaURLImage,
-             startedURLRequest.keys.contains(urlImage.url) == false {
+             startedURLRequest.keys.contains(urlImage.imageUrl) == false {
             downloadUrlImage(urlImage)
           }
 
@@ -159,7 +167,7 @@ extension LBJPagingBrowser {
 
   func downloadUrlImage(_ urlImage: MediaURLImage) {
     let receipt = imageDownloader.download(
-      URLRequest(url: urlImage.url),
+      URLRequest(url: urlImage.imageUrl),
       progress: { [weak self] progress in
         self?.updateMediaImageStatus(.loading(progress), for: urlImage)
       },
@@ -175,7 +183,7 @@ extension LBJPagingBrowser {
       }
     )
 
-    startedURLRequest[urlImage.url] = receipt
+    startedURLRequest[urlImage.imageUrl] = receipt
   }
 
   func fetchPHAssetImage(_ phAssetImage: MediaPHAssetImage) {
@@ -288,7 +296,7 @@ extension LBJPagingBrowser {
 
       // URL Image
       if let urlImage = media as? MediaURLImage {
-        startedURLRequest.removeValue(forKey: urlImage.url)
+        startedURLRequest.removeValue(forKey: urlImage.imageUrl)
         mediaImageStatuses.removeValue(forKey: urlImage.id)
       }
 
@@ -336,6 +344,14 @@ extension LBJPagingBrowser {
 
   func updateMediaVideoStatus(_ status: MediaVideoStatus, for video: MediaVideoType) {
     mediaVideoStatuses[video.id] = status
+  }
+
+  func imageStatus(for image: MediaImageType) -> MediaImageStatus? {
+    mediaImageStatuses[image.id]
+  }
+
+  func videoStatus(for video: MediaVideoType) -> MediaVideoStatus? {
+    mediaVideoStatuses[video.id]
   }
 
   func imageIsLoading(_ image: MediaImageType) -> Bool {

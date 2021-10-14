@@ -1,7 +1,9 @@
 import SwiftUI
 
-public struct GridMediaResultView: View {
-  let result: MediaResult
+/// 一个在网格模式下显示媒体加载成功的对象。
+/// An object that displays the loaded result of a media in grid mode.
+public struct GridMediaLoadedResultView: View {
+  let result: MediaLoadedResult
 
   public var body: some View {
     switch result {
@@ -20,7 +22,7 @@ public struct GridMediaResultView: View {
   }
 }
 
-extension GridMediaResultView {
+extension GridMediaLoadedResultView {
   enum Constant {
     static let playButtonSize: CGFloat = 30
   }
@@ -28,7 +30,7 @@ extension GridMediaResultView {
 
 struct GridMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
-    GridMediaResultView(result: .video(
+    GridMediaLoadedResultView(result: .video(
       video: MediaURLVideo.templates[0],
       previewImage: nil,
       videoUrl: .init(string: "https://www.example.com/test.mp4")!

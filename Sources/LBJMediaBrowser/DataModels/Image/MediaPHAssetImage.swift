@@ -1,5 +1,7 @@
 import Photos
 
+/// 图片格式是 `PHAsset` 的图片类型。
+/// An image type with a `PHAsset` object whose `mediaType` is `image`.
 public struct MediaPHAssetImage: MediaPHAssetImageType {
   
   public let id = UUID().uuidString
@@ -9,6 +11,13 @@ public struct MediaPHAssetImage: MediaPHAssetImageType {
   public let thumbnailTargetSize: CGSize
   public let thumbnailContentMode: PHImageContentMode
 
+  /// 创建 `MediaPHAssetImage` 对象。Creates a `MediaPHAssetImage` object.
+  /// - Parameters:
+  ///   - asset: `mediaType` 是 `image` 的 `PHAsset` 对象。A `PHAsset` object whose `mediaType` is `image`.
+  ///   - targetSize: 要返回的图片的目标大小。The target size of image to be returned.
+  ///   - contentMode: 用于使图片与所请求大小的纵横比相匹配的选项。An option for how to fit the image to the aspect ratio of the requested size.
+  ///   - thumbnailTargetSize: 要返回的缩略图的目标大小。The target size of thumbnail to be returned.
+  ///   - thumbnailContentMode: 用于使缩略图与所请求大小的纵横比相匹配的选项。An option for how to fit the thumbnail to the aspect ratio of the requested size.
   public init(
     asset: PHAsset,
     targetSize: CGSize = PHImageManagerMaximumSize,

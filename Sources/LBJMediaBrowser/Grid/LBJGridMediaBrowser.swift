@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// 一个以网格模式浏览媒体的对象。
+/// An object that browsers the medias in grid mode.
 public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   var minItemSize = LBJGridMediaBrowserConstant.minItemSize
@@ -8,20 +10,27 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 
   var browseInPagingOnTapItem = true
 
-  var playVideoOnAppearInPaging = false
+  var autoPlayVideoInPaging = false
 
   private let medias: [MediaType]
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.medias = medias
     self.placeholder = placeholder
@@ -131,7 +140,7 @@ private extension LBJGridMediaBrowser {
 
   func pagingMediaBrowser(page: Int) -> some View {
     let browser = LBJPagingBrowser(medias: medias, currentPage: page)
-    browser.playVideoOnAppear = playVideoOnAppearInPaging
+    browser.autoPlayVideo = autoPlayVideoInPaging
     return LBJPagingMediaBrowser(browser: browser)
   }
 }

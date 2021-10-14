@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// 一个以分页模式浏览媒体的对象。
+/// An object that browse the medias in paging mode.
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
@@ -8,14 +10,21 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
+  /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
+  /// - Parameters:
+  ///   - browser: 管理分页模式浏览的对象。An object that manages the media paging browser.
+  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
+  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
+  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
+  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.browser = browser
     self.placeholder = placeholder
@@ -79,7 +88,7 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)
-    browser.playVideoOnAppear = true
+    browser.autoPlayVideo = true
     return LBJPagingMediaBrowser(browser: browser)
   }
 }

@@ -1,10 +1,14 @@
 import UIKit
 
+/// 图片格式是 `UIImage` 的图片类型。
+/// An image type with a `UIImage` object.
 public struct MediaUIImage: MediaUIImageType {
 
   public let id = UUID().uuidString
   public let uiImage: UIImage
 
+  /// 创建 `MediaUIImage` 对象。Creates a `MediaUIImage` object.
+  /// - Parameter uiImage: `UIImage` 对象。an `UIImage` object.
   public init(uiImage: UIImage) {
     self.uiImage = uiImage
   }

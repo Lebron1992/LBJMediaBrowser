@@ -1,8 +1,10 @@
 import SwiftUI
 import LBJImagePreviewer
 
-public struct PagingMediaResultView: View {
-  let result: MediaResult
+/// 一个在分页模式下显示媒体加载成功的对象。
+/// An object that displays the loaded result of a media in  paging mode.
+public struct PagingMediaLoadedResultView: View {
+  let result: MediaLoadedResult
 
   public var body: some View {
     switch result {
@@ -17,9 +19,9 @@ public struct PagingMediaResultView: View {
 struct PagingMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
     let image = MediaUIImage.templates[0]
-    PagingMediaResultView(result: .image(image: image, uiImage: image.uiImage))
+    PagingMediaLoadedResultView(result: .image(image: image, uiImage: image.uiImage))
 
     let video = MediaURLVideo.templates[0]
-    PagingMediaResultView(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))
+    PagingMediaLoadedResultView(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))
   }
 }

@@ -9,16 +9,16 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
   init(
     urlImage: MediaURLImage,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
-    let url = urlImage.thumbnailURL ?? urlImage.url
+    let url = urlImage.thumbnailUrl ?? urlImage.imageUrl
     self.imageDownloader = URLImageDownloader(imageUrl: url)
     self.urlImage = urlImage
     self.placeholder = placeholder
@@ -61,7 +61,7 @@ extension GridURLImageView where
 Placeholder == MediaPlaceholderView,
 Progress == LoadingProgressView,
 Failure == GridMediaErrorView,
-Content == GridMediaResultView {
+Content == GridMediaLoadedResultView {
 
   init(urlImage: MediaURLImage) {
     self.init(
@@ -69,7 +69,7 @@ Content == GridMediaResultView {
       placeholder: { MediaPlaceholderView() },
       progress: { LoadingProgressView(progress: $0) },
       failure: { _ in GridMediaErrorView() },
-      content: { GridMediaResultView(result: $0) }
+      content: { GridMediaLoadedResultView(result: $0) }
     )
   }
 }

@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// 一个分页模式下显示媒体加载进度的对象。
+/// An object that displays the loading progress in paging mode.
 public struct PagingLoadingProgressView: View {
   let progress: Float
 

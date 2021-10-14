@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// 一个显示媒体加载进度的对象。
+/// An object that displays the loading progress.
 public struct LoadingProgressView: View {
 
   let progress: Float

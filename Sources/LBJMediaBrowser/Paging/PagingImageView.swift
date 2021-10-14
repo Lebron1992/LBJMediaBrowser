@@ -10,14 +10,14 @@ struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content
   private let placeholder: () -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
-  private let content: (MediaResult) -> Content
+  private let content: (MediaLoadedResult) -> Content
 
   init(
     image: MediaImageType,
     @ViewBuilder placeholder: @escaping () -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.image = image
     self.placeholder = placeholder
@@ -48,7 +48,7 @@ extension PagingImageView where
 Placeholder == MediaPlaceholderView,
 Progress == PagingLoadingProgressView,
 Failure == PagingMediaErrorView,
-Content == PagingMediaResultView {
+Content == PagingMediaLoadedResultView {
 
   init(image: MediaImageType) {
     self.init(
@@ -56,7 +56,7 @@ Content == PagingMediaResultView {
       placeholder: { MediaPlaceholderView() },
       progress: { PagingLoadingProgressView(progress: $0) },
       failure: { PagingMediaErrorView(error: $0) },
-      content: { PagingMediaResultView(result: $0) }
+      content: { PagingMediaLoadedResultView(result: $0) }
     )
   }
 }
