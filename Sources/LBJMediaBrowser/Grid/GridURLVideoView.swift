@@ -20,7 +20,7 @@ struct GridURLVideoView<Placeholder: View, Content: View>: View {
     if let previewUrl = urlVideo.previewImageUrl {
       GridURLImageView(
         urlImage: .init(imageUrl: previewUrl),
-        placeholder: placeholder,
+        placeholder: { _ in placeholder(urlVideo) },
         progress: { _ in EmptyView() },
         failure: { _ in
           content(.video(
