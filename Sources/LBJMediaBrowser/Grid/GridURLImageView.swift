@@ -28,31 +28,30 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
   }
 
   var body: some View {
-    switch imageDownloader.imageStatus {
-    case .idle:
-      placeholder()
-        .onAppear {
-          imageDownloader.startDownload()
+    ZStack {
+      switch imageDownloader.imageStatus {
+      case .idle:
+        placeholder()
+
+      case .loading(let progress):
+        if progress > 0 && progress < 1 {
+          self.progress(progress)
+        } else {
+          Color.clear
         }
 
-    case .loading(let progress):
-      if progress > 0 && progress < 1 {
-        self.progress(progress)
-          .onDisappear {
-            imageDownloader.cancelDownload()
-          }
-      } else {
-        Color.clear
+      case .loaded(let uiImage):
+        content(.image(image: urlImage, uiImage: uiImage))
+
+      case .failed(let error):
+        failure(error)
       }
-
-    case .loaded(let uiImage):
-      content(.image(image: urlImage, uiImage: uiImage))
-        .onDisappear {
-          imageDownloader.reset()
-        }
-
-    case .failed(let error):
-      failure(error)
+    }
+    .onAppear {
+        imageDownloader.startDownload()
+    }
+    .onDisappear {
+      imageDownloader.cancelDownload()
     }
   }
 }

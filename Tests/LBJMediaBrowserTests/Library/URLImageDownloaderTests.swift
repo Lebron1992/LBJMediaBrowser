@@ -79,24 +79,6 @@ final class URLImageDownloaderTests: XCTestCase {
       XCTAssertEqual(self.downloader.imageStatus, .idle)
     }
   }
-
-  func test_reset() {
-    let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
-    prepare_startDownload(uiImage: uiImage)
-
-    XCTAssertEqual(downloader.imageStatus, .idle)
-
-    downloader.startDownload()
-
-    wait(interval: 2.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .loaded(uiImage))
-    }
-
-    downloader.reset()
-
-    XCTAssertEqual(downloader.imageStatus, .idle)
-    XCTAssertNil(downloader.receipt)
-  }
 }
 
 private extension URLImageDownloaderTests {
