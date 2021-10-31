@@ -7,13 +7,13 @@ struct PagingVideoView<Placeholder: View, Failure: View, Content: View>: View {
   private var browser: LBJPagingBrowser
 
   private let video: MediaVideoType
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     video: MediaVideoType,
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -27,14 +27,14 @@ struct PagingVideoView<Placeholder: View, Failure: View, Content: View>: View {
     if let status = browser.videoStatus(for: video) {
       switch status {
       case .idle:
-        placeholder()
+        placeholder(video)
       case .loaded(let previewImage, let videoUrl):
         content(.video(video: video, previewImage: previewImage, videoUrl: videoUrl))
       case .failed(let error):
         failure(error)
       }
     } else {
-      placeholder()
+      placeholder(video)
     }
   }
 }
@@ -47,7 +47,7 @@ Content == GridMediaLoadedResultView {
   init(video: MediaVideoType) {
     self.init(
       video: video,
-      placeholder: { MediaPlaceholderView() },
+      placeholder: { _ in MediaPlaceholderView() },
       failure: { PagingMediaErrorView(error: $0) },
       content: { GridMediaLoadedResultView(result: $0) }
     )

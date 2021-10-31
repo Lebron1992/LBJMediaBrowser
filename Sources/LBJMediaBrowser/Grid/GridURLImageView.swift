@@ -6,14 +6,14 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
   private var imageDownloader: URLImageDownloader
 
   private let urlImage: MediaURLImage
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     urlImage: MediaURLImage,
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -31,7 +31,7 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
     ZStack {
       switch imageDownloader.imageStatus {
       case .idle:
-        placeholder()
+        placeholder(urlImage)
 
       case .loading(let progress):
         if progress > 0 && progress < 1 {
@@ -65,7 +65,7 @@ Content == GridMediaLoadedResultView {
   init(urlImage: MediaURLImage) {
     self.init(
       urlImage: urlImage,
-      placeholder: { MediaPlaceholderView() },
+      placeholder: { _ in MediaPlaceholderView() },
       progress: { LoadingProgressView(progress: $0) },
       failure: { _ in GridMediaErrorView() },
       content: { GridMediaLoadedResultView(result: $0) }

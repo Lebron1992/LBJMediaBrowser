@@ -6,13 +6,13 @@ struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: Vi
   private var videoManager: AssetVideoManager
 
   private let assetVideo: MediaPHAssetVideo
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     assetVideo: MediaPHAssetVideo,
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -26,7 +26,7 @@ struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: Vi
   var body: some View {
     switch videoManager.videoStatus {
     case .idle:
-      placeholder()
+      placeholder(assetVideo)
         .onAppear {
           videoManager.startRequestVideoUrl()
         }

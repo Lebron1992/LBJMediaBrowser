@@ -3,12 +3,12 @@ import SwiftUI
 struct GridURLVideoView<Placeholder: View, Content: View>: View {
 
   private let urlVideo: MediaURLVideo
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let content: (MediaLoadedResult) -> Content
 
   init(
     urlVideo: MediaURLVideo,
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.urlVideo = urlVideo
@@ -56,7 +56,7 @@ Content == GridMediaLoadedResultView {
   init(urlVideo: MediaURLVideo) {
     self.init(
       urlVideo: urlVideo,
-      placeholder: { MediaPlaceholderView() },
+      placeholder: { _ in MediaPlaceholderView() },
       content: { GridMediaLoadedResultView(result: $0) }
     )
   }

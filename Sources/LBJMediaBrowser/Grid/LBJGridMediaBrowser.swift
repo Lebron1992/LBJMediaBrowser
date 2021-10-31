@@ -13,7 +13,7 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
   var autoPlayVideoInPaging = false
 
   private let medias: [MediaType]
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
@@ -27,7 +27,7 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     medias: [MediaType],
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content

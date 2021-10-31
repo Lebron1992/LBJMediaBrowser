@@ -7,14 +7,14 @@ struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content
   private var browser: LBJPagingBrowser
 
   let image: MediaImageType
-  private let placeholder: () -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     image: MediaImageType,
-    @ViewBuilder placeholder: @escaping () -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -30,7 +30,7 @@ struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content
     if let status = browser.imageStatus(for: image) {
       switch status {
       case .idle:
-        placeholder()
+        placeholder(image)
       case .loading(let progress):
         self.progress(progress)
       case .loaded(let uiImage):
@@ -39,7 +39,7 @@ struct PagingImageView<Placeholder: View, Progress: View, Failure: View, Content
         failure(error)
       }
     } else {
-      placeholder()
+      placeholder(image)
     }
   }
 }
@@ -53,7 +53,7 @@ Content == PagingMediaLoadedResultView {
   init(image: MediaImageType) {
     self.init(
       image: image,
-      placeholder: { MediaPlaceholderView() },
+      placeholder: { _ in MediaPlaceholderView() },
       progress: { PagingLoadingProgressView(progress: $0) },
       failure: { PagingMediaErrorView(error: $0) },
       content: { PagingMediaLoadedResultView(result: $0) }
