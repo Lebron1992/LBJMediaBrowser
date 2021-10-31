@@ -41,7 +41,7 @@ struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Co
             imageManager.cancelRequest()
           }
       } else {
-        Color.clear
+        placeholder(assetImage)
       }
 
     case .loaded(let uiImage):

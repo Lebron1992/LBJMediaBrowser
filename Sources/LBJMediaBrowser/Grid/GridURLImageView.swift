@@ -37,7 +37,7 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
         if progress > 0 && progress < 1 {
           self.progress(progress)
         } else {
-          Color.clear
+          placeholder(urlImage)
         }
 
       case .loaded(let uiImage):
