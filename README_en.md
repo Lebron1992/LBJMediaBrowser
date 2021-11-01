@@ -2,6 +2,17 @@
 
 `LBJMediaBrowser` is a media browser implemented with SwiftUI.
 
+- [Features](#features)
+- [Preview](#preview)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Create Media Object](#create-media-object)
+    - [Grid Mode](#grid-mode)
+    - [Paging Mode](#paging-mode)
+- [Third Party Dependency](#third-party-dependency)
+- [Existing Issues](#existing-issues)
+- [Requesting a Feature](#requesting-a-feature)
+
 ## Features
 
 - Supported image types: `UIImage`、`PHAsset` and `URL`.
