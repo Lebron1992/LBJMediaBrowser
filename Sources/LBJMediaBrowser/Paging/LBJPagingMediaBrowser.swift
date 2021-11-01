@@ -4,6 +4,8 @@ import SwiftUI
 /// An object that browse the medias in paging mode.
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
+  var onTapMedia: (MediaType) -> Void = { _ in }
+
   @ObservedObject
   private var browser: LBJPagingBrowser
 
@@ -61,6 +63,10 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
           }
           .frame(size: geometry.size)
           .tag(index)
+          .gesture(
+            TapGesture()
+              .onEnded { onTapMedia(media) }
+          )
         }
       }
       .background(Color.black)

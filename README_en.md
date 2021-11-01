@@ -226,6 +226,17 @@ let browser: LBJPagingBrowser = {
 }()
 ```
 
+**Set the action to execute when media tapped**
+
+Set the action to execute when media tapped by calling the `onTapMedia` method.
+
+```swift
+LBJPagingMediaBrowser(browser: browser)
+  .onTapMedia { media in
+    // ...
+  }
+```
+
 ## Third Party Dependency
 
 ### [AlamofireImage](https://github.com/Alamofire/AlamofireImage)

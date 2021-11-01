@@ -226,6 +226,17 @@ let browser: LBJPagingBrowser = {
 }()
 ```
 
+**设置点击媒体时执行的操作**
+
+通过调用 `onTapMedia` 方法设置点击媒体时执行的操作。
+
+```swift
+LBJPagingMediaBrowser(browser: browser)
+  .onTapMedia { media in
+    // ...
+  }
+```
+
 ## 第三方依赖
 
 ### [AlamofireImage](https://github.com/Alamofire/AlamofireImage)
