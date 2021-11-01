@@ -215,6 +215,16 @@ let browser: LBJPagingBrowser = {
 }()
 ```
 
+## 第三方依赖
+
+### [AlamofireImage](https://github.com/Alamofire/AlamofireImage)
+
+使用 AlamofireImage 下载网络图片。
+
+### [LBJImagePreviewer](https://github.com/Lebron1992/LBJImagePreviewer)
+
+使用 LBJImagePreviewer 展示图片。
+
 ## 存在问题
 
 通过调用 `setCurrentPage` 手动设置当前页数有 Bug。

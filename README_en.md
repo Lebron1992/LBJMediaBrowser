@@ -215,6 +215,16 @@ let browser: LBJPagingBrowser = {
 }()
 ```
 
+## Third Party Dependency
+
+### [AlamofireImage](https://github.com/Alamofire/AlamofireImage)
+
+Using AlamofireImage to download URL image.
+
+### [LBJImagePreviewer](https://github.com/Lebron1992/LBJImagePreviewer)
+
+Using LBJImagePreviewer to display image.
+
 ## Existing Issues
 
 There are bugs when set the current paging manually by calling `setCurrentPage`.
