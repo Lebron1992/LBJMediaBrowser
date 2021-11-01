@@ -19,7 +19,7 @@
 - Supported video types: `PHAsset` and `URL`.
 - Browsing in grid mode.
 - Browsing in paging mode.
-- Customizable display content.
+- Customizable display content for different stages.
 
 ## Preview
 
