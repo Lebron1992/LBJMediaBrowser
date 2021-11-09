@@ -36,3 +36,9 @@ final class PHAssetMock: PHAsset {
     return self.localIdentifier == object.localIdentifier
   }
 }
+
+extension PHAssetMock {
+  static func == (lhs: PHAssetMock, rhs: PHAssetMock) -> Bool {
+    lhs.id == rhs.id && lhs.assetType == rhs.assetType
+  }
+}

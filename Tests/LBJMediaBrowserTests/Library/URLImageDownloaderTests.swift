@@ -3,6 +3,7 @@ import XCTest
 
 final class URLImageDownloaderTests: XCTestCase {
 
+  private let imageUrl = URL(string: "https://www.example.com/test.png")!
   private let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
 
   private var downloader: URLImageDownloader!
@@ -10,6 +11,50 @@ final class URLImageDownloaderTests: XCTestCase {
   override func tearDown() {
     super.tearDown()
     downloader = nil
+  }
+
+  func test_setImageUrl_imageUrlDidSet() {
+    downloader = URLImageDownloader(imageUrl: nil)
+    XCTAssertNil(downloader.imageUrl)
+
+    downloader.setImageUrl(imageUrl)
+
+    XCTAssertEqual(downloader.imageUrl, imageUrl)
+  }
+
+  func test_setImageUrl_ignoredDuplicatedLoadedUrlImage() {
+    prepare_startDownload(uiImage: uiImage)
+    downloader.startDownload()
+
+    wait(interval: 2.1) {
+      // The first request completed, `receipt` is nil
+      XCTAssertNil(self.downloader.receipt)
+
+      self.downloader.setImageUrl(self.imageUrl)
+
+      XCTAssertEqual(self.downloader.imageUrl, self.imageUrl)
+
+      // no new request started, `receipt` is nil
+      XCTAssertNil(self.downloader.receipt)
+    }
+  }
+
+  func test_setAssetImage_startedNewRequest() {
+    prepare_startDownload(uiImage: uiImage)
+    downloader.startDownload()
+
+    wait(interval: 2.1) {
+      // The first request completed, `receipt` is nil
+      XCTAssertNil(self.downloader.receipt)
+
+      let newImageUrl = URL(string: "https://www.example.com/test1.png")!
+      self.downloader.setImageUrl(newImageUrl)
+
+      XCTAssertEqual(self.downloader.imageUrl, newImageUrl)
+
+      // new request started, `receipt` is `newImageUrl.absoluteString`
+      XCTAssertEqual(self.downloader.receipt, newImageUrl.absoluteString)
+    }
   }
 
   func test_startDownload_requestId() {

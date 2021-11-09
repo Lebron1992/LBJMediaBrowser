@@ -21,6 +21,26 @@ public enum MediaImageStatus {
   case failed(Error)
 }
 
+extension MediaImageStatus {
+  var isLoading: Bool {
+    switch self {
+    case .loading:
+      return true
+    default:
+      return false
+    }
+  }
+
+  var isLoaded: Bool {
+    switch self {
+    case .loaded:
+      return true
+    default:
+      return false
+    }
+  }
+}
+
 extension MediaImageStatus: Equatable {
   public static func == (lhs: MediaImageStatus, rhs: MediaImageStatus) -> Bool {
     switch (lhs, rhs) {

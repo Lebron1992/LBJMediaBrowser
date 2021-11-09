@@ -3,10 +3,10 @@ import AlamofireImage
 
 final class URLImageDownloader: ObservableObject {
 
-  private let imageUrl: URL
+  private(set) var imageUrl: URL?
   private let downloader: ImageDownloaderType
 
-  init(imageUrl: URL, downloader: ImageDownloaderType = CustomImageDownloader()) {
+  init(imageUrl: URL? = nil, downloader: ImageDownloaderType = CustomImageDownloader.shared) {
     self.imageUrl = imageUrl
     self.downloader = downloader
   }
@@ -16,8 +16,18 @@ final class URLImageDownloader: ObservableObject {
 
   private(set) var receipt: String?
 
+  func setImageUrl(_ url: URL) {
+    if imageUrl != url {
+      imageUrl = url
+      cancelDownload()
+      startDownload()
+    } else if (imageStatus.isLoading == false && imageStatus.isLoaded == false) {
+      startDownload()
+    }
+  }
+
   func startDownload() {
-    guard receipt == nil else {
+    guard receipt == nil, let imageUrl = imageUrl else {
       return
     }
 
@@ -46,7 +56,9 @@ final class URLImageDownloader: ObservableObject {
   }
 
   func cancelDownload() {
-    downloader.cancelRequest(for: imageUrl)
+    if let imageUrl = imageUrl {
+      downloader.cancelRequest(for: imageUrl)
+    }
     imageStatus = .idle
     receipt = nil
   }
