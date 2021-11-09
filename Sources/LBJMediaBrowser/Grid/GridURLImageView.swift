@@ -3,7 +3,7 @@ import SwiftUI
 struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var imageDownloader: URLImageDownloader
+  private var imageDownloader = URLImageDownloader()
 
   private let urlImage: MediaURLImage
   private let placeholder: (MediaType) -> Placeholder
@@ -18,13 +18,14 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
-    let url = urlImage.thumbnailUrl ?? urlImage.imageUrl
-    self.imageDownloader = URLImageDownloader(imageUrl: url)
     self.urlImage = urlImage
     self.placeholder = placeholder
     self.progress = progress
     self.failure = failure
     self.content = content
+
+    let url = urlImage.thumbnailUrl ?? urlImage.imageUrl
+    imageDownloader.setImageUrl(url)
   }
 
   var body: some View {

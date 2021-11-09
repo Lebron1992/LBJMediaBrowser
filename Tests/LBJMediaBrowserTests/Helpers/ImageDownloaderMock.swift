@@ -43,7 +43,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
       }
     }
 
-    return UUID().uuidString
+    return urlRequest.urlRequest?.url?.absoluteString
   }
 
   func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
@@ -72,7 +72,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
       }
     }
 
-    return UUID().uuidString
+    return urlRequest.urlRequest?.url?.absoluteString
   }
 
   func cancelRequest(for url: URL) {

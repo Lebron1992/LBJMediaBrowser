@@ -2,10 +2,10 @@ import Photos
 
 final class AssetImageManager: ObservableObject {
 
-  private let assetImage: MediaPHAssetImage
+  private(set) var assetImage: MediaPHAssetImage?
   private let manager: PHImageManagerType
 
-  init(assetImage: MediaPHAssetImage, manager: PHImageManagerType = PHImageManager()) {
+  init(assetImage: MediaPHAssetImage? = nil, manager: PHImageManagerType = PHImageManager()) {
     self.assetImage = assetImage
     self.manager = manager
   }
@@ -20,8 +20,18 @@ final class AssetImageManager: ObservableObject {
     return DispatchQueue(label: name)
   }()
 
+  func setAssetImage(_ assetImage: MediaPHAssetImage) {
+    if self.assetImage != assetImage {
+      self.assetImage = assetImage
+      cancelRequest()
+      startRequestImage()
+    } else if (imageStatus.isLoading == false && imageStatus.isLoaded == false) {
+      startRequestImage()
+    }
+  }
+
   func startRequestImage(imageType: ImageType = .thumbnail) {
-    guard requestId == nil else {
+    guard requestId == nil, let assetImage = assetImage else {
       return
     }
 
@@ -40,7 +50,7 @@ final class AssetImageManager: ObservableObject {
       }
 
       self.requestId = self.manager.requestImage(
-        for: self.assetImage.asset,
+        for: assetImage.asset,
         targetSize: targetSize,
         contentMode: contentMode,
         options: options

@@ -4,6 +4,8 @@ import Alamofire
 import AlamofireImage
 
 final class CustomImageDownloader: ImageDownloader {
+  static let shared = CustomImageDownloader()
+
   var startedDownloads: [URL : Any] = [:]
 }
 

@@ -51,6 +51,17 @@ open class MediaPHAssetImage: MediaImageType {
   }
 }
 
+extension MediaPHAssetImage: Equatable {
+  public static func == (lhs: MediaPHAssetImage, rhs: MediaPHAssetImage) -> Bool {
+    lhs.id == rhs.id &&
+    lhs.asset == rhs.asset &&
+    lhs.targetSize == rhs.targetSize &&
+    lhs.contentMode == rhs.contentMode &&
+    lhs.thumbnailTargetSize == rhs.thumbnailTargetSize &&
+    lhs.thumbnailContentMode == rhs.thumbnailContentMode
+  }
+}
+
 extension MediaPHAssetImage {
   public enum Constant {
     public static let thumbnailTargetSize = CGSize(width: 160, height: 160)

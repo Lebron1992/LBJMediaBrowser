@@ -3,7 +3,7 @@ import SwiftUI
 struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var imageManager: AssetImageManager
+  private var imageManager = AssetImageManager()
   
   private let assetImage: MediaPHAssetImage
   private let placeholder: (MediaType) -> Placeholder
@@ -18,12 +18,12 @@ struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Co
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
-    imageManager = AssetImageManager(assetImage: assetImage)
     self.assetImage = assetImage
     self.placeholder = placeholder
     self.progress = progress
     self.failure = failure
     self.content = content
+    imageManager.setAssetImage(assetImage)
   }
 
   var body: some View {
