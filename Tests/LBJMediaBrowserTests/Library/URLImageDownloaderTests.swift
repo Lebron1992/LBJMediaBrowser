@@ -1,12 +1,16 @@
 import XCTest
 @testable import LBJMediaBrowser
 
-final class URLImageDownloaderTests: XCTestCase {
+final class URLImageDownloaderTests: BaseTestCase {
 
   private let imageUrl = URL(string: "https://www.example.com/test.png")!
-  private let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
-
+  private var uiImage: UIImage!
   private var downloader: URLImageDownloader!
+
+  override func setUp() {
+    super.setUp()
+    uiImage = image(forResource: "unicorn", withExtension: "png")
+  }
 
   override func tearDown() {
     super.tearDown()
@@ -75,7 +79,6 @@ final class URLImageDownloaderTests: XCTestCase {
 
   func test_startDownload_success() {
     let progress: Float = 0.5
-    let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
     prepare_startDownload(progress: progress, uiImage: uiImage)
 
     XCTAssertEqual(downloader.imageStatus, .idle)
@@ -87,7 +90,7 @@ final class URLImageDownloaderTests: XCTestCase {
     }
 
     wait(interval: 2.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .loaded(uiImage))
+      XCTAssertEqual(self.downloader.imageStatus, .loaded(self.uiImage))
     }
   }
 
@@ -105,7 +108,6 @@ final class URLImageDownloaderTests: XCTestCase {
 
   func test_cancelDownload_downloadCancelled() {
     let progress: Float = 0.5
-    let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
     prepare_startDownload(progress: progress, uiImage: uiImage)
 
     XCTAssertEqual(downloader.imageStatus, .idle)

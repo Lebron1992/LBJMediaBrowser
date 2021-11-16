@@ -1,11 +1,16 @@
 import XCTest
 @testable import LBJMediaBrowser
+import Photos
 
-final class AssetImageManagerTests: XCTestCase {
+final class AssetImageManagerTests: BaseTestCase {
 
-  private let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
-
+  private var uiImage: UIImage!
   private var manager: AssetImageManager!
+
+  override func setUp() {
+    super.setUp()
+    uiImage = image(forResource: "unicorn", withExtension: "png")
+  }
 
   override func tearDown() {
     super.tearDown()
@@ -97,6 +102,42 @@ final class AssetImageManagerTests: XCTestCase {
     wait(interval: 1.1) {
       XCTAssertEqual(self.manager.imageStatus, .failed(NSError.unknownError))
     }
+  }
+
+  func test_startRequestImage_imageDidCache() {
+    let mockAsset = PHAssetMock(id: 1, assetType: .image)
+    let targetSize = CGSize(width: 100, height: 100)
+    let contentMode = PHImageContentMode.aspectFill
+    let assetImage = MediaPHAssetImage(asset: mockAsset, targetSize: targetSize, contentMode: contentMode)
+
+    prepare_startRequestImage(assetImage: assetImage, uiImage: uiImage)
+
+    manager.startRequestImage(imageType: .full)
+
+    wait(interval: 1.1) {
+      XCTAssertEqual(self.manager.imageStatus, .loaded(self.uiImage))
+      XCTAssertEqual(
+        self.manager.imageCache.image(for: .init(asset: mockAsset, targetSize: targetSize, contentMode: contentMode)),
+        self.uiImage
+      )
+    }
+  }
+
+  func test_startRequestImage_useCachedImage() {
+    let imageCache = AutoPurgingPHAssetImageCache()
+    let assetRequest = PHAssetImageRequest.template
+    let assetImage = MediaPHAssetImage(
+      asset: assetRequest.asset,
+      targetSize: assetRequest.targetSize,
+      contentMode: assetRequest.contentMode
+    )
+
+    imageCache.add(uiImage, for: assetRequest)
+    manager = AssetImageManager(assetImage: assetImage, imageCache: imageCache)
+
+    manager.startRequestImage(imageType: .full)
+
+    XCTAssertEqual(manager.imageStatus, .loaded(uiImage))
   }
 
   func test_cancelRequest_requestCancelled() {

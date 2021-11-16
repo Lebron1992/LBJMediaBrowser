@@ -1,7 +1,7 @@
 import XCTest
 @testable import LBJMediaBrowser
 
-final class LBJPagingMediaBrowserTests: XCTestCase {
+final class LBJPagingMediaBrowserTests: BaseTestCase {
 
   private let mediaUIImage = MediaUIImage.templates[0]
   private let urlImage = MediaURLImage.templates[0]
@@ -9,10 +9,15 @@ final class LBJPagingMediaBrowserTests: XCTestCase {
   private let phAssetVideo = MediaPHAssetVideo.templatesMock[0]
   private let urlVideo = MediaURLVideo.templates[0]
 
-  private let uiImage = UIImage(named: "IMG_0001", in: .module, compatibleWith: nil)!
+  private var uiImage: UIImage!
   private let videoUrl = URL(string: "https://www.example.com/test.mp4")!
 
   private var browser: LBJPagingBrowser!
+
+  override func setUp() {
+    super.setUp()
+    uiImage = image(forResource: "unicorn", withExtension: "png")
+  }
 
   override func tearDown() {
     super.tearDown()
@@ -626,7 +631,7 @@ private extension LBJPagingMediaBrowserTests {
   func prepare_loadMediaAtPage() {
     let imageDownloader = ImageDownloaderMock(imageDownloadResponse: uiImage)
     let phManager = PHImageManagerMock(
-      requestImageResults: [phAssetImage.asset as! PHAssetMock: uiImage],
+      requestImageResults: [phAssetImage.asset as! PHAssetMock: uiImage as Any],
       requestAVAssetURLResponse: videoUrl
     )
 
