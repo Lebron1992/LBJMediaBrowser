@@ -29,7 +29,8 @@ let package = Package(
     ),
     .testTarget(
       name: "LBJMediaBrowserTests",
-      dependencies: ["LBJMediaBrowser"]
+      dependencies: ["LBJMediaBrowser"],
+      resources: [.process("Resources/Images")]
     )
   ]
 )

@@ -4,10 +4,16 @@ final class AssetImageManager: ObservableObject {
 
   private(set) var assetImage: MediaPHAssetImage?
   private let manager: PHImageManagerType
+  let imageCache: AutoPurgingPHAssetImageCache
 
-  init(assetImage: MediaPHAssetImage? = nil, manager: PHImageManagerType = PHImageManager()) {
+  init(
+    assetImage: MediaPHAssetImage? = nil,
+    manager: PHImageManagerType = PHImageManager(),
+    imageCache: AutoPurgingPHAssetImageCache = .shared
+  ) {
     self.assetImage = assetImage
     self.manager = manager
+    self.imageCache = imageCache
   }
 
   @Published
@@ -35,10 +41,16 @@ final class AssetImageManager: ObservableObject {
       return
     }
 
-    imageStatus = .loading(0)
-
     let targetSize = imageType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
     let contentMode = imageType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
+    let request = PHAssetImageRequest(asset: assetImage.asset, targetSize: targetSize, contentMode: contentMode)
+
+    if let cachedImage = imageCache.image(for: request) {
+      imageStatus = .loaded(cachedImage)
+      return
+    }
+
+    imageStatus = .loading(0)
 
     let options = PHImageRequestOptions()
     options.version = .original
@@ -62,6 +74,7 @@ final class AssetImageManager: ObservableObject {
           switch result {
           case .success(let image):
             self?.imageStatus = .loaded(image)
+            self?.imageCache.add(image, for: request)
           case .failure(let error):
             self?.imageStatus = .failed(error)
           }
