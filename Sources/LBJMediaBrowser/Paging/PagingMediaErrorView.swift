@@ -6,7 +6,7 @@ public struct PagingMediaErrorView: View {
   let error: Error
 
   @EnvironmentObject
-  private var browser: LBJPagingBrowser
+  private var mediaLoader: MediaLoader
 
   public var body: some View {
     GeometryReader { geo in
@@ -27,7 +27,7 @@ public struct PagingMediaErrorView: View {
         .foregroundColor(.white)
 
       Button {
-        browser.loadMedia(at: browser.currentPage, withAdjacent: false)
+        mediaLoader.startLoadingMedia()
       } label: {
         Text("Retry")
           .font(.system(size: Constant.retryFontSize, weight: .regular))
@@ -56,6 +56,7 @@ struct PagingMediaErrorView_Previews: PreviewProvider {
     PagingMediaErrorView(error: NSError.unknownError)
       .padding()
       .background(Color.black)
+      .environmentObject(URLImageDownloader() as MediaLoader)
   }
 }
 #endif

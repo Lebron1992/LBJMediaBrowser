@@ -43,20 +43,9 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
           Group {
             switch media {
             case let image as MediaImageType:
-              PagingImageView(
-                image: image,
-                placeholder: placeholder,
-                progress: progress,
-                failure: failure,
-                content: content
-              )
+              imageView(for: image)
             case let video as MediaVideoType:
-              PagingVideoView(
-                video: video,
-                placeholder: placeholder,
-                failure: failure,
-                content: content
-              )
+              videoView(for: video)
             default:
               EmptyView()
             }
@@ -73,9 +62,6 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
       .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
       .ignoresSafeArea()
       .environmentObject(browser)
-      .onAppear {
-        browser.loadMedia(at: currentPage.wrappedValue)
-      }
     }
   }
 
@@ -84,13 +70,66 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   }
 }
 
+// MARK: - Subviews
+private extension LBJPagingMediaBrowser {
+
+  @ViewBuilder
+  func imageView(for image: MediaImageType) -> some View {
+    switch image {
+    case let uiImage as MediaUIImage:
+      UIImageView(image: uiImage, content: content)
+
+    case let urlImage as MediaURLImage:
+      URLImageView(
+        urlImage: urlImage,
+        placeholder: placeholder,
+        progress: progress,
+        failure: failure,
+        content: content
+      )
+
+    case let assetImage as MediaPHAssetImage:
+      PHAssetImageView(
+        assetImage: assetImage,
+        placeholder: placeholder,
+        progress: progress,
+        failure: failure,
+        content: content
+      )
+
+    default:
+      EmptyView()
+    }
+  }
+
+  @ViewBuilder
+  func videoView(for video: MediaVideoType) -> some View {
+    switch video {
+    case let urlVideo as MediaURLVideo:
+      URLVideoView(
+        urlVideo: urlVideo,
+        placeholder: placeholder,
+        content: content
+      )
+
+    case let assetVideo as MediaPHAssetVideo:
+      PHAssetVideoView(
+        assetVideo: assetVideo,
+        placeholder: placeholder,
+        failure: failure,
+        content: content
+      )
+
+    default:
+      EmptyView()
+    }
+  }
+}
+
 #if DEBUG
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-//    LBJPagingMediaBrowser(browser: .init(medias: MediaUIImage.templates, currentPage: 0))
-//    LBJPagingMediaBrowser(browser: .init(medias: MediaURLImage.templates, currentPage: 0))
     let mixed = [MediaUIImage.templates, MediaURLVideo.templates, MediaURLImage.templates]
-//    let mixed = [MediaURLVideo.templates]
       .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)

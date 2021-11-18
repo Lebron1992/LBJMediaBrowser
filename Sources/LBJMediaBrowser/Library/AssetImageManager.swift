@@ -1,6 +1,6 @@
 import Photos
 
-final class AssetImageManager: ObservableObject {
+final class AssetImageManager: MediaLoader {
 
   private(set) var assetImage: MediaPHAssetImage?
   private let manager: PHImageManagerType
@@ -94,6 +94,12 @@ final class AssetImageManager: ObservableObject {
   func reset() {
     imageStatus = .idle
     requestId = nil
+  }
+
+  // MARK: - Overrides
+
+  override func startLoadingMedia() {
+    startRequestImage()
   }
 }
 

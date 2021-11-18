@@ -198,6 +198,39 @@ The generic types represent the display contents of the four stages:
 -  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
 
+In the customized `Failure`, you can access the `MediaLoader` object with `@EnvironmentObject' to call the `startLoadingMedia` method to try to reload the media.
+
+```swift
+struct MyPagingMediaErrorView: View {
+  let error: Error
+
+  @EnvironmentObject
+  private var mediaLoader: MediaLoader
+
+  var body: some View {
+    VStack {
+      Image(systemName: "multiply")
+        .foregroundColor(.white)
+        .font(.system(size: 50))
+
+      Text(error.localizedDescription)
+        .foregroundColor(.white)
+
+      Button {
+        mediaLoader.startLoadingMedia()
+      } label: {
+        Text("Retry")
+          .foregroundColor(.black)
+          .frame(size: .init(width: 100, height: 40))
+          .background(Color.white)
+          .cornerRadius(20)
+      }
+    }
+    .background(Color.black)
+  }
+}
+```
+
 **Set current page**
 
 When the `LBJPagingMediaBrowser` is displayed, the first page is displayed by default. When initializing the `LBJPagingBrowser`, you can specify the current page:

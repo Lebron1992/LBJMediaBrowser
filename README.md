@@ -198,6 +198,39 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 -  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 
+在自定义的 `Failure` 中，可以通过 `@EnvironmentObject` 访问 `MediaLoader`，便于调用 `startLoadingMedia` 方法尝试重新加载媒体。
+
+```swift
+struct MyPagingMediaErrorView: View {
+  let error: Error
+
+  @EnvironmentObject
+  private var mediaLoader: MediaLoader
+
+  var body: some View {
+    VStack {
+      Image(systemName: "multiply")
+        .foregroundColor(.white)
+        .font(.system(size: 50))
+
+      Text(error.localizedDescription)
+        .foregroundColor(.white)
+
+      Button {
+        mediaLoader.startLoadingMedia()
+      } label: {
+        Text("Retry")
+          .foregroundColor(.black)
+          .frame(size: .init(width: 100, height: 40))
+          .background(Color.white)
+          .cornerRadius(20)
+      }
+    }
+    .background(Color.black)
+  }
+}
+```
+
 **设置当前页数**
 
 当 `LBJPagingMediaBrowser` 显示时，默认显示第一页。在初始化 `LBJPagingBrowser` 时，可以指定当前页数：

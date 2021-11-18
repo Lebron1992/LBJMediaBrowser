@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
+struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var videoManager: AssetVideoManager
@@ -40,6 +40,7 @@ struct GridPHAssetVideoView<Placeholder: View, Failure: View, Content: View>: Vi
 
     case .failed(let error):
       failure(error)
+        .environmentObject(videoManager as MediaLoader)
     }
   }
 }

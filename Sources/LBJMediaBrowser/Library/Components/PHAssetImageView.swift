@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
+struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var imageManager = AssetImageManager()
-  
+
   private let assetImage: MediaPHAssetImage
   private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
@@ -52,6 +52,7 @@ struct GridPHAssetImageView<Placeholder: View, Progress: View, Failure: View, Co
 
     case .failed(let error):
       failure(error)
+        .environmentObject(imageManager as MediaLoader)
         .onDisappear {
           imageManager.reset()
         }

@@ -81,10 +81,10 @@ private extension LBJGridMediaBrowser {
     Group {
       switch image {
       case let uiImage as MediaUIImage:
-        GridUIImageView(image: uiImage, content: content)
+        UIImageView(image: uiImage, content: content)
 
       case let urlImage as MediaURLImage:
-        GridURLImageView(
+        URLImageView(
           urlImage: urlImage,
           placeholder: placeholder,
           progress: progress,
@@ -93,7 +93,7 @@ private extension LBJGridMediaBrowser {
         )
 
       case let assetImage as MediaPHAssetImage:
-        GridPHAssetImageView(
+        PHAssetImageView(
           assetImage: assetImage,
           placeholder: placeholder,
           progress: progress,
@@ -115,14 +115,14 @@ private extension LBJGridMediaBrowser {
     Group {
       switch video {
       case let urlVideo as MediaURLVideo:
-        GridURLVideoView(
+        URLVideoView(
           urlVideo: urlVideo,
           placeholder: placeholder,
           content: content
         )
 
       case let assetVideo as MediaPHAssetVideo:
-        GridPHAssetVideoView(
+        PHAssetVideoView(
           assetVideo: assetVideo,
           placeholder: placeholder,
           failure: failure,

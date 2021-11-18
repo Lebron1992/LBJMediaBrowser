@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
+struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
   private var imageDownloader = URLImageDownloader()
@@ -46,6 +46,7 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
 
       case .failed(let error):
         failure(error)
+          .environmentObject(imageDownloader as MediaLoader)
       }
     }
     .onAppear {
@@ -54,28 +55,5 @@ struct GridURLImageView<Placeholder: View, Progress: View, Failure: View, Conten
     .onDisappear {
       imageDownloader.cancelDownload()
     }
-  }
-}
-
-extension GridURLImageView where
-Placeholder == MediaPlaceholderView,
-Progress == LoadingProgressView,
-Failure == GridMediaErrorView,
-Content == GridMediaLoadedResultView {
-
-  init(urlImage: MediaURLImage) {
-    self.init(
-      urlImage: urlImage,
-      placeholder: { _ in MediaPlaceholderView() },
-      progress: { LoadingProgressView(progress: $0) },
-      failure: { _ in GridMediaErrorView() },
-      content: { GridMediaLoadedResultView(result: $0) }
-    )
-  }
-}
-
-struct GridMediaURLImageView_Previews: PreviewProvider {
-  static var previews: some View {
-    GridURLImageView(urlImage: MediaURLImage.templates[0])
   }
 }

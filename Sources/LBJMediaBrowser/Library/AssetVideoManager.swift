@@ -1,7 +1,7 @@
 import Photos
 import UIKit
 
-final class AssetVideoManager: ObservableObject {
+final class AssetVideoManager: MediaLoader {
 
   private let assetVideo: MediaPHAssetVideo
   private let manager: PHImageManagerType
@@ -64,5 +64,11 @@ final class AssetVideoManager: ObservableObject {
       return
     }
     manager.cancelImageRequest(requestId)
+  }
+
+  // MARK: - Overrides
+
+  override func startLoadingMedia() {
+    startRequestVideoUrl()
   }
 }

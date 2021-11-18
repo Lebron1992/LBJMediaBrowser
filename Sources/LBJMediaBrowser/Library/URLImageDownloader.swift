@@ -1,7 +1,7 @@
 import UIKit
 import AlamofireImage
 
-final class URLImageDownloader: ObservableObject {
+final class URLImageDownloader: MediaLoader {
 
   private(set) var imageUrl: URL?
   private let downloader: ImageDownloaderType
@@ -61,5 +61,11 @@ final class URLImageDownloader: ObservableObject {
     }
     imageStatus = .idle
     receipt = nil
+  }
+
+  // MARK: - Overrides
+
+  override func startLoadingMedia() {
+    startDownload()
   }
 }
