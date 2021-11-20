@@ -6,6 +6,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
   private var imageManager = AssetImageManager()
 
   private let assetImage: MediaPHAssetImage
+  private let targetType: AssetImageRequestTargetType
   private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
@@ -13,17 +14,19 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
 
   init(
     assetImage: MediaPHAssetImage,
+    targetType: AssetImageRequestTargetType,
     @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.assetImage = assetImage
+    self.targetType = targetType
     self.placeholder = placeholder
     self.progress = progress
     self.failure = failure
     self.content = content
-    imageManager.setAssetImage(assetImage)
+    imageManager.setAssetImage(assetImage, targetType: targetType)
   }
 
   var body: some View {
@@ -31,7 +34,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
     case .idle:
       placeholder(assetImage)
         .onAppear {
-          imageManager.startRequestImage()
+          imageManager.startRequestImage(targetType: targetType)
         }
 
     case .loading(let progress):

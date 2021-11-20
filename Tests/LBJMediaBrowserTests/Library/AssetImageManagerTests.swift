@@ -22,7 +22,7 @@ final class AssetImageManagerTests: BaseTestCase {
     XCTAssertNil(manager.assetImage)
 
     let assetImage = MediaPHAssetImage(asset: PHAssetMock(id: 1, assetType: .image))
-    manager.setAssetImage(assetImage)
+    manager.setAssetImage(assetImage, targetType: .thumbnail)
 
     XCTAssertEqual(manager.assetImage, assetImage)
   }
@@ -37,7 +37,7 @@ final class AssetImageManagerTests: BaseTestCase {
       // The first request completed, `requestId` is nil
       XCTAssertNil(self.manager.requestId)
 
-      self.manager.setAssetImage(assetImage)
+      self.manager.setAssetImage(assetImage, targetType: .thumbnail)
 
       XCTAssertEqual(self.manager.assetImage, assetImage)
 
@@ -55,7 +55,7 @@ final class AssetImageManagerTests: BaseTestCase {
       XCTAssertNil(self.manager.requestId)
 
       let assetImage = MediaPHAssetImage(asset: PHAssetMock(id: 2, assetType: .image))
-      self.manager.setAssetImage(assetImage)
+      self.manager.setAssetImage(assetImage, targetType: .thumbnail)
 
       XCTAssertEqual(self.manager.assetImage, assetImage)
 
@@ -112,7 +112,7 @@ final class AssetImageManagerTests: BaseTestCase {
 
     prepare_startRequestImage(assetImage: assetImage, uiImage: uiImage)
 
-    manager.startRequestImage(imageType: .full)
+    manager.startRequestImage(targetType: .full)
 
     wait(interval: 1.1) {
       XCTAssertEqual(self.manager.imageStatus, .loaded(self.uiImage))
@@ -135,7 +135,7 @@ final class AssetImageManagerTests: BaseTestCase {
     imageCache.add(uiImage, for: assetRequest)
     manager = AssetImageManager(assetImage: assetImage, imageCache: imageCache)
 
-    manager.startRequestImage(imageType: .full)
+    manager.startRequestImage(targetType: .full)
 
     XCTAssertEqual(manager.imageStatus, .loaded(uiImage))
   }

@@ -91,6 +91,7 @@ private extension LBJPagingMediaBrowser {
     case let assetImage as MediaPHAssetImage:
       PHAssetImageView(
         assetImage: assetImage,
+        targetType: .full,
         placeholder: placeholder,
         progress: progress,
         failure: failure,
