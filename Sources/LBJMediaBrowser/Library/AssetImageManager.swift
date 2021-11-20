@@ -26,23 +26,23 @@ final class AssetImageManager: MediaLoader {
     return DispatchQueue(label: name)
   }()
 
-  func setAssetImage(_ assetImage: MediaPHAssetImage) {
+  func setAssetImage(_ assetImage: MediaPHAssetImage, targetType: AssetImageRequestTargetType) {
     if self.assetImage != assetImage {
       self.assetImage = assetImage
       cancelRequest()
-      startRequestImage()
+      startRequestImage(targetType: targetType)
     } else if (imageStatus.isLoading == false && imageStatus.isLoaded == false) {
-      startRequestImage()
+      startRequestImage(targetType: targetType)
     }
   }
 
-  func startRequestImage(imageType: ImageType = .thumbnail) {
+  func startRequestImage(targetType: AssetImageRequestTargetType = .thumbnail) {
     guard requestId == nil, let assetImage = assetImage else {
       return
     }
 
-    let targetSize = imageType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
-    let contentMode = imageType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
+    let targetSize = targetType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
+    let contentMode = targetType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
     let request = PHAssetImageRequest(asset: assetImage.asset, targetSize: targetSize, contentMode: contentMode)
 
     if let cachedImage = imageCache.image(for: request) {
@@ -100,16 +100,5 @@ final class AssetImageManager: MediaLoader {
 
   override func startLoadingMedia() {
     startRequestImage()
-  }
-}
-
-extension AssetImageManager {
-  enum ImageType {
-    case thumbnail
-    case full
-
-    var isThumbnail: Bool {
-      self == .thumbnail
-    }
   }
 }

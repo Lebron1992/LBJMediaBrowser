@@ -191,7 +191,7 @@ class AutoPurgingPHAssetImageCache: PHAssetImageCache {
   // MARK: UIImage Cache Keys
 
   func imageCacheKey(for request: PHAssetImageRequest, withIdentifier identifier: String?) -> String {
-    var key = "\(request.asset.localIdentifier)-\(request.targetSize)-\(request.contentMode)"
+    var key = "\(request.asset.localIdentifier)-\(request.targetSize)-\(request.contentMode.stringRepresentation)"
 
     if let identifier = identifier {
       key += "-\(identifier)"
@@ -239,5 +239,23 @@ private extension AutoPurgingPHAssetImageCache {
       lastAccessDate = Date()
       return image
     }
+  }
+}
+
+extension PHImageContentMode {
+  // `"\(contentMode)"` always becomes `"PHImageContentMode"`, so add the property to fix it
+  var stringRepresentation: String {
+    let result: String
+    switch self {
+    case .aspectFill:
+      result = "aspectFill"
+    case .aspectFit:
+      result = "aspectFit"
+    case .default:
+      result = "default"
+    @unknown default:
+      result = "unknown"
+    }
+    return result
   }
 }

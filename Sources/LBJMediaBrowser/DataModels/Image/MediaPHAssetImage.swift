@@ -1,4 +1,5 @@
 import Photos
+import UIKit
 
 /// 图片格式是 `PHAsset` 的图片类型。
 /// An image type with a `PHAsset` object whose `mediaType` is `image`.
@@ -35,7 +36,7 @@ open class MediaPHAssetImage: MediaImageType {
   ///   - thumbnailContentMode: 用于使缩略图与所请求大小的纵横比相匹配的选项。An option for how to fit the thumbnail to the aspect ratio of the requested size.
   public init(
     asset: PHAsset,
-    targetSize: CGSize = PHImageManagerMaximumSize,
+    targetSize: CGSize = UIScreen.main.bounds.size * UIScreen.main.scale,
     contentMode: PHImageContentMode = .aspectFit,
     thumbnailTargetSize: CGSize = Constant.thumbnailTargetSize,
     thumbnailContentMode: PHImageContentMode = .aspectFill
