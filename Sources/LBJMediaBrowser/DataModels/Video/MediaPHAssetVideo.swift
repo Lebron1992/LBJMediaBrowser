@@ -20,6 +20,12 @@ open class MediaPHAssetVideo: MediaVideoType {
   }
 }
 
+extension MediaPHAssetVideo {
+  var cacheKey: String {
+    asset.localIdentifier
+  }
+}
+
 extension MediaPHAssetVideo: Equatable {
   public static func == (lhs: MediaPHAssetVideo, rhs: MediaPHAssetVideo) -> Bool {
     lhs.id == rhs.id &&

@@ -1,15 +1,16 @@
 import Photos
+import AlamofireImage
 
 final class AssetImageManager: MediaLoader {
 
   private(set) var assetImage: MediaPHAssetImage?
   private let manager: PHImageManagerType
-  let imageCache: AutoPurgingPHAssetImageCache
+  let imageCache: AutoPurgingImageCache
 
   init(
     assetImage: MediaPHAssetImage? = nil,
     manager: PHImageManagerType = PHImageManager(),
-    imageCache: AutoPurgingPHAssetImageCache = .shared
+    imageCache: AutoPurgingImageCache = .shared
   ) {
     self.assetImage = assetImage
     self.manager = manager
@@ -41,11 +42,8 @@ final class AssetImageManager: MediaLoader {
       return
     }
 
-    let targetSize = targetType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
-    let contentMode = targetType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
-    let request = PHAssetImageRequest(asset: assetImage.asset, targetSize: targetSize, contentMode: contentMode)
-
-    if let cachedImage = imageCache.image(for: request) {
+    let cacheKey = assetImage.cacheKey(for: targetType)
+    if let cachedImage = imageCache.image(withIdentifier: cacheKey) {
       imageStatus = .loaded(cachedImage)
       return
     }
@@ -61,6 +59,9 @@ final class AssetImageManager: MediaLoader {
         return
       }
 
+      let targetSize = targetType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
+      let contentMode = targetType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
+
       self.requestId = self.manager.requestImage(
         for: assetImage.asset,
         targetSize: targetSize,
@@ -74,7 +75,7 @@ final class AssetImageManager: MediaLoader {
           switch result {
           case .success(let image):
             self?.imageStatus = .loaded(image)
-            self?.imageCache.add(image, for: request)
+            self?.imageCache.add(image, withIdentifier: cacheKey)
           case .failure(let error):
             self?.imageStatus = .failed(error)
           }

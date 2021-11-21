@@ -18,15 +18,14 @@ final class PHAssetMock: PHAsset {
 
   // Refers to: https://stackoverflow.com/questions/59517411/getting-must-have-a-uuid-if-no-objectid-exception-when-inserting-object-into
 
-  let _localIdentifier: String   = UUID().uuidString
-  let _hash: Int                 = UUID().hashValue
+  let _uuid = UUID()
 
   override var localIdentifier: String {
-    _localIdentifier
+    _uuid.uuidString
   }
 
   override var hash: Int {
-    _hash
+    _uuid.hashValue
   }
 
   override func isEqual(_ object: Any?) -> Bool {
