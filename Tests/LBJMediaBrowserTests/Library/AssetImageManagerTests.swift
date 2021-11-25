@@ -1,8 +1,11 @@
+import Photos
 import XCTest
 @testable import LBJMediaBrowser
-import Photos
+import AlamofireImage
 
 final class AssetImageManagerTests: BaseTestCase {
+
+  private let mockAssetImage = MediaPHAssetImage(asset: PHAssetMock(id: 1, assetType: .image))
 
   private var uiImage: UIImage!
   private var manager: AssetImageManager!
@@ -21,25 +24,22 @@ final class AssetImageManagerTests: BaseTestCase {
     manager = AssetImageManager(assetImage: nil)
     XCTAssertNil(manager.assetImage)
 
-    let assetImage = MediaPHAssetImage(asset: PHAssetMock(id: 1, assetType: .image))
-    manager.setAssetImage(assetImage, targetType: .thumbnail)
+    manager.setAssetImage(mockAssetImage, targetType: .thumbnail)
 
-    XCTAssertEqual(manager.assetImage, assetImage)
+    XCTAssertEqual(manager.assetImage, mockAssetImage)
   }
 
   func test_setAssetImage_ignoredDuplicatedLoadedAssetImage() {
-    let assetImage = MediaPHAssetImage(asset: PHAssetMock(id: 1, assetType: .image))
-
-    prepare_startRequestImage(assetImage: assetImage, uiImage: uiImage)
+    prepare_startRequestImage(assetImage: mockAssetImage, uiImage: uiImage)
     manager.startRequestImage()
 
     wait(interval: 1.1) {
       // The first request completed, `requestId` is nil
       XCTAssertNil(self.manager.requestId)
 
-      self.manager.setAssetImage(assetImage, targetType: .thumbnail)
+      self.manager.setAssetImage(self.mockAssetImage, targetType: .thumbnail)
 
-      XCTAssertEqual(self.manager.assetImage, assetImage)
+      XCTAssertEqual(self.manager.assetImage, self.mockAssetImage)
 
       // no new request started, `requestId` is nil
       XCTAssertNil(self.manager.requestId)
@@ -47,10 +47,10 @@ final class AssetImageManagerTests: BaseTestCase {
   }
 
   func test_setAssetImage_startedNewRequest() {
-    prepare_startRequestImage()
+    prepare_startRequestImage(assetImage: mockAssetImage, uiImage: uiImage)
     manager.startRequestImage()
 
-    wait(interval: 1.1) {
+    wait(interval: 3) {
       // The first request completed, `requestId` is nil
       XCTAssertNil(self.manager.requestId)
 
@@ -59,7 +59,7 @@ final class AssetImageManagerTests: BaseTestCase {
 
       XCTAssertEqual(self.manager.assetImage, assetImage)
 
-      // new request started, `requestId` is `assetImage.id`
+      // new request started, `requestId` is `assetImage.asset.id`
       XCTAssertEqual(self.manager.requestId, 2)
     }
   }
@@ -117,22 +117,21 @@ final class AssetImageManagerTests: BaseTestCase {
     wait(interval: 1.1) {
       XCTAssertEqual(self.manager.imageStatus, .loaded(self.uiImage))
       XCTAssertEqual(
-        self.manager.imageCache.image(for: .init(asset: mockAsset, targetSize: targetSize, contentMode: contentMode)),
+        self.manager.imageCache.image(withIdentifier: assetImage.cacheKey(for: .full)),
         self.uiImage
       )
     }
   }
 
   func test_startRequestImage_useCachedImage() {
-    let imageCache = AutoPurgingPHAssetImageCache()
-    let assetRequest = PHAssetImageRequest.template
+    let imageCache = AutoPurgingImageCache()
     let assetImage = MediaPHAssetImage(
-      asset: assetRequest.asset,
-      targetSize: assetRequest.targetSize,
-      contentMode: assetRequest.contentMode
+      asset: PHAssetMock(id: 1, assetType: .image),
+      targetSize: .init(width: 100, height: 100),
+      contentMode: .aspectFill
     )
 
-    imageCache.add(uiImage, for: assetRequest)
+    imageCache.add(uiImage, withIdentifier: assetImage.cacheKey(for: .full))
     manager = AssetImageManager(assetImage: assetImage, imageCache: imageCache)
 
     manager.startRequestImage(targetType: .full)

@@ -68,3 +68,12 @@ extension MediaPHAssetImage {
     public static let thumbnailTargetSize = CGSize(width: 160, height: 160)
   }
 }
+
+// MARK: - Cache Key
+extension MediaPHAssetImage {
+  func cacheKey(for targetType: AssetImageRequestTargetType) -> String {
+    let targetSize = targetType.isThumbnail ? thumbnailTargetSize : targetSize
+    let contentMode = targetType.isThumbnail ? thumbnailContentMode : contentMode
+    return "\(asset.localIdentifier)-\(targetSize)-\(contentMode.stringRepresentation)"
+  }
+}
