@@ -1,14 +1,29 @@
 import Photos
 import UIKit
+import AlamofireImage
 
 final class AssetVideoManager: MediaLoader {
 
-  private let assetVideo: MediaPHAssetVideo
-  private let manager: PHImageManagerType
+  private(set) var assetVideo: MediaPHAssetVideo?
 
-  init(assetVideo: MediaPHAssetVideo, manager: PHImageManagerType = PHImageManager()) {
+  private let manager: PHImageManagerType
+  private let thumbnailGenerator: ThumbnailGeneratorType
+
+  let imageCache: AutoPurgingImageCache
+  let urlCache: LBJURLCache
+
+  init(
+    assetVideo: MediaPHAssetVideo? = nil,
+    manager: PHImageManagerType = PHImageManager(),
+    thumbnailGenerator: ThumbnailGeneratorType = ThumbnailGenerator(),
+    imageCache: AutoPurgingImageCache = .shared,
+    urlCache: LBJURLCache = .shared
+  ) {
     self.assetVideo = assetVideo
     self.manager = manager
+    self.thumbnailGenerator = thumbnailGenerator
+    self.imageCache = imageCache
+    self.urlCache = urlCache
   }
 
   @Published
@@ -21,8 +36,24 @@ final class AssetVideoManager: MediaLoader {
     return DispatchQueue(label: name)
   }()
 
+  func setAssetVideo(_ assetVideo: MediaPHAssetVideo) {
+    if self.assetVideo != assetVideo {
+      self.assetVideo = assetVideo
+      cancelRequest()
+      startRequestVideoUrl()
+    } else if videoStatus.isLoaded == false {
+      startRequestVideoUrl()
+    }
+  }
+
   func startRequestVideoUrl() {
-    guard requestId == nil else {
+    guard requestId == nil, let assetVideo = assetVideo else {
+      return
+    }
+
+    if let cachedUrl = urlCache.url(withIdentifier: assetVideo.cacheKey),
+       let cachedImage = imageCache.image(withIdentifier: assetVideo.cacheKey) {
+      videoStatus = .loaded(previewImage: cachedImage, videoUrl: cachedUrl)
       return
     }
 
@@ -36,23 +67,31 @@ final class AssetVideoManager: MediaLoader {
       }
 
       self.requestId = self.manager.requestAVAsset(
-        forVideo: self.assetVideo.asset,
+        forVideo: assetVideo.asset,
         options: options
       ) { [weak self] result in
 
-        self?.requestId = nil
+        guard let self = self else {
+          return
+        }
+
+        self.requestId = nil
 
         var previewImage: UIImage?
         if case let .success(url) = result {
-          previewImage = generateThumbnailForPHAsset(with: url)
+          previewImage = self.thumbnailGenerator.thumbnail(for: url)
         }
 
         DispatchQueue.main.async {
           switch result {
           case .success(let url):
-            self?.videoStatus = .loaded(previewImage: previewImage, videoUrl: url)
+            self.videoStatus = .loaded(previewImage: previewImage, videoUrl: url)
+            if let previewImage = previewImage {
+              self.urlCache.add(url, withIdentifier: assetVideo.cacheKey)
+              self.imageCache.add(previewImage, withIdentifier: assetVideo.cacheKey)
+            }
           case .failure(let error):
-            self?.videoStatus = .failed(error)
+            self.videoStatus = .failed(error)
           }
         }
       }

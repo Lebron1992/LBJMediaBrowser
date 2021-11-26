@@ -3,7 +3,7 @@ import SwiftUI
 struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var videoManager: AssetVideoManager
+  private var videoManager = AssetVideoManager()
 
   private let assetVideo: MediaPHAssetVideo
   private let placeholder: (MediaType) -> Placeholder
@@ -16,11 +16,11 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
-    videoManager = AssetVideoManager(assetVideo: assetVideo)
     self.assetVideo = assetVideo
     self.placeholder = placeholder
     self.failure = failure
     self.content = content
+    self.videoManager.setAssetVideo(assetVideo)
   }
 
   var body: some View {

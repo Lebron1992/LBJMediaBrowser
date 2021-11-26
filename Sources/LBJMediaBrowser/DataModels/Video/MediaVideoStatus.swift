@@ -19,6 +19,17 @@ public enum MediaVideoStatus {
   case failed(Error)
 }
 
+extension MediaVideoStatus {
+  var isLoaded: Bool {
+    switch self {
+    case .loaded:
+      return true
+    default:
+      return false
+    }
+  }
+}
+
 extension MediaVideoStatus: Equatable {
   public static func == (lhs: MediaVideoStatus, rhs: MediaVideoStatus) -> Bool {
     switch (lhs, rhs) {
