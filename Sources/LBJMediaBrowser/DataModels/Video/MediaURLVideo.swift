@@ -2,9 +2,7 @@ import UIKit
 
 /// 代表视频格式是 `URL` 的视频类型。
 /// A video type with a `URL` object.
-open class MediaURLVideo: MediaVideoType {
-
-  public let id = UUID().uuidString
+open class MediaURLVideo: MediaVideo {
 
   /// 视频路径。
   /// The url of the video.

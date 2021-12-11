@@ -12,8 +12,8 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 
   var autoPlayVideoInPaging = false
 
-  private let medias: [MediaType]
-  private let placeholder: (MediaType) -> Placeholder
+  private let medias: [Media]
+  private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
@@ -26,8 +26,8 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -60,12 +60,12 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 // MARK: - Subviews
 private extension LBJGridMediaBrowser {
   @ViewBuilder
-  func item(for media: MediaType) -> some View {
+  func item(for media: Media) -> some View {
     Group {
       switch media {
-      case let image as MediaImageType:
+      case let image as MediaImage:
         imageView(for: image)
-      case let video as MediaVideoType:
+      case let video as MediaVideo:
         videoView(for: video)
       default:
         EmptyView()
@@ -77,7 +77,7 @@ private extension LBJGridMediaBrowser {
   }
 
   @ViewBuilder
-  func imageView(for image: MediaImageType) -> some View {
+  func imageView(for image: MediaImage) -> some View {
     Group {
       switch image {
       case let uiImage as MediaUIImage:
@@ -112,7 +112,7 @@ private extension LBJGridMediaBrowser {
   }
 
   @ViewBuilder
-  func videoView(for video: MediaVideoType) -> some View {
+  func videoView(for video: MediaVideo) -> some View {
     Group {
       switch video {
       case let urlVideo as MediaURLVideo:
@@ -156,7 +156,7 @@ enum LBJGridMediaBrowserConstant {
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
     let mixed = [MediaUIImage.templates, MediaURLImage.templates, MediaURLVideo.templates]
-      .compactMap { $0 as? [MediaType] }
+      .compactMap { $0 as? [Media] }
       .reduce([], +)
     LBJGridMediaBrowser(medias: mixed)
   }

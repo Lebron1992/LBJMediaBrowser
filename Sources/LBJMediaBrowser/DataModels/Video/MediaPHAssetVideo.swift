@@ -2,9 +2,7 @@ import Photos
 
 /// 代表视频格式是 `PHAsset` 的视频类型。
 /// A video type with a `PHAsset` object whose `mediaType` is `video`.
-open class MediaPHAssetVideo: MediaVideoType {
-
-  public let id = UUID().uuidString
+open class MediaPHAssetVideo: MediaVideo {
 
   /// `mediaType` 是 `video` 的 `PHAsset` 对象。
   /// A  `PHAsset` object whose `mediaType` is `video`.

@@ -2,9 +2,7 @@ import UIKit
 
 /// 图片格式是 `UIImage` 的图片类型。
 /// An image type with a `UIImage` object.
-open class MediaUIImage: MediaImageType {
-
-  public let id = UUID().uuidString
+open class MediaUIImage: MediaImage {
 
   /// `UIImage` 对象。
   /// an `UIImage` object.

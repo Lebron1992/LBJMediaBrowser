@@ -6,13 +6,13 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
   private var videoManager = AssetVideoManager()
 
   private let assetVideo: MediaPHAssetVideo
-  private let placeholder: (MediaType) -> Placeholder
+  private let placeholder: (Media) -> Placeholder
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     assetVideo: MediaPHAssetVideo,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {

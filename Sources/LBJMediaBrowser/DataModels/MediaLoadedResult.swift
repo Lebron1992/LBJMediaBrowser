@@ -6,14 +6,14 @@ public enum MediaLoadedResult {
 
   /// 图片成功加载完成的结果。
   /// The successfully loaded result of an image.
-  /// - image: 图片类型。An image of `MediaImageType`.
+  /// - image: 图片类型。An image of `MediaImage`.
   /// - uiImage: 加载完成后的图片。A successfully loaded image.
-  case image(image: MediaImageType, uiImage: UIImage)
+  case image(image: MediaImage, uiImage: UIImage)
 
   /// 视频成功加载完成的结果。
   /// The successfully loaded result of a video.
-  /// - video: 视频类型。A video of `MediaVideoType`.
+  /// - video: 视频类型。A video of `MediaVideo`.
   /// - previewImage: 加载完成后的预览图。A successfully loaded preview image of the video.
   /// - videoUrl: 加载完成后的视频路径。A successfully loaded url of the video.
-  case video(video: MediaVideoType, previewImage: UIImage?, videoUrl: URL)
+  case video(video: MediaVideo, previewImage: UIImage?, videoUrl: URL)
 }

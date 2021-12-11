@@ -17,17 +17,17 @@ public final class LBJPagingBrowser: ObservableObject {
   /// 正在播放的视频，如果当前浏览的是视频，返回当前视频，否则返回 `nil`。
   /// The playing video. If the current page displaying a video, return the video, nil otherwise.
   @Published
-  public private(set) var playingVideo: MediaVideoType?
+  public private(set) var playingVideo: MediaVideo?
 
   /// 浏览器中所有的媒体。
   /// The medias in the browser.
-  public private(set) var medias: [MediaType]
+  public private(set) var medias: [Media]
 
   /// 创建 LBJPagingBrowser 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - currentPage: 当前页的索引。The index of the current page.
-  public init(medias: [MediaType], currentPage: Int = 0) {
+  public init(medias: [Media], currentPage: Int = 0) {
     self.medias = medias
     self.currentPage = validatedPage(currentPage)
   }
@@ -45,7 +45,7 @@ extension LBJPagingBrowser {
       return
     }
 
-    playingVideo = media(at: page) as? MediaVideoType
+    playingVideo = media(at: page) as? MediaVideo
 
     if animated {
       withAnimation {
@@ -60,7 +60,7 @@ extension LBJPagingBrowser {
 // MARK: - Helper Methods
 extension LBJPagingBrowser {
 
-  func media(at page: Int) -> MediaType? {
+  func media(at page: Int) -> Media? {
     guard page >= 0 && page < medias.count else {
       return nil
     }

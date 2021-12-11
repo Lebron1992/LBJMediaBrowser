@@ -8,7 +8,7 @@ extension LBJGridMediaBrowser where Placeholder == MediaPlaceholderView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -31,8 +31,8 @@ extension LBJGridMediaBrowser where Progress == LoadingProgressView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -53,8 +53,8 @@ extension LBJGridMediaBrowser where Failure == GridMediaErrorView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -75,8 +75,8 @@ extension LBJGridMediaBrowser where Content == GridMediaLoadedResultView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -99,7 +99,7 @@ Progress == LoadingProgressView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -122,7 +122,7 @@ Failure == GridMediaErrorView {
   ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -145,7 +145,7 @@ Content == GridMediaLoadedResultView {
   ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -168,8 +168,8 @@ Failure == GridMediaErrorView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -191,8 +191,8 @@ Content == GridMediaLoadedResultView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
@@ -214,8 +214,8 @@ Content == GridMediaLoadedResultView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
@@ -237,7 +237,7 @@ Failure == GridMediaErrorView {
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -259,7 +259,7 @@ Content == GridMediaLoadedResultView {
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(s
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
@@ -281,7 +281,7 @@ Content == GridMediaLoadedResultView {
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   public init(
-    medias: [MediaType],
+    medias: [Media],
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
@@ -303,8 +303,8 @@ Content == GridMediaLoadedResultView {
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder
   ) {
     self.init(
       medias: medias,
@@ -324,7 +324,7 @@ Content == GridMediaLoadedResultView {
   /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
   /// - Parameters:
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
-  public init(medias: [MediaType]) {
+  public init(medias: [Media]) {
     self.init(
       medias: medias,
       placeholder: { _ in MediaPlaceholderView() },

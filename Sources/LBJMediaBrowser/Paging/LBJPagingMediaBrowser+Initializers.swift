@@ -32,7 +32,7 @@ extension LBJPagingMediaBrowser where Progress == PagingLoadingProgressView {
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -55,7 +55,7 @@ extension LBJPagingMediaBrowser where Failure == PagingMediaErrorView {
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
@@ -78,7 +78,7 @@ extension LBJPagingMediaBrowser where Content == PagingMediaLoadedResultView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
@@ -171,7 +171,7 @@ Failure == PagingMediaErrorView {
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -194,7 +194,7 @@ Content == PagingMediaLoadedResultView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder failure: @escaping (Error) -> Failure
   ) {
     self.init(
@@ -217,7 +217,7 @@ Content == PagingMediaLoadedResultView {
   ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress
   ) {
     self.init(
@@ -305,7 +305,7 @@ Content == PagingMediaLoadedResultView {
   ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder
   ) {
     self.init(
       browser: browser,

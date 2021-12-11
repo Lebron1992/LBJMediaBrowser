@@ -7,7 +7,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
 
   private let assetImage: MediaPHAssetImage
   private let targetType: AssetImageRequestTargetType
-  private let placeholder: (MediaType) -> Placeholder
+  private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
@@ -15,7 +15,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
   init(
     assetImage: MediaPHAssetImage,
     targetType: AssetImageRequestTargetType,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content

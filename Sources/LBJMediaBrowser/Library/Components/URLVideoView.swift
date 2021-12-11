@@ -3,12 +3,12 @@ import SwiftUI
 struct URLVideoView<Placeholder: View, Content: View>: View {
 
   private let urlVideo: MediaURLVideo
-  private let placeholder: (MediaType) -> Placeholder
+  private let placeholder: (Media) -> Placeholder
   private let content: (MediaLoadedResult) -> Content
 
   init(
     urlVideo: MediaURLVideo,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.urlVideo = urlVideo

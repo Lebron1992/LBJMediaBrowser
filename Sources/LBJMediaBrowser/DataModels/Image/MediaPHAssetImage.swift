@@ -3,9 +3,7 @@ import UIKit
 
 /// 图片格式是 `PHAsset` 的图片类型。
 /// An image type with a `PHAsset` object whose `mediaType` is `image`.
-open class MediaPHAssetImage: MediaImageType {
-  
-  public let id = UUID().uuidString
+open class MediaPHAssetImage: MediaImage {
 
   /// `mediaType` 是 `image` 的 `PHAsset` 对象。
   /// A `PHAsset` object whose `mediaType` is `image`.

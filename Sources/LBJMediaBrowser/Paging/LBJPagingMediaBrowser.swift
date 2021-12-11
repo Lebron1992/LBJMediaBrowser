@@ -4,12 +4,12 @@ import SwiftUI
 /// An object that browse the medias in paging mode.
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
-  var onTapMedia: (MediaType) -> Void = { _ in }
+  var onTapMedia: (Media) -> Void = { _ in }
 
   @ObservedObject
   private var browser: LBJPagingBrowser
 
-  private let placeholder: (MediaType) -> Placeholder
+  private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
@@ -23,7 +23,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -42,9 +42,9 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
           let media = browser.medias[index]
           Group {
             switch media {
-            case let image as MediaImageType:
+            case let image as MediaImage:
               imageView(for: image)
-            case let video as MediaVideoType:
+            case let video as MediaVideo:
               videoView(for: video)
             default:
               EmptyView()
@@ -74,7 +74,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 private extension LBJPagingMediaBrowser {
 
   @ViewBuilder
-  func imageView(for image: MediaImageType) -> some View {
+  func imageView(for image: MediaImage) -> some View {
     switch image {
     case let uiImage as MediaUIImage:
       UIImageView(image: uiImage, content: content)
@@ -104,7 +104,7 @@ private extension LBJPagingMediaBrowser {
   }
 
   @ViewBuilder
-  func videoView(for video: MediaVideoType) -> some View {
+  func videoView(for video: MediaVideo) -> some View {
     switch video {
     case let urlVideo as MediaURLVideo:
       URLVideoView(
@@ -131,7 +131,7 @@ private extension LBJPagingMediaBrowser {
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
     let mixed = [MediaUIImage.templates, MediaURLVideo.templates, MediaURLImage.templates]
-      .compactMap { $0 as? [MediaType] }
+      .compactMap { $0 as? [Media] }
       .reduce([], +)
     let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)
     browser.autoPlayVideo = true

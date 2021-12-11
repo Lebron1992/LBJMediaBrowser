@@ -6,14 +6,14 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   private var imageDownloader = URLImageDownloader()
 
   private let urlImage: MediaURLImage
-  private let placeholder: (MediaType) -> Placeholder
+  private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (Error) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     urlImage: MediaURLImage,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content

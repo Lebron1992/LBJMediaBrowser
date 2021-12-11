@@ -46,7 +46,7 @@ https://github.com/Lebron1992/LBJMediaBrowser
 
 ### Create Media Object
 
-`LBJMediaBrowser` defines the corresponding type for each type of image and video. They are all `class` types, which are convenient for customizing your own types, and implement the `MediaType` protocol.
+`LBJMediaBrowser` defines the corresponding type for each type of image and video. They are all `class` type and inherit from `Media`, which are convenient for customizing your own types.
 
 **Image**
 
@@ -114,8 +114,8 @@ LBJGridMediaBrowser(medias: medias)
 ```swift
 public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -125,7 +125,7 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 
 The generic types represent the display contents of the four stages:
 
--  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `MediaType`. The display content can be defined for image and video respectively according to this parameter.
+-  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
 -  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
 -  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
@@ -183,7 +183,7 @@ LBJPagingMediaBrowser(browser: browser)
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -193,7 +193,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 
 The generic types represent the display contents of the four stages:
 
--  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `MediaType`. The display content can be defined for image and video respectively according to this parameter.
+-  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
 -  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
 -  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.

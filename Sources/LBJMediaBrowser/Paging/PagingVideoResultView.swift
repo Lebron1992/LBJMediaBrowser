@@ -3,7 +3,7 @@ import SwiftUI
 
 struct PagingVideoResultView: View {
 
-  let video: MediaVideoType
+  let video: MediaVideo
   let previewImage: UIImage?
   let videoUrl: URL
 

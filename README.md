@@ -46,7 +46,7 @@ https://github.com/Lebron1992/LBJMediaBrowser
 
 ### 创建媒体对象
 
-`LBJMediaBrowser` 为每一种图片和视频都定义了对应的类型。它们都是 `class` 类型，方便用于自定义自己的类型，并且实现了 `MediaType` 协议。
+`LBJMediaBrowser` 为每一种图片和视频都定义了对应的类型。它们都是继承自 `Media` 的 `class` 类型，方便用于自定义自己的类型。
 
 **图片**
 
@@ -114,8 +114,8 @@ LBJGridMediaBrowser(medias: medias)
 ```swift
 public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
   public init(
-    medias: [MediaType],
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    medias: [Media],
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -125,7 +125,7 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 
 其中的泛型类型分别代表媒体的四个加载阶段的显示内容：
 
--  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `MediaType` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+-  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 -  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
 -  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
@@ -183,7 +183,7 @@ LBJPagingMediaBrowser(browser: browser)
 public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
@@ -193,7 +193,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 
 其中的泛型类型分别代表媒体的四个加载阶段的显示内容：
 
--  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `MediaType` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+-  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 -  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
 -  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
