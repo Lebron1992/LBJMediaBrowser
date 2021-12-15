@@ -2,8 +2,7 @@ import SwiftUI
 
 struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
-  @ObservedObject
-  private var imageDownloader = URLImageDownloader()
+  private let imageLoader = URLImageLoader()
 
   private let urlImage: MediaURLImage
   private let placeholder: (Media) -> Placeholder
@@ -23,14 +22,19 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
     self.progress = progress
     self.failure = failure
     self.content = content
+  }
 
-    let url = urlImage.thumbnailUrl ?? urlImage.imageUrl
-    imageDownloader.setImageUrl(url)
+  @State
+  private var status: MediaImageStatus = .idle
+
+  @MainActor
+  private func updateStatus(_ status: MediaImageStatus) {
+    self.status = status
   }
 
   var body: some View {
     ZStack {
-      switch imageDownloader.imageStatus {
+      switch status {
       case .idle:
         placeholder(urlImage)
 
@@ -45,15 +49,36 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
         content(.image(image: urlImage, uiImage: uiImage))
 
       case .failed(let error):
+        // TODO: handle retry
         failure(error)
-          .environmentObject(imageDownloader as MediaLoader)
       }
     }
-    .onAppear {
-        imageDownloader.startDownload()
-    }
     .onDisappear {
-      imageDownloader.cancelDownload()
+      updateStatus(.idle)
+      imageLoader.cancelLoading(for: urlImage)
+    }
+    .task(loadImage)
+  }
+
+  @Sendable
+  func loadImage() {
+    imageLoader.setUp()
+
+    Task {
+      do {
+        try await imageLoader.loadImage(for: urlImage)
+      } catch {
+        await updateStatus(.failed(error))
+      }
+    }
+
+    Task {
+      guard let status = imageLoader.status else {
+        return
+      }
+      for await s in status {
+        await updateStatus(s)
+      }
     }
   }
 }

@@ -11,8 +11,9 @@ final class ImageDownloaderMock: ImageDownloaderType {
   private let progressInterval: TimeInterval
   private let completionInterval: TimeInterval
 
-  private(set) var startedDownloads: [URL : Any] = [:]
-  private var cancelledDownloads: [URL] = []
+  let imageCache: ImageRequestCache? = AutoPurgingImageCache()
+  private(set) var startedDownloads: [String : Any] = [:]
+  private var cancelledDownloads: [String] = []
 
   init(
     imageDownloadProgress: Float? = nil,
@@ -28,11 +29,15 @@ final class ImageDownloaderMock: ImageDownloaderType {
     self.completionInterval = completionInterval
   }
 
-  func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -43,14 +48,25 @@ final class ImageDownloaderMock: ImageDownloaderType {
       }
     }
 
-    return urlRequest.urlRequest?.url?.absoluteString
+    let urlString = urlRequest.urlRequest?.url?.absoluteString
+
+    if let urlString = urlString {
+      startedDownloads[urlString] = urlString
+    }
+
+    return urlString
   }
 
-  func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    progress: ((Float) -> Void)?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -61,7 +77,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -72,10 +88,17 @@ final class ImageDownloaderMock: ImageDownloaderType {
       }
     }
 
-    return urlRequest.urlRequest?.url?.absoluteString
+    let urlString = urlRequest.urlRequest?.url?.absoluteString
+
+    if let urlString = urlString {
+      startedDownloads[urlString] = urlString
+    }
+
+    return urlString
   }
 
-  func cancelRequest(for url: URL) {
-    cancelledDownloads.append(url)
+  func cancelRequest(forKey key: String) {
+    cancelledDownloads.append(key)
+    startedDownloads.removeValue(forKey: key)
   }
 }

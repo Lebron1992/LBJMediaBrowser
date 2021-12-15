@@ -4,59 +4,63 @@ import Alamofire
 import AlamofireImage
 
 final class CustomImageDownloader: ImageDownloader {
-  static let shared = CustomImageDownloader()
+  static let shared = CustomImageDownloader(imageCache: AutoPurgingImageCache.shared)
 
-  var startedDownloads: [URL : Any] = [:]
+  var startedDownloads: [String : Any] = [:]
 }
 
 extension CustomImageDownloader: ImageDownloaderType {
 
-  public func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
-
-    let receipt = download(urlRequest, cacheKey: nil, progress: nil, completion: { response in
-      switch response.result {
+  public func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
+    download(urlRequest, cacheKey: cacheKey, progress: nil) { result in
+      switch result {
       case .success(let image):
         completion(.success(image))
       case .failure(let error):
         completion(.failure(error))
       }
-    })
-
-    if let url = urlRequest.urlRequest?.url {
-      startedDownloads[url] = receipt
     }
-
-    return receipt?.receiptID
   }
 
-  public func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  public func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    progress: ((Float) -> Void)?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
+    let cacheKey = urlRequest.urlRequest?.url?.absoluteString ?? ""
 
     let receipt = download(
       urlRequest,
-      cacheKey: nil,
+      cacheKey: cacheKey,
       progress: { progress?(Float($0.completedUnitCount) / Float($0.totalUnitCount)) },
-      completion: { response in
+      completion: { [weak self] response in
+
         switch response.result {
         case .success(let image):
           completion(.success(image))
         case .failure(let error):
           completion(.failure(error))
         }
+        
+        self?.startedDownloads.removeValue(forKey: cacheKey)
       }
     )
 
-    if let url = urlRequest.urlRequest?.url {
-      startedDownloads[url] = receipt
-    }
+    startedDownloads[cacheKey] = receipt
 
     return receipt?.receiptID
   }
 
-  func cancelRequest(for url: URL) {
-    guard let receipt = startedDownloads[url] as? RequestReceipt else {
+  func cancelRequest(forKey key: String) {
+    guard let receipt = startedDownloads[key] as? RequestReceipt else {
       return
     }
-    startedDownloads.removeValue(forKey: url)
+    startedDownloads.removeValue(forKey: key)
     cancelRequest(with: receipt)
   }
 }

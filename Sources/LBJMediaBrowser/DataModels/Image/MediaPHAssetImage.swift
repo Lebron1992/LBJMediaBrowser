@@ -67,11 +67,20 @@ extension MediaPHAssetImage {
   }
 }
 
-// MARK: - Cache Key
+// MARK: - Heloper Methods
 extension MediaPHAssetImage {
-  func cacheKey(for targetType: AssetImageRequestTargetType) -> String {
-    let targetSize = targetType.isThumbnail ? thumbnailTargetSize : targetSize
-    let contentMode = targetType.isThumbnail ? thumbnailContentMode : contentMode
-    return "\(asset.localIdentifier)-\(targetSize)-\(contentMode.stringRepresentation)"
+
+  func cacheKey(for targetSize: ImageTargetSize) -> String {
+    let size = self.targetSize(for: targetSize)
+    let contentMode = contentMode(for: targetSize)
+    return "\(asset.localIdentifier)-\(size)-\(contentMode.stringRepresentation)"
+  }
+
+  func targetSize(for targetSize: ImageTargetSize) -> CGSize {
+    targetSize.isThumbnail ? thumbnailTargetSize : self.targetSize
+  }
+
+  func contentMode(for targetSize: ImageTargetSize) -> PHImageContentMode {
+    targetSize.isThumbnail ? thumbnailContentMode : contentMode
   }
 }

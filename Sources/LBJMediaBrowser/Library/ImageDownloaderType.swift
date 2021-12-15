@@ -3,11 +3,24 @@ import Alamofire
 import AlamofireImage
 
 protocol ImageDownloaderType {
-  var startedDownloads: [URL: Any] { get }
 
-  func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String?
+  var imageCache: ImageRequestCache? { get }
 
-  func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String?
+  var startedDownloads: [String: Any] { get }
 
-  func cancelRequest(for url: URL)
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String?
+
+  @discardableResult
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String?,
+    progress: ((Float) -> Void)?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String?
+
+  func cancelRequest(forKey key: String)
 }

@@ -56,7 +56,6 @@ struct PagingMediaErrorView_Previews: PreviewProvider {
     PagingMediaErrorView(error: NSError.unknownError)
       .padding()
       .background(Color.black)
-      .environmentObject(URLImageDownloader() as MediaLoader)
   }
 }
 #endif
