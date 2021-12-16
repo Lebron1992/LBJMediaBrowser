@@ -13,7 +13,7 @@ final class URLImageLoader {
   }
   private var statusContinuation: AsyncStream<MediaImageStatus>.Continuation?
 
-  private(set) var loadingStatus: ImageLoadingStatus?
+  private(set) var downloadTask: ImageStatusTask?
 
   init(downloader: ImageDownloaderType = CustomImageDownloader.shared) {
     self.downloader = downloader
@@ -33,28 +33,30 @@ final class URLImageLoader {
   func loadImage(
     for urlImage: MediaURLImage,
     targetSize: ImageTargetSize = .larger
-  ) async throws {
+  ) async {
     let cacheKey = urlImage.cacheKey(for: targetSize)
     let imageUrl = urlImage.imageUrl(for: targetSize)
 
     // image did cache
     if let cachedImage = downloader.imageCache?.image(withIdentifier: cacheKey) {
       statusValue = .loaded(cachedImage)
+      return
     }
 
     // in progress or failed
-    if let cachedStatus = loadingStatus {
-      switch cachedStatus {
-      case .inProgress(let task):
-        let uiImage = try await task.value
-        statusValue = .loaded(uiImage)
-      case .failed(let error):
+    if let task = downloadTask {
+      do {
+        let status = try await task.value
+        statusValue = status
+      } catch {
         statusValue = .failed(error)
       }
+      downloadTask = nil
+      return
     }
 
     // create task
-    let request: Task<UIImage, Error> = Task.detached { [weak self] in
+    downloadTask = Task.detached { [weak self] in
       return try await withCheckedThrowingContinuation { continuation in
 
         self?.downloader.download(
@@ -64,28 +66,28 @@ final class URLImageLoader {
             self?.statusValue = .loading(progress)
           },
           completion: { result in
-
             switch result {
             case .success(let image):
-              continuation.resume(returning: image)
+              continuation.resume(returning: .loaded(image))
             case .failure(let error):
-              continuation.resume(throwing: error)
+              continuation.resume(returning: .failed(error))
             }
           }
         )
       }
     }
 
-    loadingStatus = .inProgress(request)
-
     do {
-      let result = try await request.value
-      downloader.imageCache?.add(result, withIdentifier: cacheKey)
-      statusValue = .loaded(result)
+      let status = try await downloadTask!.value
+      if case let .loaded(image) = status {
+        downloader.imageCache?.add(image, withIdentifier: cacheKey)
+      }
+      statusValue = status
     } catch {
-      loadingStatus = .failed(error)
       statusValue = .failed(error)
     }
+
+    downloadTask = nil
   }
   
   func cancelLoading(
@@ -94,7 +96,7 @@ final class URLImageLoader {
   ) {
     let cacheKey = urlImage.cacheKey(for: targetSize)
     downloader.cancelRequest(forKey: cacheKey)
-    cancelTaskIfNeeded()
+    cancelTask()
   }
 
   func resetStatus() {
@@ -104,14 +106,8 @@ final class URLImageLoader {
     status = nil
   }
 
-  private func cancelTaskIfNeeded() {
-    guard
-      let cachedStatus = loadingStatus,
-      case let .inProgress(task) = cachedStatus
-    else {
-      return
-    }
-    task.cancel()
-    loadingStatus = nil
+  private func cancelTask() {
+    downloadTask?.cancel()
+    downloadTask = nil
   }
 }

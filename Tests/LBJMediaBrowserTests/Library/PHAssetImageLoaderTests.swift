@@ -20,32 +20,39 @@ final class PHAssetImageLoaderTests: BaseTestCase {
       .removeImage(withIdentifier: mockAssetImage.cacheKey(for: .thumbnail))
    }
 
-  func test_loadImage_gotImage() async throws {
+  func test_imageStatus_gotImage() async {
     createImageLoader(uiImage: uiImage)
 
-    let result = try await imageLoader.uiImage(for: mockAssetImage)
-    XCTAssertEqual(result, uiImage)
+    let result = await imageLoader.imageStatus(for: mockAssetImage)
+    XCTAssertEqual(result, .loaded(uiImage))
   }
 
-  func test_loadImage_gotCachedImage() async throws {
+  func test_imageStatus_imageDidCache() async {
+    createImageLoader(uiImage: uiImage)
+
+    let _ = await imageLoader.imageStatus(for: mockAssetImage)
+    XCTAssertEqual(
+      imageLoader.imageCache.image(withIdentifier: mockAssetImage.cacheKey(for: .thumbnail)),
+      uiImage
+    )
+  }
+
+  func test_imageStatus_gotCachedImage() async throws {
     createImageLoader(uiImage: uiImage, useCache: true)
 
     let result = try await TimeoutTask(seconds: 0.1) { [weak self] in
-      try await self!.imageLoader.uiImage(for: self!.mockAssetImage)
+      await self!.imageLoader.imageStatus(for: self!.mockAssetImage)
     }
     .value
 
-    XCTAssertEqual(result, uiImage)
+    XCTAssertEqual(result, .loaded(uiImage))
   }
 
-  func test_loadImage_throwsError() async {
+  func test_imageStatus_failed() async {
     createImageLoader(error: NSError.unknownError)
-
-    do {
-      let _ = try await imageLoader.uiImage(for: mockAssetImage)
-    } catch {
-      XCTAssertEqual(error as NSError, NSError.unknownError)
-    }
+    
+    let result = await imageLoader.imageStatus(for: mockAssetImage)
+    XCTAssertEqual(result, .failed(NSError.unknownError))
   }
 
   func test_cancelLoading_cancelled() async {
@@ -53,17 +60,17 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 
     do {
       let _ = try await TimeoutTask(seconds: 0.5) { [weak self] in
-        try await self!.imageLoader.uiImage(for: self!.mockAssetImage)
+        await self!.imageLoader.imageStatus(for: self!.mockAssetImage)
       }
       .value
     } catch {
       let cacheKey = mockAssetImage.cacheKey(for: .thumbnail)
-      XCTAssertNotNil(imageLoader.loadingStatusCache[cacheKey])
+      XCTAssertNotNil(imageLoader.taskCache[cacheKey])
       XCTAssertNotNil(imageLoader.requestIdCache[cacheKey])
 
       imageLoader.cancelLoading(for: mockAssetImage)
 
-      XCTAssertNil(imageLoader.loadingStatusCache[cacheKey])
+      XCTAssertNil(imageLoader.taskCache[cacheKey])
       XCTAssertNil(imageLoader.requestIdCache[cacheKey])
     }
   }
@@ -72,16 +79,18 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 private extension PHAssetImageLoaderTests {
   func createImageLoader(uiImage: UIImage? = nil, error: Error? = nil, useCache: Bool = false) {
     let mockAsset = mockAssetImage.asset as! PHAssetMock
+    let imageCache = AutoPurgingImageCache()
 
     if useCache, let uiImage = uiImage {
-      AutoPurgingImageCache.shared.add(
+      imageCache.add(
         uiImage,
         withIdentifier: mockAssetImage.cacheKey(for: .thumbnail)
       )
     }
 
     imageLoader = PHAssetImageLoader(
-      manager: PHImageManagerMock(requestImageResults: [mockAsset: uiImage ?? error as Any])
+      manager: PHImageManagerMock(requestImageResults: [mockAsset: uiImage ?? error as Any]),
+      imageCache: imageCache
     )
   }
 }

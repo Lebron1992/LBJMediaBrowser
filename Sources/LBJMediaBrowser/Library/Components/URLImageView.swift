@@ -63,13 +63,9 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   @Sendable
   func loadImage() {
     imageLoader.setUp()
-
+    
     Task {
-      do {
-        try await imageLoader.loadImage(for: urlImage)
-      } catch {
-        await updateStatus(.failed(error))
-      }
+      await imageLoader.loadImage(for: urlImage)
     }
 
     Task {

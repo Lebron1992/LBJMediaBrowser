@@ -6,8 +6,8 @@ final class PHAssetImageLoader {
 
   static let shared = PHAssetImageLoader()
 
-  private let manager: PHImageManagerType
-  private let imageCache: AutoPurgingImageCache
+  let manager: PHImageManagerType
+  let imageCache: AutoPurgingImageCache
 
   init(
     manager: PHImageManagerType = PHImageManager(),
@@ -17,34 +17,38 @@ final class PHAssetImageLoader {
     self.imageCache = imageCache
   }
 
-  private(set) var loadingStatusCache: [String: ImageLoadingStatus] = [:]
+  private(set) var taskCache: [String: ImageStatusTask] = [:]
   private(set) var requestIdCache: [String: PHImageRequestID] = [:]
 
-  func uiImage(
+  func imageStatus(
     for assetImage: MediaPHAssetImage,
     targetSize: ImageTargetSize = .thumbnail
-  ) async throws -> UIImage {
+  ) async -> MediaImageStatus {
 
     let cacheKey = assetImage.cacheKey(for: targetSize)
 
     // image did cache
     if let cachedImage = imageCache.image(withIdentifier: cacheKey) {
-      return cachedImage
+      return .loaded(cachedImage)
     }
 
     // in progress or failed
-    if let cachedStatus = loadingStatusCache[cacheKey] {
-      switch cachedStatus {
-      case .inProgress(let task):
-        return try await task.value
-      case .failed(let error):
-        throw error
+    if let cachedTask = taskCache[cacheKey] {
+      let status: MediaImageStatus
+      do {
+        status = try await cachedTask.value
+      } catch {
+        status = .failed(error)
       }
+      
+      taskCache.removeValue(forKey: cacheKey)
+      
+      return status
     }
 
     // create task
-    let request: Task<UIImage, Error> = Task.detached { [weak self] in
-      return try await withCheckedThrowingContinuation { continuation in
+    let requestTask: ImageStatusTask = Task.detached { [weak self] in
+      return await withCheckedContinuation { continuation in
 
         let options = PHImageRequestOptions()
         options.version = .original
@@ -56,14 +60,14 @@ final class PHAssetImageLoader {
           contentMode: assetImage.contentMode(for: targetSize),
           options: options
         ) { result in
+          self?.requestIdCache.removeValue(forKey: cacheKey)
+          
           switch result {
           case .success(let image):
-            continuation.resume(returning: image)
+            continuation.resume(returning: .loaded(image))
           case .failure(let error):
-            continuation.resume(throwing: error)
+            continuation.resume(returning: .failed(error))
           }
-
-          self?.requestIdCache.removeValue(forKey: cacheKey)
         }
 
         if let requestId = requestId {
@@ -72,16 +76,21 @@ final class PHAssetImageLoader {
       }
     }
 
-    loadingStatusCache[cacheKey] = .inProgress(request)
+    taskCache[cacheKey] = requestTask
 
+    let status: MediaImageStatus
     do {
-      let result = try await request.value
-      imageCache.add(result, withIdentifier: cacheKey)
-      return result
+      status = try await requestTask.value
+      if case let .loaded(image) = status {
+        imageCache.add(image, withIdentifier: cacheKey)
+      }
     } catch {
-      loadingStatusCache[cacheKey] = .failed(error)
-      throw error
+      status = .failed(error)
     }
+    
+    taskCache.removeValue(forKey: cacheKey)
+    
+    return status
   }
 
   func cancelLoading(
@@ -90,10 +99,9 @@ final class PHAssetImageLoader {
   ) {
     let cacheKey = assetImage.cacheKey(for: targetSize)
 
-    if let cachedStatus = loadingStatusCache[cacheKey],
-      case let .inProgress(task) = cachedStatus {
-      task.cancel()
-      loadingStatusCache.removeValue(forKey: cacheKey)
+    if let cachedTask = taskCache[cacheKey] {
+      cachedTask.cancel()
+      taskCache.removeValue(forKey: cacheKey)
     }
 
     if let requestId = requestIdCache[cacheKey] {

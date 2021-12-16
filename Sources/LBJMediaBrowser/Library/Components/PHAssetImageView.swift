@@ -59,12 +59,8 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
       PHAssetImageLoader.shared.cancelLoading(for: assetImage, targetSize: targetSize)
     }
     .task {
-      do {
-        let uiImage = try await PHAssetImageLoader.shared.uiImage(for: assetImage, targetSize: targetSize)
-        updateStatus(.loaded(uiImage))
-      } catch {
-        updateStatus(.failed(error))
-      }
+      let status = await PHAssetImageLoader.shared.imageStatus(for: assetImage, targetSize: targetSize)
+      updateStatus(status)
     }
   }
 }

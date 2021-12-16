@@ -21,7 +21,7 @@ final class URLImageLoaderTests: BaseTestCase {
   func test_loadImage_gotImage() async throws {
     createImageLoader(progress: 0.5, uiImage: uiImage)
     
-    async let loadImage: Void = try imageLoader.loadImage(for: urlImage)
+    async let loadImage: Void = await imageLoader.loadImage(for: urlImage)
     async let statuses = TimeoutTask(seconds: 2.1) { [weak self] in
       await self?.imageLoader.status?
         .prefix(2)
@@ -39,10 +39,24 @@ final class URLImageLoaderTests: BaseTestCase {
     )
   }
 
+  func test_imageStatus_imageDidCache() async throws {
+    createImageLoader(uiImage: uiImage)
+
+    let _ = try await TimeoutTask(seconds: 2.1) { [weak self] in
+      await self?.imageLoader.loadImage(for: self!.urlImage)
+    }
+      .value
+
+    XCTAssertEqual(
+      imageLoader.downloader.imageCache?.image(withIdentifier: urlImage.cacheKey(for: .larger)),
+      uiImage
+    )
+  }
+
   func test_loadImage_gotCachedImage() async throws {
     createImageLoader(uiImage: uiImage, error: nil, useCache: true)
 
-    async let loadImage: Void = try imageLoader.loadImage(for: urlImage)
+    async let loadImage: Void = await imageLoader.loadImage(for: urlImage)
     async let statuses = TimeoutTask(seconds: 0.1) { [weak self] in
       await self?.imageLoader.status?
         .prefix(1)
@@ -63,7 +77,7 @@ final class URLImageLoaderTests: BaseTestCase {
   func test_loadImage_failed() async throws {
     createImageLoader(progress: 0.5, error: NSError.unknownError)
 
-    async let loadImage: Void = try imageLoader.loadImage(for: urlImage)
+    async let loadImage: Void = await imageLoader.loadImage(for: urlImage)
     async let statuses = TimeoutTask(seconds: 2.1) { [weak self] in
       await self?.imageLoader.status?
         .prefix(2)
@@ -86,7 +100,7 @@ final class URLImageLoaderTests: BaseTestCase {
 
     do {
       let _ = try await TimeoutTask(seconds: 0.5) { [weak self] in
-        try await self!.imageLoader.loadImage(for: self!.urlImage)
+        await self!.imageLoader.loadImage(for: self!.urlImage)
       }
       .value
     } catch {
@@ -94,12 +108,12 @@ final class URLImageLoaderTests: BaseTestCase {
       let downloader = imageLoader.downloader as! ImageDownloaderMock
 
       XCTAssertNotNil(downloader.startedDownloads[cacheKey])
-      XCTAssertTrue(imageLoader.loadingStatus!.isInProgress)
+      XCTAssertNotNil(imageLoader.downloadTask)
 
       imageLoader.cancelLoading(for: urlImage)
 
       XCTAssertNil(downloader.startedDownloads[cacheKey])
-      XCTAssertNil(imageLoader.loadingStatus)
+      XCTAssertNil(imageLoader.downloadTask)
     }
   }
 }

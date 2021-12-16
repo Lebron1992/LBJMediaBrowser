@@ -2,9 +2,6 @@ import SwiftUI
 
 struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
-  @ObservedObject
-  private var videoManager = AssetVideoManager()
-
   private let assetVideo: MediaPHAssetVideo
   private let placeholder: (Media) -> Placeholder
   private let failure: (Error) -> Failure
@@ -20,27 +17,41 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
     self.placeholder = placeholder
     self.failure = failure
     self.content = content
-    self.videoManager.setAssetVideo(assetVideo)
+  }
+  
+  @State
+  private var status: MediaVideoStatus = .idle
+
+  @MainActor
+  private func updateStatus(_ status: MediaVideoStatus) {
+    self.status = status
   }
 
   var body: some View {
-    switch videoManager.videoStatus {
-    case .idle:
-      placeholder(assetVideo)
-        .onAppear {
-          videoManager.startRequestVideoUrl()
-        }
+    ZStack {
+      switch status {
+      case .idle:
+        placeholder(assetVideo)
 
-    case .loaded(let previewImage, let videoUrl):
-      content(.video(
-        video: assetVideo,
-        previewImage: previewImage,
-        videoUrl: videoUrl
-      ))
+      case .loaded(let previewImage, let videoUrl):
+        content(.video(
+          video: assetVideo,
+          previewImage: previewImage,
+          videoUrl: videoUrl
+        ))
 
-    case .failed(let error):
-      failure(error)
-        .environmentObject(videoManager as MediaLoader)
+      case .failed(let error):
+        // TODO: handle retry
+        failure(error)
+      }
+    }
+    .onDisappear {
+      updateStatus(.idle)
+      PHAssetVideoLoader.shared.cancelLoading(for: assetVideo)
+    }
+    .task {
+      let status = await PHAssetVideoLoader.shared.videoStatus(for: assetVideo)
+      updateStatus(status)
     }
   }
 }
