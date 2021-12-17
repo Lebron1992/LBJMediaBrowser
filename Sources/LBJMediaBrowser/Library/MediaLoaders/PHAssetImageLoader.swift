@@ -80,15 +80,18 @@ final class PHAssetImageLoader {
 
     let status: MediaImageStatus
     do {
+      print("imageStatus before: \(Thread.current)")
       status = try await requestTask.value
       if case let .loaded(image) = status {
         imageCache.add(image, withIdentifier: cacheKey)
       }
+      print("imageStatus center: \(Thread.current)")
     } catch {
       status = .failed(error)
     }
     
     taskCache.removeValue(forKey: cacheKey)
+    print("imageStatus after: \(Thread.current)")
     
     return status
   }
