@@ -27,22 +27,22 @@ final class AssetImageManager: MediaLoader {
     return DispatchQueue(label: name)
   }()
 
-  func setAssetImage(_ assetImage: MediaPHAssetImage, targetType: AssetImageRequestTargetType) {
+  func setAssetImage(_ assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) {
     if self.assetImage != assetImage {
       self.assetImage = assetImage
       cancelRequest()
-      startRequestImage(targetType: targetType)
+      startRequestImage(targetSize: targetSize)
     } else if (imageStatus.isLoading == false && imageStatus.isLoaded == false) {
-      startRequestImage(targetType: targetType)
+      startRequestImage(targetSize: targetSize)
     }
   }
 
-  func startRequestImage(targetType: AssetImageRequestTargetType = .thumbnail) {
+  func startRequestImage(targetSize: ImageTargetSize = .thumbnail) {
     guard requestId == nil, let assetImage = assetImage else {
       return
     }
 
-    let cacheKey = assetImage.cacheKey(for: targetType)
+    let cacheKey = assetImage.cacheKey(for: targetSize)
     if let cachedImage = imageCache.image(withIdentifier: cacheKey) {
       imageStatus = .loaded(cachedImage)
       return
@@ -59,13 +59,10 @@ final class AssetImageManager: MediaLoader {
         return
       }
 
-      let targetSize = targetType.isThumbnail ? assetImage.thumbnailTargetSize : assetImage.targetSize
-      let contentMode = targetType.isThumbnail ? assetImage.thumbnailContentMode : assetImage.contentMode
-
       self.requestId = self.manager.requestImage(
         for: assetImage.asset,
-        targetSize: targetSize,
-        contentMode: contentMode,
+        targetSize: assetImage.targetSize(for: targetSize),
+        contentMode: assetImage.contentMode(for: targetSize),
         options: options
       ) { [weak self] result in
 

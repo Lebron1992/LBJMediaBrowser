@@ -95,7 +95,7 @@ private extension LBJGridMediaBrowser {
       case let assetImage as MediaPHAssetImage:
         PHAssetImageView(
           assetImage: assetImage,
-          targetType: .thumbnail,
+          targetSize: .thumbnail,
           placeholder: placeholder,
           progress: progress,
           failure: failure,

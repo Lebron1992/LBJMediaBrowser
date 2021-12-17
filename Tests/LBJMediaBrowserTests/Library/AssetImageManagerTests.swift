@@ -24,7 +24,7 @@ final class AssetImageManagerTests: BaseTestCase {
     manager = AssetImageManager(assetImage: nil)
     XCTAssertNil(manager.assetImage)
 
-    manager.setAssetImage(mockAssetImage, targetType: .thumbnail)
+    manager.setAssetImage(mockAssetImage, targetSize: .thumbnail)
 
     XCTAssertEqual(manager.assetImage, mockAssetImage)
   }
@@ -37,7 +37,7 @@ final class AssetImageManagerTests: BaseTestCase {
       // The first request completed, `requestId` is nil
       XCTAssertNil(self.manager.requestId)
 
-      self.manager.setAssetImage(self.mockAssetImage, targetType: .thumbnail)
+      self.manager.setAssetImage(self.mockAssetImage, targetSize: .thumbnail)
 
       XCTAssertEqual(self.manager.assetImage, self.mockAssetImage)
 
@@ -55,7 +55,7 @@ final class AssetImageManagerTests: BaseTestCase {
       XCTAssertNil(self.manager.requestId)
 
       let assetImage = MediaPHAssetImage(asset: PHAssetMock(id: 2, assetType: .image))
-      self.manager.setAssetImage(assetImage, targetType: .thumbnail)
+      self.manager.setAssetImage(assetImage, targetSize: .thumbnail)
 
       XCTAssertEqual(self.manager.assetImage, assetImage)
 
@@ -112,12 +112,12 @@ final class AssetImageManagerTests: BaseTestCase {
 
     prepare_startRequestImage(assetImage: assetImage, uiImage: uiImage)
 
-    manager.startRequestImage(targetType: .full)
+    manager.startRequestImage(targetSize: .larger)
 
     wait(interval: 1.1) {
       XCTAssertEqual(self.manager.imageStatus, .loaded(self.uiImage))
       XCTAssertEqual(
-        self.manager.imageCache.image(withIdentifier: assetImage.cacheKey(for: .full)),
+        self.manager.imageCache.image(withIdentifier: assetImage.cacheKey(for: .larger)),
         self.uiImage
       )
     }
@@ -131,10 +131,10 @@ final class AssetImageManagerTests: BaseTestCase {
       contentMode: .aspectFill
     )
 
-    imageCache.add(uiImage, withIdentifier: assetImage.cacheKey(for: .full))
+    imageCache.add(uiImage, withIdentifier: assetImage.cacheKey(for: .larger))
     manager = AssetImageManager(assetImage: assetImage, imageCache: imageCache)
 
-    manager.startRequestImage(targetType: .full)
+    manager.startRequestImage(targetSize: .larger)
 
     XCTAssertEqual(manager.imageStatus, .loaded(uiImage))
   }

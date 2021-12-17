@@ -1,6 +1,6 @@
-enum AssetImageRequestTargetType {
+enum ImageTargetSize {
   case thumbnail
-  case full
+  case larger
 
   var isThumbnail: Bool {
     self == .thumbnail
