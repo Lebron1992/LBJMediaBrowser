@@ -1,6 +1,6 @@
 import Photos
 
-class PHAssetLoader<Status>: ObservableObject {
+class MediaLoader<Status, RequestID>: ObservableObject {
 
   let requestQueue: DispatchQueue = {
     let name = String(format: "com.lebron.lbjmediabrowser.requestqueue-%08x%08x", arc4random(), arc4random())
@@ -10,7 +10,7 @@ class PHAssetLoader<Status>: ObservableObject {
   @Published
   private(set) var statusCache: [String: Status] = [:]
 
-  private(set) var requestIdCache: [String: PHImageRequestID] = [:]
+  private(set) var requestIdCache: [String: RequestID] = [:]
 
   func isLoading(forKey key: String) -> Bool {
     requestIdCache[key] != nil
@@ -26,7 +26,7 @@ class PHAssetLoader<Status>: ObservableObject {
     statusCache.removeValue(forKey: key)
   }
 
-  func updateRequestId(_ requestId: PHImageRequestID, forKey key: String) {
+  func updateRequestId(_ requestId: RequestID, forKey key: String) {
     DispatchQueue.main.async {
       self.requestIdCache[key] = requestId
     }

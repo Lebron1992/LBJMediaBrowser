@@ -1,7 +1,7 @@
 import Photos
 import AlamofireImage
 
-final class PHAssetImageLoader: PHAssetLoader<MediaImageStatus> {
+final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> {
 
   static let shared = PHAssetImageLoader()
 

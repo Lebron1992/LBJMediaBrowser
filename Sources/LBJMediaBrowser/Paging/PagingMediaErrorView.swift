@@ -5,9 +5,6 @@ import SwiftUI
 public struct PagingMediaErrorView: View {
   let error: Error
 
-  @EnvironmentObject
-  private var mediaLoader: MediaLoader
-
   public var body: some View {
     GeometryReader { geo in
       let frame = geo.frame(in: .local)
@@ -27,7 +24,7 @@ public struct PagingMediaErrorView: View {
         .foregroundColor(.white)
 
       Button {
-        mediaLoader.startLoadingMedia()
+        // TODO: handle retry
       } label: {
         Text("Retry")
           .font(.system(size: Constant.retryFontSize, weight: .regular))
@@ -56,7 +53,6 @@ struct PagingMediaErrorView_Previews: PreviewProvider {
     PagingMediaErrorView(error: NSError.unknownError)
       .padding()
       .background(Color.black)
-      .environmentObject(URLImageDownloader() as MediaLoader)
   }
 }
 #endif

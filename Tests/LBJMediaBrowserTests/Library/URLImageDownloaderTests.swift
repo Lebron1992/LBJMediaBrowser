@@ -1,142 +1,139 @@
 import XCTest
+import AlamofireImage
 @testable import LBJMediaBrowser
 
-final class URLImageDownloaderTests: BaseTestCase {
+final class URLImageLoaderTests: BaseTestCase {
 
-  private let imageUrl = URL(string: "https://www.example.com/test.png")!
+  private let mockUrlImage = MediaURLImage(
+    imageUrl: URL(string: "https://www.example.com/test.png")!,
+    thumbnailUrl: URL(string: "https://www.example.com/thumbnail.png")!
+  )
+  private let targetSize: ImageTargetSize = .larger
+  private let progress: Float = 0.5
+
+  private var cacheKey: String!
   private var uiImage: UIImage!
-  private var downloader: URLImageDownloader!
+  private var imageLoader: URLImageLoader!
 
   override func setUp() {
     super.setUp()
     uiImage = image(forResource: "unicorn", withExtension: "png")
+    cacheKey = mockUrlImage.cacheKey(for: targetSize)
   }
 
   override func tearDown() {
     super.tearDown()
-    downloader = nil
+    imageLoader = nil
   }
 
-  func test_setImageUrl_imageUrlDidSet() {
-    downloader = URLImageDownloader(imageUrl: nil)
-    XCTAssertNil(downloader.imageUrl)
+  func test_loadImage_success() {
+    createImageLoader(progress: progress, uiImage: uiImage)
 
-    downloader.setImageUrl(imageUrl)
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
 
-    XCTAssertEqual(downloader.imageUrl, imageUrl)
-  }
-
-  func test_setImageUrl_ignoredDuplicatedLoadedUrlImage() {
-    prepare_startDownload(uiImage: uiImage)
-    downloader.startDownload()
-
-    wait(interval: 2.1) {
-      // The first request completed, `receipt` is nil
-      XCTAssertNil(self.downloader.receipt)
-
-      self.downloader.setImageUrl(self.imageUrl)
-
-      XCTAssertEqual(self.downloader.imageUrl, self.imageUrl)
-
-      // no new request started, `receipt` is nil
-      XCTAssertNil(self.downloader.receipt)
+    wait(interval: 0.6) {
+      XCTAssertEqual(
+        self.imageLoader.statusCache[self.cacheKey],
+        .loading(self.progress)
+      )
     }
-  }
-
-  func test_setAssetImage_startedNewRequest() {
-    prepare_startDownload(uiImage: uiImage)
-    downloader.startDownload()
-
-    wait(interval: 2.1) {
-      // The first request completed, `receipt` is nil
-      XCTAssertNil(self.downloader.receipt)
-
-      let newImageUrl = URL(string: "https://www.example.com/test1.png")!
-      self.downloader.setImageUrl(newImageUrl)
-
-      XCTAssertEqual(self.downloader.imageUrl, newImageUrl)
-
-      // new request started, `receipt` is `newImageUrl.absoluteString`
-      XCTAssertEqual(self.downloader.receipt, newImageUrl.absoluteString)
-    }
-  }
-
-  func test_startDownload_requestId() {
-    prepare_startDownload(uiImage: uiImage)
-
-    XCTAssertNil(downloader.receipt)
-
-    downloader.startDownload()
-
-    wait(interval: 0.5) {
-      XCTAssertNotNil(self.downloader.receipt)
-    }
-
-    wait(interval: 2.1) {
-      XCTAssertNil(self.downloader.receipt)
-    }
-  }
-
-  func test_startDownload_success() {
-    let progress: Float = 0.5
-    prepare_startDownload(progress: progress, uiImage: uiImage)
-
-    XCTAssertEqual(downloader.imageStatus, .idle)
-
-    downloader.startDownload()
 
     wait(interval: 1.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .loading(progress))
-    }
-
-    wait(interval: 2.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .loaded(self.uiImage))
-    }
-  }
-
-  func test_startDownload_failed() {
-    prepare_startDownload(error: NSError.unknownError)
-
-    XCTAssertEqual(downloader.imageStatus, .idle)
-
-    downloader.startDownload()
-
-    wait(interval: 2.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .failed(NSError.unknownError))
+      XCTAssertEqual(
+        self.imageLoader.statusCache[self.cacheKey],
+        .loaded(self.uiImage)
+      )
+      XCTAssertEqual(
+        self.imageLoader.imageCache.image(withIdentifier: self.cacheKey),
+        self.uiImage
+      )
     }
   }
 
-  func test_cancelDownload_downloadCancelled() {
-    let progress: Float = 0.5
-    prepare_startDownload(progress: progress, uiImage: uiImage)
+  func test_loadImage_useCachedImage() {
+    createImageLoader(uiImage: uiImage, useCache: true)
 
-    XCTAssertEqual(downloader.imageStatus, .idle)
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
 
-    downloader.startDownload()
+    wait(interval: 0.1) {
+      XCTAssertEqual(
+        self.imageLoader.statusCache[self.cacheKey],
+        .loaded(self.uiImage)
+      )
+    }
+  }
+
+  func test_loadImage_failed() {
+    createImageLoader(error: NSError.unknownError)
+
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
 
     wait(interval: 1.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .loading(progress))
+      XCTAssertEqual(
+        self.imageLoader.statusCache[self.cacheKey],
+        .failed(NSError.unknownError)
+      )
+    }
+  }
+
+  func test_loadImage_requestId() {
+    createImageLoader(uiImage: uiImage)
+
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
+
+    // requestId did cache after started loading image
+    wait(interval: 0.1) {
+      XCTAssertEqual(
+        self.imageLoader.requestIdCache[self.cacheKey],
+        self.mockUrlImage.cacheKey(for: self.targetSize)
+      )
     }
 
-    wait(interval: 1.2) {
-      self.downloader.cancelDownload()
+    // requestId is removed after finished loading image
+    wait(interval: 1.1) {
+      XCTAssertNil(self.imageLoader.requestIdCache[self.cacheKey])
+    }
+  }
+
+  func test_cancelLoading() {
+    createImageLoader(progress: progress, uiImage: uiImage)
+
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
+
+    wait(interval: 0.6) {
+      XCTAssertEqual(
+        self.imageLoader.statusCache[self.cacheKey],
+        .loading(self.progress)
+      )
+      XCTAssertNotNil(self.imageLoader.requestIdCache[self.cacheKey])
     }
 
-    wait(interval: 2.1) {
-      XCTAssertEqual(self.downloader.imageStatus, .idle)
+    wait(interval: 0.7) {
+      self.imageLoader.cancelLoading(for: self.mockUrlImage, targetSize: self.targetSize)
+    }
+
+    wait(interval: 1.1) {
+      XCTAssertNil(self.imageLoader.statusCache[self.cacheKey])
+      XCTAssertNil(self.imageLoader.requestIdCache[self.cacheKey])
     }
   }
 }
 
-private extension URLImageDownloaderTests {
-  func prepare_startDownload(progress: Float? = nil, uiImage: UIImage? = nil, error: Error? = nil) {
-    downloader = URLImageDownloader(
-      imageUrl: URL(string: "https://www.example.com/test.png")!,
+private extension URLImageLoaderTests {
+  func createImageLoader(progress: Float? = nil, uiImage: UIImage? = nil, error: Error? = nil, useCache: Bool = false) {
+    let imageCache = AutoPurgingImageCache()
+
+    if useCache, let uiImage = uiImage {
+      imageCache.add(uiImage, withIdentifier: mockUrlImage.cacheKey(for: targetSize))
+    }
+
+    imageLoader = URLImageLoader(
       downloader: ImageDownloaderMock(
         imageDownloadProgress: progress,
         imageDownloadResponse: uiImage,
         imageDownloadError: error
-      )
+      ),
+      imageCache: imageCache
     )
   }
 }

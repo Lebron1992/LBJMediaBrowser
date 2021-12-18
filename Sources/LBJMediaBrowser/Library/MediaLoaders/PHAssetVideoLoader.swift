@@ -2,7 +2,7 @@ import Photos
 import UIKit
 import AlamofireImage
 
-final class PHAssetVideoLoader: PHAssetLoader<MediaVideoStatus> {
+final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> {
 
   static let shared = PHAssetVideoLoader()
 

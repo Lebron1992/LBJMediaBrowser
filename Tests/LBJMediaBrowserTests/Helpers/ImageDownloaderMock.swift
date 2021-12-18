@@ -3,7 +3,7 @@ import Alamofire
 import AlamofireImage
 @testable import LBJMediaBrowser
 
-final class ImageDownloaderMock: ImageDownloaderType {
+final class ImageDownloaderMock: URLImageDownloaderType {
 
   private let imageDownloadProgress: Float?
   private let imageDownloadResponse: UIImage?
@@ -11,15 +11,15 @@ final class ImageDownloaderMock: ImageDownloaderType {
   private let progressInterval: TimeInterval
   private let completionInterval: TimeInterval
 
-  private(set) var startedDownloads: [URL : Any] = [:]
-  private var cancelledDownloads: [URL] = []
+  private(set) var startedDownloads: [String : Any] = [:]
+  private var cancelledDownloads: [String] = []
 
   init(
     imageDownloadProgress: Float? = nil,
     imageDownloadResponse: UIImage? = nil,
     imageDownloadError: Error? = nil,
-    progressInterval: TimeInterval = 1,
-    completionInterval: TimeInterval = 2
+    progressInterval: TimeInterval = 0.5,
+    completionInterval: TimeInterval = 1
   ) {
     self.imageDownloadProgress = imageDownloadProgress
     self.imageDownloadResponse = imageDownloadResponse
@@ -32,7 +32,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -50,7 +50,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -61,7 +61,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!) == false else {
+      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
         return
       }
 
@@ -75,7 +75,7 @@ final class ImageDownloaderMock: ImageDownloaderType {
     return urlRequest.urlRequest?.url?.absoluteString
   }
 
-  func cancelRequest(for url: URL) {
-    cancelledDownloads.append(url)
+  func cancelRequest(forKey key: String) {
+    cancelledDownloads.append(key)
   }
 }

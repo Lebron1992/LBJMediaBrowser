@@ -82,6 +82,7 @@ private extension LBJPagingMediaBrowser {
     case let urlImage as MediaURLImage:
       URLImageView(
         urlImage: urlImage,
+        targetSize: .larger,
         placeholder: placeholder,
         progress: progress,
         failure: failure,

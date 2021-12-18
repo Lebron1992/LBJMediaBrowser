@@ -22,6 +22,18 @@ open class MediaURLImage: MediaImage {
   }
 }
 
+// MARK: - Helper Methods
+extension MediaURLImage {
+  func cacheKey(for targetSize: ImageTargetSize) -> String {
+    targetSize.isThumbnail ?
+    (thumbnailUrl ?? imageUrl).absoluteString : imageUrl.absoluteString
+  }
+
+  func imageUrl(for targetSize: ImageTargetSize) -> URL {
+    targetSize.isThumbnail ? (thumbnailUrl ?? imageUrl) : imageUrl
+  }
+}
+
 // MARK: - Templates
 extension MediaURLImage {
   static let templates = [

@@ -86,6 +86,7 @@ private extension LBJGridMediaBrowser {
       case let urlImage as MediaURLImage:
         URLImageView(
           urlImage: urlImage,
+          targetSize: .thumbnail,
           placeholder: placeholder,
           progress: progress,
           failure: failure,

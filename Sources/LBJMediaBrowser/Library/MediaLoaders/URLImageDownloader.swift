@@ -3,30 +3,14 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
-final class CustomImageDownloader: ImageDownloader {
-  static let shared = CustomImageDownloader()
-
-  var startedDownloads: [URL : Any] = [:]
+final class URLImageDownloader: ImageDownloader {
+  var startedDownloads: [String : Any] = [:]
 }
 
-extension CustomImageDownloader: ImageDownloaderType {
+extension URLImageDownloader: URLImageDownloaderType {
 
   public func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
-
-    let receipt = download(urlRequest, cacheKey: nil, progress: nil, completion: { response in
-      switch response.result {
-      case .success(let image):
-        completion(.success(image))
-      case .failure(let error):
-        completion(.failure(error))
-      }
-    })
-
-    if let url = urlRequest.urlRequest?.url {
-      startedDownloads[url] = receipt
-    }
-
-    return receipt?.receiptID
+   download(urlRequest, progress: nil, completion: completion)
   }
 
   public func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
@@ -45,18 +29,18 @@ extension CustomImageDownloader: ImageDownloaderType {
       }
     )
 
-    if let url = urlRequest.urlRequest?.url {
-      startedDownloads[url] = receipt
+    if let urlString = urlRequest.urlRequest?.url?.absoluteString {
+      startedDownloads[urlString] = receipt
     }
 
     return receipt?.receiptID
   }
 
-  func cancelRequest(for url: URL) {
-    guard let receipt = startedDownloads[url] as? RequestReceipt else {
+  func cancelRequest(forKey key: String) {
+    guard let receipt = startedDownloads[key] as? RequestReceipt else {
       return
     }
-    startedDownloads.removeValue(forKey: url)
+    startedDownloads.removeValue(forKey: key)
     cancelRequest(with: receipt)
   }
 }

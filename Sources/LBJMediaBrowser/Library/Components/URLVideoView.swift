@@ -20,6 +20,7 @@ struct URLVideoView<Placeholder: View, Content: View>: View {
     if let previewUrl = urlVideo.previewImageUrl {
       URLImageView(
         urlImage: .init(imageUrl: previewUrl),
+        targetSize: .larger,
         placeholder: { _ in placeholder(urlVideo) },
         progress: { _ in EmptyView() },
         failure: { _ in
