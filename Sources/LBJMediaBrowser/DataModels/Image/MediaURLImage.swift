@@ -25,8 +25,9 @@ open class MediaURLImage: MediaImage {
 // MARK: - Helper Methods
 extension MediaURLImage {
   func cacheKey(for targetSize: ImageTargetSize) -> String {
-    targetSize.isThumbnail ?
-    (thumbnailUrl ?? imageUrl).absoluteString : imageUrl.absoluteString
+    let thumbnailKey = (thumbnailUrl ?? imageUrl).absoluteString + "-thumbnailKey"
+    let largerKey = imageUrl.absoluteString + "-largerKey"
+    return targetSize.isThumbnail ? thumbnailKey : largerKey
   }
 
   func imageUrl(for targetSize: ImageTargetSize) -> URL {

@@ -10,12 +10,12 @@ final class MediaURLImageTests: XCTestCase {
   func test_cacheKey() {
     XCTAssertEqual(
       urlImage.cacheKey(for: .thumbnail),
-      urlImage.thumbnailUrl!.absoluteString
+      urlImage.thumbnailUrl!.absoluteString + "-thumbnailKey"
     )
 
     XCTAssertEqual(
       urlImage.cacheKey(for: .larger),
-      urlImage.imageUrl.absoluteString
+      urlImage.imageUrl.absoluteString + "-largerKey"
     )
   }
 
