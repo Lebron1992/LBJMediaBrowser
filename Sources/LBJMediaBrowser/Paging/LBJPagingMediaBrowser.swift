@@ -11,7 +11,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 
   private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
-  private let failure: (Error) -> Failure
+  private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
@@ -25,7 +25,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.browser = browser

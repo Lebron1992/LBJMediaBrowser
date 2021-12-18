@@ -23,7 +23,7 @@ struct URLVideoView<Placeholder: View, Content: View>: View {
         targetSize: .larger,
         placeholder: { _ in placeholder(urlVideo) },
         progress: { _ in EmptyView() },
-        failure: { _ in
+        failure: { _, _ in
           content(.video(
             video: urlVideo,
             previewImage: nil,

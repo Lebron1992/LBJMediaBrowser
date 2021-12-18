@@ -9,7 +9,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
   private let targetSize: ImageTargetSize
   private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
-  private let failure: (Error) -> Failure
+  private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
@@ -17,7 +17,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
     targetSize: ImageTargetSize,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.assetImage = assetImage
@@ -46,15 +46,18 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
         content(.image(image: assetImage, uiImage: uiImage))
 
       case .failed(let error):
-        // TODO: handle retry
-        failure(error)
+        failure(error, loadImage)
       }
     }
-    .onAppear {
-      imageLoader.loadImage(for: assetImage, targetSize: targetSize)
-    }
-    .onDisappear {
-      imageLoader.cancelLoading(for: assetImage, targetSize: targetSize)
-    }
+    .onAppear(perform: loadImage)
+    .onDisappear(perform: cancelLoading)
+  }
+
+  private func loadImage() {
+    imageLoader.loadImage(for: assetImage, targetSize: targetSize)
+  }
+
+  private func cancelLoading() {
+    imageLoader.cancelLoading(for: assetImage, targetSize: targetSize)
   }
 }

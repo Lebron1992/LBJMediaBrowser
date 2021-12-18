@@ -10,7 +10,7 @@ extension LBJPagingMediaBrowser where Placeholder == MediaPlaceholderView {
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -33,7 +33,7 @@ extension LBJPagingMediaBrowser where Progress == PagingLoadingProgressView {
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -63,7 +63,7 @@ extension LBJPagingMediaBrowser where Failure == PagingMediaErrorView {
       browser: browser,
       placeholder: placeholder,
       progress: progress,
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: content
     )
   }
@@ -80,7 +80,7 @@ extension LBJPagingMediaBrowser where Content == PagingMediaLoadedResultView {
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   ) {
     self.init(
       browser: browser,
@@ -102,7 +102,7 @@ Progress == PagingLoadingProgressView {
   ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.init(
@@ -132,7 +132,7 @@ Failure == PagingMediaErrorView {
       browser: browser,
       placeholder: { _ in MediaPlaceholderView() },
       progress: progress,
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: content
     )
   }
@@ -149,7 +149,7 @@ Content == PagingMediaLoadedResultView {
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   ) {
     self.init(
       browser: browser,
@@ -178,7 +178,7 @@ Failure == PagingMediaErrorView {
       browser: browser,
       placeholder: placeholder,
       progress: { PagingLoadingProgressView(progress: $0) },
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: content
     )
   }
@@ -195,7 +195,7 @@ Content == PagingMediaLoadedResultView {
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   ) {
     self.init(
       browser: browser,
@@ -224,7 +224,7 @@ Content == PagingMediaLoadedResultView {
       browser: browser,
       placeholder: placeholder,
       progress: progress,
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: { PagingMediaLoadedResultView(result: $0) }
     )
   }
@@ -246,7 +246,7 @@ Failure == PagingMediaErrorView {
       browser: browser,
       placeholder: { _ in MediaPlaceholderView() },
       progress: { PagingLoadingProgressView(progress: $0) },
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: content
     )
   }
@@ -261,7 +261,7 @@ Content == PagingMediaLoadedResultView {
   ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
   public init(
     browser: LBJPagingBrowser,
-    @ViewBuilder failure: @escaping (Error) -> Failure
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   ) {
     self.init(
       browser: browser,
@@ -289,7 +289,7 @@ Content == PagingMediaLoadedResultView {
       browser: browser,
       placeholder: { _ in MediaPlaceholderView() },
       progress: progress,
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: { PagingMediaLoadedResultView(result: $0) }
     )
   }
@@ -311,7 +311,7 @@ Content == PagingMediaLoadedResultView {
       browser: browser,
       placeholder: placeholder,
       progress: { PagingLoadingProgressView(progress: $0) },
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: { PagingMediaLoadedResultView(result: $0) }
     )
   }
@@ -330,7 +330,7 @@ Content == PagingMediaLoadedResultView {
       browser: browser,
       placeholder: { _ in MediaPlaceholderView() },
       progress: { PagingLoadingProgressView(progress: $0) },
-      failure: { PagingMediaErrorView(error: $0) },
+      failure: { PagingMediaErrorView(error: $0, retry: $1) },
       content: { PagingMediaLoadedResultView(result: $0) }
     )
   }

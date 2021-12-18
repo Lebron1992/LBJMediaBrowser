@@ -185,7 +185,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) { }
 }
@@ -195,10 +195,8 @@ The generic types represent the display contents of the four stages:
 
 -  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
 -  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
--  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
+-  `failure`: The content displayed when media loading fails. The first parameter is `Error` and you could call the second parameter `retry` to reload the media.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
-
-In the customized `Failure`, you can access the `MediaLoader` object with `@EnvironmentObject' to call the `startLoadingMedia` method to try to reload the media.
 
 ```swift
 struct MyPagingMediaErrorView: View {

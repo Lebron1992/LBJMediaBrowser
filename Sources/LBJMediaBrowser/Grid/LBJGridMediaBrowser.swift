@@ -89,7 +89,7 @@ private extension LBJGridMediaBrowser {
           targetSize: .thumbnail,
           placeholder: placeholder,
           progress: progress,
-          failure: failure,
+          failure: { error, _ in failure(error) },
           content: content
         )
 
@@ -99,7 +99,7 @@ private extension LBJGridMediaBrowser {
           targetSize: .thumbnail,
           placeholder: placeholder,
           progress: progress,
-          failure: failure,
+          failure: { error, _ in failure(error) },
           content: content
         )
 
@@ -127,7 +127,7 @@ private extension LBJGridMediaBrowser {
         PHAssetVideoView(
           assetVideo: assetVideo,
           placeholder: placeholder,
-          failure: failure,
+          failure: { error, _ in failure(error) },
           content: content
         )
 

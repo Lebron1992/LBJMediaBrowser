@@ -9,7 +9,7 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   private let targetSize: ImageTargetSize
   private let placeholder: (Media) -> Placeholder
   private let progress: (Float) -> Progress
-  private let failure: (Error) -> Failure
+  private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
@@ -17,7 +17,7 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
     targetSize: ImageTargetSize,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.urlImage = urlImage
@@ -46,15 +46,18 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
         content(.image(image: urlImage, uiImage: uiImage))
 
       case .failed(let error):
-        // TODO: handle retry
-        failure(error)
+        failure(error, loadImage)
       }
     }
-    .onAppear {
-      imageLoader.loadImage(for: urlImage, targetSize: targetSize)
-    }
-    .onDisappear {
-      imageLoader.cancelLoading(for: urlImage, targetSize: targetSize)
-    }
+    .onAppear(perform: loadImage)
+    .onDisappear(perform: cancelLoading)
+  }
+
+  private func loadImage() {
+    imageLoader.loadImage(for: urlImage, targetSize: targetSize)
+  }
+
+  private func cancelLoading() {
+    imageLoader.cancelLoading(for: urlImage, targetSize: targetSize)
   }
 }

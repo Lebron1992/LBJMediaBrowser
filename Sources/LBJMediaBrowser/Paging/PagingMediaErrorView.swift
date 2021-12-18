@@ -3,7 +3,9 @@ import SwiftUI
 /// 一个在分页模式下显示媒体加载错误的对象。
 /// An object that displays the loading error of a media in paging mode.
 public struct PagingMediaErrorView: View {
+
   let error: Error
+  let retry: () -> Void
 
   public var body: some View {
     GeometryReader { geo in
@@ -24,7 +26,7 @@ public struct PagingMediaErrorView: View {
         .foregroundColor(.white)
 
       Button {
-        // TODO: handle retry
+        retry()
       } label: {
         Text("Retry")
           .font(.system(size: Constant.retryFontSize, weight: .regular))
@@ -50,7 +52,7 @@ private extension PagingMediaErrorView {
 #if DEBUG
 struct PagingMediaErrorView_Previews: PreviewProvider {
   static var previews: some View {
-    PagingMediaErrorView(error: NSError.unknownError)
+    PagingMediaErrorView(error: NSError.unknownError, retry: { })
       .padding()
       .background(Color.black)
   }

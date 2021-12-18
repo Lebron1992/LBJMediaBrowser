@@ -7,13 +7,13 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   private let assetVideo: MediaPHAssetVideo
   private let placeholder: (Media) -> Placeholder
-  private let failure: (Error) -> Failure
+  private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     assetVideo: MediaPHAssetVideo,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {
     self.assetVideo = assetVideo
@@ -37,15 +37,18 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
         ))
 
       case .failed(let error):
-        // TODO: handle retry
-        failure(error)
+        failure(error, loadUrl)
       }
     }
-    .onAppear {
-      videoLoader.loadUrl(for: assetVideo)
-    }
-    .onDisappear {
-      videoLoader.cancelLoading(for: assetVideo)
-    }
+    .onAppear(perform: loadUrl)
+    .onDisappear(perform: cancelLoading)
+  }
+
+  private func loadUrl() {
+    videoLoader.loadUrl(for: assetVideo)
+  }
+
+  private func cancelLoading() {
+    videoLoader.cancelLoading(for: assetVideo)
   }
 }

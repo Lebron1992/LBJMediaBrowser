@@ -185,7 +185,7 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
+    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) { }
 }
@@ -195,10 +195,8 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 
 -  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 -  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
--  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
+-  `failure`: 媒体加载失败时显示的内容，闭包的第一个参数是 `Error` 类型，第二参数是 `retry` 闭包，可以调用 `retry()` 重新加载媒体。
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
-
-在自定义的 `Failure` 中，可以通过 `@EnvironmentObject` 访问 `MediaLoader`，便于调用 `startLoadingMedia` 方法尝试重新加载媒体。
 
 ```swift
 struct MyPagingMediaErrorView: View {
