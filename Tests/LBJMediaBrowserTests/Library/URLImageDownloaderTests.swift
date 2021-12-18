@@ -85,7 +85,7 @@ final class URLImageLoaderTests: BaseTestCase {
     wait(interval: 0.1) {
       XCTAssertEqual(
         self.imageLoader.requestIdCache[self.cacheKey],
-        self.mockUrlImage.cacheKey(for: self.targetSize)
+        self.mockUrlImage.imageUrl(for: self.targetSize).absoluteString
       )
     }
 

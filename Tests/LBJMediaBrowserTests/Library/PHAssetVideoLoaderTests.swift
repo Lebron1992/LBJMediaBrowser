@@ -38,7 +38,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
         self.uiImage
       )
       XCTAssertEqual(
-        self.videoLoader.urlCache.url(withIdentifier: self.cacheKey),
+        self.videoLoader.urlCache[self.cacheKey],
         self.videoUrl
       )
     }
@@ -108,11 +108,11 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
 private extension PHAssetVideoLoaderTests {
   func createVideoLoader(uiImage: UIImage? = nil, url: URL? = nil, error: Error? = nil, useCache: Bool = false) {
     let imageCache = AutoPurgingImageCache()
-    let urlCache = LBJURLCache()
+    var urlCache: [String: URL] = [:]
 
     if useCache, let uiImage = uiImage, let url = url {
       imageCache.add(uiImage, withIdentifier: cacheKey)
-      urlCache.add(url, withIdentifier: cacheKey)
+      urlCache[cacheKey] = url
     }
 
     videoLoader = PHAssetVideoLoader(
