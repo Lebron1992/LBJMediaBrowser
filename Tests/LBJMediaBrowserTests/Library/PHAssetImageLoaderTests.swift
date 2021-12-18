@@ -30,7 +30,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 
     wait(interval: 1.1) {
       XCTAssertEqual(
-        self.imageLoader.imageStatusCache[self.cacheKey],
+        self.imageLoader.statusCache[self.cacheKey],
         .loaded(self.uiImage)
       )
       XCTAssertEqual(
@@ -47,7 +47,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 
     wait(interval: 0.1) {
       XCTAssertEqual(
-        self.imageLoader.imageStatusCache[self.cacheKey],
+        self.imageLoader.statusCache[self.cacheKey],
         .loaded(self.uiImage)
       )
     }
@@ -60,7 +60,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 
     wait(interval: 1.1) {
       XCTAssertEqual(
-        self.imageLoader.imageStatusCache[self.cacheKey],
+        self.imageLoader.statusCache[self.cacheKey],
         .failed(NSError.unknownError)
       )
     }
@@ -95,11 +95,10 @@ final class PHAssetImageLoaderTests: BaseTestCase {
     }
 
     wait(interval: 1.1) {
-      XCTAssertNil(self.imageLoader.imageStatusCache[self.cacheKey])
+      XCTAssertNil(self.imageLoader.statusCache[self.cacheKey])
       XCTAssertNil(self.imageLoader.requestIdCache[self.cacheKey])
     }
   }
-
 }
 
 private extension PHAssetImageLoaderTests {

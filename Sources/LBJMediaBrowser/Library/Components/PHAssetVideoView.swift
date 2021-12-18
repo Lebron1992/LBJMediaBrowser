@@ -3,7 +3,7 @@ import SwiftUI
 struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var videoManager = AssetVideoManager()
+  private var videoLoader = PHAssetVideoLoader.shared
 
   private let assetVideo: MediaPHAssetVideo
   private let placeholder: (Media) -> Placeholder
@@ -20,27 +20,32 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
     self.placeholder = placeholder
     self.failure = failure
     self.content = content
-    self.videoManager.setAssetVideo(assetVideo)
   }
 
   var body: some View {
-    switch videoManager.videoStatus {
-    case .idle:
-      placeholder(assetVideo)
-        .onAppear {
-          videoManager.startRequestVideoUrl()
-        }
+    let status = videoLoader.videoStatus(for: assetVideo)
+    ZStack {
+      switch status {
+      case .idle:
+        placeholder(assetVideo)
 
-    case .loaded(let previewImage, let videoUrl):
-      content(.video(
-        video: assetVideo,
-        previewImage: previewImage,
-        videoUrl: videoUrl
-      ))
+      case .loaded(let previewImage, let videoUrl):
+        content(.video(
+          video: assetVideo,
+          previewImage: previewImage,
+          videoUrl: videoUrl
+        ))
 
-    case .failed(let error):
-      failure(error)
-        .environmentObject(videoManager as MediaLoader)
+      case .failed(let error):
+        // TODO: handle retry
+        failure(error)
+      }
+    }
+    .onAppear {
+      videoLoader.loadUrl(for: assetVideo)
+    }
+    .onDisappear {
+      videoLoader.cancelLoading(for: assetVideo)
     }
   }
 }
