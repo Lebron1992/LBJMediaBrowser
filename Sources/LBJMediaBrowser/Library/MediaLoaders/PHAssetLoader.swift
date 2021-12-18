@@ -17,7 +17,9 @@ class PHAssetLoader<Status>: ObservableObject {
   }
 
   func updateStatus(_ status: Status, forKey key: String) {
-    statusCache[key] = status
+    DispatchQueue.main.async {
+      self.statusCache[key] = status
+    }
   }
 
   func removeStatus(forKey key: String) {
@@ -25,7 +27,9 @@ class PHAssetLoader<Status>: ObservableObject {
   }
 
   func updateRequestId(_ requestId: PHImageRequestID, forKey key: String) {
-    requestIdCache[key] = requestId
+    DispatchQueue.main.async {
+      self.requestIdCache[key] = requestId
+    }
   }
 
   func removeRequestId(forKey key: String) {
