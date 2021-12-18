@@ -8,7 +8,7 @@ struct ThumbnailGeneratorMock: ThumbnailGeneratorType {
     self.uiImage = uiImage
   }
 
-  func thumbnail(for url: URL) -> UIImage? {
+  func thumbnail(for url: URL, maximumSize: CGSize) -> UIImage? {
     uiImage
   }
 }

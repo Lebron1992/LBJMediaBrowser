@@ -24,8 +24,8 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
     self.urlCache = urlCache
   }
 
-  func loadUrl(for assetVideo: MediaPHAssetVideo) {
-    let cacheKey = assetVideo.cacheKey
+  func loadUrl(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
+    let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
     // image did cache
     if let cachedUrl = urlCache[cacheKey],
@@ -55,7 +55,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
         var previewImage: UIImage?
         if case let .success(url) = result {
-          previewImage = self.thumbnailGenerator.thumbnail(for: url)
+          previewImage = self.thumbnailGenerator.thumbnail(for: url, maximumSize: maxThumbnailSize)
         }
 
         switch result {
@@ -76,8 +76,8 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
     }
   }
 
-  func cancelLoading(for assetVideo: MediaPHAssetVideo) {
-    let cacheKey = assetVideo.cacheKey
+  func cancelLoading(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
+    let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
     if let requestId = requestIdCache[cacheKey] {
       manager.cancelImageRequest(requestId)
@@ -87,7 +87,8 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
     removeRequestId(forKey: cacheKey)
   }
 
-  func videoStatus(for assetVideo: MediaPHAssetVideo) -> MediaVideoStatus {
-    statusCache[assetVideo.cacheKey] ?? .idle
+  func videoStatus(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) -> MediaVideoStatus {
+    let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
+    return statusCache[cacheKey] ?? .idle
   }
 }

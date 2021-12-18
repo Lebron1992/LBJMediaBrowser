@@ -118,6 +118,7 @@ private extension LBJPagingMediaBrowser {
     case let assetVideo as MediaPHAssetVideo:
       PHAssetVideoView(
         assetVideo: assetVideo,
+        maxThumbnailSize: UIScreen.main.bounds.size,
         placeholder: placeholder,
         failure: failure,
         content: content

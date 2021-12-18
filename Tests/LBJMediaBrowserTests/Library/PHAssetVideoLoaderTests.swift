@@ -6,6 +6,7 @@ import AlamofireImage
 final class PHAssetVideoLoaderTests: BaseTestCase {
 
   private let videoUrl = URL(string: "https://www.example.com/test.mp4")!
+  private let maxThumbnailSize = CGSize(width: 200, height: 200)
   private let mockAssetVideo = MediaPHAssetVideo(asset: PHAssetMock(id: 1, assetType: .video))
   private var cacheKey: String!
 
@@ -15,7 +16,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   override func setUp() {
     super.setUp()
     uiImage = image(forResource: "unicorn", withExtension: "png")
-    cacheKey = mockAssetVideo.cacheKey
+    cacheKey = mockAssetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
   }
 
   override func tearDown() {
@@ -26,7 +27,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   func test_loadUrl_success() {
     createVideoLoader(uiImage: uiImage, url: videoUrl)
 
-    videoLoader.loadUrl(for: mockAssetVideo)
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
 
     wait(interval: 1.1) {
       XCTAssertEqual(
@@ -47,7 +48,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   func test_loadUrl_useCachedImage() {
     createVideoLoader(uiImage: uiImage, url: videoUrl, useCache: true)
 
-    videoLoader.loadUrl(for: mockAssetVideo)
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
 
     wait(interval: 0.1) {
       XCTAssertEqual(
@@ -60,7 +61,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   func test_loadUrl_failed() {
     createVideoLoader(error: NSError.unknownError)
 
-    videoLoader.loadUrl(for: mockAssetVideo)
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
 
     wait(interval: 1.1) {
       XCTAssertEqual(
@@ -73,7 +74,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   func test_loadUrl_requestId() {
     createVideoLoader(uiImage: uiImage, url: videoUrl)
 
-    videoLoader.loadUrl(for: mockAssetVideo)
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
 
     // requestId did cache after started loading image
     wait(interval: 0.1) {
@@ -92,10 +93,10 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   func test_cancelLoading() {
     createVideoLoader(uiImage: uiImage, url: videoUrl)
 
-    videoLoader.loadUrl(for: mockAssetVideo)
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
 
     wait(interval: 0.5) {
-      self.videoLoader.cancelLoading(for: self.mockAssetVideo)
+      self.videoLoader.cancelLoading(for: self.mockAssetVideo, maxThumbnailSize: self.maxThumbnailSize)
     }
 
     wait(interval: 1.1) {

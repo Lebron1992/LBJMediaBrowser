@@ -19,8 +19,8 @@ open class MediaPHAssetVideo: MediaVideo {
 }
 
 extension MediaPHAssetVideo {
-  var cacheKey: String {
-    asset.localIdentifier
+  func cacheKey(forMaxThumbnailSize size: CGSize) -> String {
+    "\(asset.localIdentifier)-\(size)"
   }
 }
 

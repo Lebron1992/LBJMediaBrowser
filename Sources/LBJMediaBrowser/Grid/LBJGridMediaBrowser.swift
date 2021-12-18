@@ -127,6 +127,7 @@ private extension LBJGridMediaBrowser {
       case let assetVideo as MediaPHAssetVideo:
         PHAssetVideoView(
           assetVideo: assetVideo,
+          maxThumbnailSize: .init(width: 200, height: 200),
           placeholder: placeholder,
           failure: { error, _ in failure(error) },
           content: content
