@@ -3,7 +3,7 @@ import SwiftUI
 struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
   @ObservedObject
-  private var imageManager = AssetImageManager()
+  private var imageLoader = PHAssetImageLoader.shared
 
   private let assetImage: MediaPHAssetImage
   private let targetSize: ImageTargetSize
@@ -26,39 +26,35 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
     self.progress = progress
     self.failure = failure
     self.content = content
-    imageManager.setAssetImage(assetImage, targetSize: targetSize)
   }
 
   var body: some View {
-    switch imageManager.imageStatus {
-    case .idle:
-      placeholder(assetImage)
-        .onAppear {
-          imageManager.startRequestImage(targetSize: targetSize)
-        }
-
-    case .loading(let progress):
-      if progress > 0 && progress < 1 {
-        self.progress(progress)
-          .onDisappear {
-            imageManager.cancelRequest()
-          }
-      } else {
+    let imageStatus = imageLoader.imageStatus(for: assetImage, targetSize: targetSize)
+    ZStack {
+      switch imageStatus {
+      case .idle:
         placeholder(assetImage)
+
+      case .loading(let progress):
+        if progress > 0 && progress < 1 {
+          self.progress(progress)
+        } else {
+          placeholder(assetImage)
+        }
+
+      case .loaded(let uiImage):
+        content(.image(image: assetImage, uiImage: uiImage))
+
+      case .failed(let error):
+        // TODO: handle retry
+        failure(error)
       }
-
-    case .loaded(let uiImage):
-      content(.image(image: assetImage, uiImage: uiImage))
-        .onDisappear {
-          imageManager.reset()
-        }
-
-    case .failed(let error):
-      failure(error)
-        .environmentObject(imageManager as MediaLoader)
-        .onDisappear {
-          imageManager.reset()
-        }
+    }
+    .onAppear {
+      imageLoader.loadImage(for: assetImage, targetSize: targetSize)
+    }
+    .onDisappear {
+      imageLoader.cancelLoading(for: assetImage, targetSize: targetSize)
     }
   }
 }

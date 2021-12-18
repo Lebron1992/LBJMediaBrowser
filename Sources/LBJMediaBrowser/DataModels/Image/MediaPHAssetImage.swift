@@ -72,7 +72,7 @@ extension MediaPHAssetImage {
   func cacheKey(for targetSize: ImageTargetSize) -> String {
     let size = self.targetSize(for: targetSize)
     let contentMode = contentMode(for: targetSize)
-    return "\(asset.localIdentifier)-\(targetSize)-\(contentMode.stringRepresentation)"
+    return "\(asset.localIdentifier)-\(size)-\(contentMode.stringRepresentation)"
   }
 
   func targetSize(for targetSize: ImageTargetSize) -> CGSize {
