@@ -119,6 +119,7 @@ private extension LBJGridMediaBrowser {
       case let urlVideo as MediaURLVideo:
         URLVideoView(
           urlVideo: urlVideo,
+          imageTargetSize: .thumbnail,
           placeholder: placeholder,
           content: content
         )

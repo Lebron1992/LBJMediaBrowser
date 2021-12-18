@@ -110,6 +110,7 @@ private extension LBJPagingMediaBrowser {
     case let urlVideo as MediaURLVideo:
       URLVideoView(
         urlVideo: urlVideo,
+        imageTargetSize: .larger,
         placeholder: placeholder,
         content: content
       )
