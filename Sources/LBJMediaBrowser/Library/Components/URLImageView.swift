@@ -29,7 +29,6 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   }
 
   var body: some View {
-    let imageStatus = imageLoader.imageStatus(for: urlImage, targetSize: targetSize)
     ZStack {
       switch imageStatus {
       case .idle:
@@ -53,7 +52,14 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
     .onDisappear(perform: cancelLoading)
   }
 
+  private var imageStatus: MediaImageStatus {
+    imageLoader.imageStatus(for: urlImage, targetSize: targetSize)
+  }
+
   private func loadImage() {
+    if imageStatus.isLoading || imageStatus.isLoaded {
+      return
+    }
     imageLoader.loadImage(for: urlImage, targetSize: targetSize)
   }
 

@@ -29,7 +29,6 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
   }
 
   var body: some View {
-    let imageStatus = imageLoader.imageStatus(for: assetImage, targetSize: targetSize)
     ZStack {
       switch imageStatus {
       case .idle:
@@ -53,7 +52,14 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
     .onDisappear(perform: cancelLoading)
   }
 
+  private var imageStatus: MediaImageStatus {
+    imageLoader.imageStatus(for: assetImage, targetSize: targetSize)
+  }
+
   private func loadImage() {
+    if imageStatus.isLoading || imageStatus.isLoaded {
+      return
+    }
     imageLoader.loadImage(for: assetImage, targetSize: targetSize)
   }
 

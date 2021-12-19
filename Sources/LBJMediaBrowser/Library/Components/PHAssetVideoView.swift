@@ -26,9 +26,8 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
   }
 
   var body: some View {
-    let status = videoLoader.videoStatus(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
     ZStack {
-      switch status {
+      switch videoStatus {
       case .idle:
         placeholder(assetVideo)
 
@@ -47,7 +46,14 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
     .onDisappear(perform: cancelLoading)
   }
 
+  private var videoStatus: MediaVideoStatus {
+    videoLoader.videoStatus(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+  }
+
   private func loadUrl() {
+    if videoStatus.isLoaded {
+      return
+    }
     videoLoader.loadUrl(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
   }
 
