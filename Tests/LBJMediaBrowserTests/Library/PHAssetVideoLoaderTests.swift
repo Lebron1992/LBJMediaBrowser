@@ -90,7 +90,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
     }
   }
 
-  func test_cancelLoading() {
+  func test_cancelLoading_didCancel() {
     createVideoLoader(uiImage: uiImage, url: videoUrl)
 
     videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
@@ -102,6 +102,20 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
     wait(interval: 1.1) {
       XCTAssertNil(self.videoLoader.statusCache[self.cacheKey])
       XCTAssertNil(self.videoLoader.requestIdCache[self.cacheKey])
+    }
+  }
+
+  func test_cancelLoading_notResetLoadedStatus() {
+    createVideoLoader(uiImage: uiImage, url: videoUrl)
+
+    videoLoader.loadUrl(for: mockAssetVideo, maxThumbnailSize: maxThumbnailSize)
+
+    wait(interval: 1.1) {
+      self.videoLoader.cancelLoading(for: self.mockAssetVideo, maxThumbnailSize: self.maxThumbnailSize)
+      XCTAssertEqual(
+        self.videoLoader.videoStatus(for: self.mockAssetVideo, maxThumbnailSize: self.maxThumbnailSize),
+        .loaded(previewImage: self.uiImage, videoUrl: self.videoUrl)
+      )
     }
   }
 }

@@ -65,7 +65,11 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
       downloader.cancelRequest(forKey: requestId)
     }
 
-    removeStatus(forKey: cacheKey)
+    let currentStatus = imageStatus(for: urlImage, targetSize: targetSize)
+    if currentStatus.isLoaded == false {
+      removeStatus(forKey: cacheKey)
+    }
+
     removeRequestId(forKey: cacheKey)
   }
 

@@ -83,7 +83,11 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
       manager.cancelImageRequest(requestId)
     }
 
-    removeStatus(forKey: cacheKey)
+    let currentStatus = videoStatus(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+    if currentStatus.isLoaded == false {
+      removeStatus(forKey: cacheKey)
+    }
+
     removeRequestId(forKey: cacheKey)
   }
 

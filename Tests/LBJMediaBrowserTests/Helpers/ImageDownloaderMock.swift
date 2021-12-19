@@ -47,7 +47,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
       }
     }
 
-    return urlRequest.urlRequest?.url?.absoluteString
+    return cacheKey
   }
 
   func download(
@@ -59,7 +59,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
+      guard self.cancelledDownloads.contains(cacheKey) == false else {
         return
       }
 
@@ -70,7 +70,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
-      guard self.cancelledDownloads.contains(urlRequest.urlRequest!.url!.absoluteString) == false else {
+      guard self.cancelledDownloads.contains(cacheKey) == false else {
         return
       }
 
@@ -81,7 +81,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
       }
     }
 
-    return urlRequest.urlRequest?.url?.absoluteString
+    return cacheKey
   }
 
   func cancelRequest(forKey key: String) {

@@ -66,7 +66,11 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
       manager.cancelImageRequest(requestId)
     }
 
-    removeStatus(forKey: cacheKey)
+    let currentStatus = imageStatus(for: assetImage, targetSize: targetSize)
+    if currentStatus.isLoaded == false {
+      removeStatus(forKey: cacheKey)
+    }
+
     removeRequestId(forKey: cacheKey)
   }
 

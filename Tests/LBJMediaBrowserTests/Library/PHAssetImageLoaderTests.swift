@@ -85,7 +85,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
     }
   }
 
-  func test_cancelLoading() {
+  func test_cancelLoading_didCancel() {
     createImageLoader(uiImage: uiImage)
 
     imageLoader.loadImage(for: mockAssetImage, targetSize: targetSize)
@@ -97,6 +97,20 @@ final class PHAssetImageLoaderTests: BaseTestCase {
     wait(interval: 1.1) {
       XCTAssertNil(self.imageLoader.statusCache[self.cacheKey])
       XCTAssertNil(self.imageLoader.requestIdCache[self.cacheKey])
+    }
+  }
+
+  func test_cancelLoading_notResetLoadedStatus() {
+    createImageLoader(uiImage: uiImage)
+
+    imageLoader.loadImage(for: mockAssetImage, targetSize: targetSize)
+
+    wait(interval: 1.1) {
+      self.imageLoader.cancelLoading(for: self.mockAssetImage, targetSize: self.targetSize)
+      XCTAssertEqual(
+        self.imageLoader.imageStatus(for: self.mockAssetImage, targetSize: self.targetSize),
+        .loaded(self.uiImage)
+      )
     }
   }
 }

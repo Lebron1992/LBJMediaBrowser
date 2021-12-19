@@ -85,7 +85,7 @@ final class URLImageLoaderTests: BaseTestCase {
     wait(interval: 0.1) {
       XCTAssertEqual(
         self.imageLoader.requestIdCache[self.cacheKey],
-        self.mockUrlImage.imageUrl(for: self.targetSize).absoluteString
+        self.cacheKey
       )
     }
 
@@ -95,7 +95,7 @@ final class URLImageLoaderTests: BaseTestCase {
     }
   }
 
-  func test_cancelLoading() {
+  func test_cancelLoading_didCancel() {
     createImageLoader(progress: progress, uiImage: uiImage)
 
     imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
@@ -108,13 +108,27 @@ final class URLImageLoaderTests: BaseTestCase {
       XCTAssertNotNil(self.imageLoader.requestIdCache[self.cacheKey])
     }
 
-    wait(interval: 0.7) {
+    wait(interval: 0.1) {
       self.imageLoader.cancelLoading(for: self.mockUrlImage, targetSize: self.targetSize)
     }
 
-    wait(interval: 1.1) {
+    wait(interval: 0.4) {
       XCTAssertNil(self.imageLoader.statusCache[self.cacheKey])
       XCTAssertNil(self.imageLoader.requestIdCache[self.cacheKey])
+    }
+  }
+
+  func test_cancelLoading_notResetLoadedStatus() {
+    createImageLoader(progress: progress, uiImage: uiImage)
+
+    imageLoader.loadImage(for: mockUrlImage, targetSize: targetSize)
+
+    wait(interval: 1.1) {
+      self.imageLoader.cancelLoading(for: self.mockUrlImage, targetSize: self.targetSize)
+      XCTAssertEqual(
+        self.imageLoader.imageStatus(for: self.mockUrlImage, targetSize: self.targetSize),
+        .loaded(self.uiImage)
+      )
     }
   }
 }
