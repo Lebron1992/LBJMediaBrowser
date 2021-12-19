@@ -28,7 +28,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
     // image did cache
-    if let cachedUrl = urlCache[cacheKey],
+    if let cachedUrl = safelyFetchCachedUrl(forKey: cacheKey),
        let cachedImage = imageCache.image(withIdentifier: cacheKey) {
       updateStatus(.loaded(previewImage: cachedImage, videoUrl: cachedUrl), forKey: cacheKey)
       return
@@ -63,7 +63,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
           updateStatus(.loaded(previewImage: previewImage, videoUrl: url), forKey: cacheKey)
 
           if let previewImage = previewImage {
-            self.urlCache[cacheKey] = url
+            self.safelyUpdateUrl(url, forKey: cacheKey)
             self.imageCache.add(previewImage, withIdentifier: cacheKey)
           }
 
@@ -94,5 +94,28 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
   func videoStatus(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) -> MediaVideoStatus {
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
     return statusCache[cacheKey] ?? .idle
+  }
+}
+
+// MARK: - Helper Methods
+private extension PHAssetVideoLoader {
+  static let lock = NSLock()
+
+  func safelyFetchCachedUrl(forKey key: String) -> URL? {
+    Self.lock.lock()
+    defer {
+      Self.lock.unlock()
+    }
+
+    return urlCache[key]
+  }
+
+  func safelyUpdateUrl(_ url: URL, forKey key: String) {
+    Self.lock.lock()
+    defer {
+      Self.lock.unlock()
+    }
+
+    urlCache[key] = url
   }
 }
