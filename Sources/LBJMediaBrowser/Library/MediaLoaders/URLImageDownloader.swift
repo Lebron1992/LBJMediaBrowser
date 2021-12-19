@@ -9,11 +9,20 @@ final class URLImageDownloader: ImageDownloader {
 
 extension URLImageDownloader: URLImageDownloaderType {
 
-  public func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
-   download(urlRequest, progress: nil, completion: completion)
+  public func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
+    download(urlRequest, cacheKey: cacheKey, progress: nil, completion: completion)
   }
 
-  public func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  public func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String,
+    progress: ((Float) -> Void)?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
 
     let receipt = download(
       urlRequest,
@@ -29,9 +38,7 @@ extension URLImageDownloader: URLImageDownloaderType {
       }
     )
 
-    if let urlString = urlRequest.urlRequest?.url?.absoluteString {
-      startedDownloads[urlString] = receipt
-    }
+    safelyUpdateReceipt(receipt, forKey: cacheKey)
 
     return receipt?.receiptID
   }
@@ -40,7 +47,22 @@ extension URLImageDownloader: URLImageDownloaderType {
     guard let receipt = startedDownloads[key] as? RequestReceipt else {
       return
     }
-    startedDownloads.removeValue(forKey: key)
+    safelyUpdateReceipt(nil, forKey: key)
     cancelRequest(with: receipt)
+  }
+
+  private static let lock = NSLock()
+
+  private func safelyUpdateReceipt(_ receipt: RequestReceipt?, forKey key: String) {
+    Self.lock.lock()
+    defer {
+      Self.lock.unlock()
+    }
+
+    if let receipt = receipt {
+      startedDownloads[key] = receipt
+    } else {
+      startedDownloads.removeValue(forKey: key)
+    }
   }
 }

@@ -35,6 +35,7 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
 
       let requestId = downloader.download(
         URLRequest(url: urlImage.imageUrl(for: targetSize)),
+        cacheKey: cacheKey,
         progress: { [unowned self] progress in
           updateStatus(.loading(progress), forKey: cacheKey)
         },

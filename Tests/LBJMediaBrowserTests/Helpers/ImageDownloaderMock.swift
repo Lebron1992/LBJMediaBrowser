@@ -28,7 +28,11 @@ final class ImageDownloaderMock: URLImageDownloaderType {
     self.completionInterval = completionInterval
   }
 
-  func download(_ urlRequest: URLRequestConvertible, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
 
@@ -46,7 +50,12 @@ final class ImageDownloaderMock: URLImageDownloaderType {
     return urlRequest.urlRequest?.url?.absoluteString
   }
 
-  func download(_ urlRequest: URLRequestConvertible, progress: ((Float) -> Void)?, completion: @escaping (Result<UIImage, Error>) -> Void) -> String? {
+  func download(
+    _ urlRequest: URLRequestConvertible,
+    cacheKey: String,
+    progress: ((Float) -> Void)?,
+    completion: @escaping (Result<UIImage, Error>) -> Void
+  ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
 
