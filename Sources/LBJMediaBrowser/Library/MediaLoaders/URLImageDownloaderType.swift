@@ -3,7 +3,7 @@ import Alamofire
 import AlamofireImage
 
 protocol URLImageDownloaderType {
-  var startedDownloads: [String: Any] { get }
+  var startedDownloads: SafeDictionary<String, Any> { get }
 
   func download(
     _ urlRequest: URLRequestConvertible,

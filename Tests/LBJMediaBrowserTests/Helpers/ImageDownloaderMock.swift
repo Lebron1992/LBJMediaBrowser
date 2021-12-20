@@ -11,7 +11,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
   private let progressInterval: TimeInterval
   private let completionInterval: TimeInterval
 
-  private(set) var startedDownloads: [String : Any] = [:]
+  private(set) var startedDownloads = SafeDictionary<String, Any>()
   private var cancelledDownloads: [String] = []
 
   init(

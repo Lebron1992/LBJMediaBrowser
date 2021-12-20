@@ -123,7 +123,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
 private extension PHAssetVideoLoaderTests {
   func createVideoLoader(uiImage: UIImage? = nil, url: URL? = nil, error: Error? = nil, useCache: Bool = false) {
     let imageCache = AutoPurgingImageCache()
-    var urlCache: [String: URL] = [:]
+    var urlCache = SafeDictionary<String, URL>()
 
     if useCache, let uiImage = uiImage, let url = url {
       imageCache.add(uiImage, withIdentifier: cacheKey)

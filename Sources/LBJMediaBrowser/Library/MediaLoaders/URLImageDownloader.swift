@@ -4,7 +4,7 @@ import Alamofire
 import AlamofireImage
 
 final class URLImageDownloader: ImageDownloader {
-  var startedDownloads: [String : Any] = [:]
+  var startedDownloads = SafeDictionary<String, Any>()
 }
 
 extension URLImageDownloader: URLImageDownloaderType {
@@ -38,7 +38,7 @@ extension URLImageDownloader: URLImageDownloaderType {
       }
     )
 
-    safelyUpdateReceipt(receipt, forKey: cacheKey)
+    startedDownloads[cacheKey] = receipt
 
     return receipt?.receiptID
   }
@@ -47,22 +47,7 @@ extension URLImageDownloader: URLImageDownloaderType {
     guard let receipt = startedDownloads[key] as? RequestReceipt else {
       return
     }
-    safelyUpdateReceipt(nil, forKey: key)
+    startedDownloads.removeValue(forKey: key)
     cancelRequest(with: receipt)
-  }
-
-  private static let lock = NSLock()
-
-  private func safelyUpdateReceipt(_ receipt: RequestReceipt?, forKey key: String) {
-    Self.lock.lock()
-    defer {
-      Self.lock.unlock()
-    }
-
-    if let receipt = receipt {
-      startedDownloads[key] = receipt
-    } else {
-      startedDownloads.removeValue(forKey: key)
-    }
   }
 }
