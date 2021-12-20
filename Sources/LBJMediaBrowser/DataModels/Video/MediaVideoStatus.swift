@@ -17,9 +17,7 @@ public enum MediaVideoStatus {
   /// 视频加载失败，关键值是加载失败的原因。
   /// Failed to load the video. The associated value is the reason why failed to load the video.
   case failed(Error)
-}
 
-extension MediaVideoStatus {
   var isLoaded: Bool {
     switch self {
     case .loaded:

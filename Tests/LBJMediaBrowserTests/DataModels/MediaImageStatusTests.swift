@@ -15,4 +15,11 @@ final class MediaImageStatusTests: XCTestCase {
     XCTAssertTrue(MediaImageStatus.loaded(UIImage()).isLoaded)
     XCTAssertFalse(MediaImageStatus.failed(NSError.unknownError).isLoaded)
   }
+
+  func test_isLoadingOrLoaded() {
+    XCTAssertFalse(MediaImageStatus.idle.isLoadingOrLoaded)
+    XCTAssertTrue(MediaImageStatus.loading(0.5).isLoadingOrLoaded)
+    XCTAssertTrue(MediaImageStatus.loaded(UIImage()).isLoadingOrLoaded)
+    XCTAssertFalse(MediaImageStatus.failed(NSError.unknownError).isLoadingOrLoaded)
+  }
 }

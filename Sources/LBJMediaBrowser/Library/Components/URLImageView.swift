@@ -57,7 +57,7 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   }
 
   private func loadImage() {
-    if imageStatus.isLoading || imageStatus.isLoaded {
+    if imageStatus.isLoadingOrLoaded {
       return
     }
     imageLoader.loadImage(for: urlImage, targetSize: targetSize)

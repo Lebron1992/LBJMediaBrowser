@@ -57,7 +57,7 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
   }
 
   private func loadImage() {
-    if imageStatus.isLoading || imageStatus.isLoaded {
+    if imageStatus.isLoadingOrLoaded {
       return
     }
     imageLoader.loadImage(for: assetImage, targetSize: targetSize)

@@ -19,9 +19,7 @@ public enum MediaImageStatus {
   /// 图片加载失败，关键值是加载失败的原因。
   /// Failed to load the image. The associated value is the reason why failed to load the image.
   case failed(Error)
-}
 
-extension MediaImageStatus {
   var isLoading: Bool {
     switch self {
     case .loading:
@@ -38,6 +36,10 @@ extension MediaImageStatus {
     default:
       return false
     }
+  }
+
+  var isLoadingOrLoaded: Bool {
+    isLoading || isLoaded
   }
 }
 

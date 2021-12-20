@@ -50,6 +50,23 @@ open class MediaPHAssetImage: MediaImage {
   }
 }
 
+// MARK: - Helper Methods
+extension MediaPHAssetImage {
+  func cacheKey(for targetSize: ImageTargetSize) -> String {
+    let size = self.targetSize(for: targetSize)
+    let contentMode = contentMode(for: targetSize)
+    return "\(asset.localIdentifier)-\(size)-\(contentMode.stringRepresentation)"
+  }
+
+  func targetSize(for targetSize: ImageTargetSize) -> CGSize {
+      targetSize.isThumbnail ? thumbnailTargetSize : self.targetSize
+    }
+
+    func contentMode(for targetSize: ImageTargetSize) -> PHImageContentMode {
+      targetSize.isThumbnail ? thumbnailContentMode : contentMode
+    }
+}
+
 extension MediaPHAssetImage: Equatable {
   public static func == (lhs: MediaPHAssetImage, rhs: MediaPHAssetImage) -> Bool {
     lhs.id == rhs.id &&
@@ -65,21 +82,4 @@ extension MediaPHAssetImage {
   public enum Constant {
     public static let thumbnailTargetSize = CGSize(width: 160, height: 160)
   }
-}
-
-// MARK: - Cache Key
-extension MediaPHAssetImage {
-  func cacheKey(for targetSize: ImageTargetSize) -> String {
-    let size = self.targetSize(for: targetSize)
-    let contentMode = contentMode(for: targetSize)
-    return "\(asset.localIdentifier)-\(size)-\(contentMode.stringRepresentation)"
-  }
-
-  func targetSize(for targetSize: ImageTargetSize) -> CGSize {
-      targetSize.isThumbnail ? thumbnailTargetSize : self.targetSize
-    }
-
-    func contentMode(for targetSize: ImageTargetSize) -> PHImageContentMode {
-      targetSize.isThumbnail ? thumbnailContentMode : contentMode
-    }
 }
