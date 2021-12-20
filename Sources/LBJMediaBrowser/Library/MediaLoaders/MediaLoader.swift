@@ -3,7 +3,7 @@ import Photos
 class MediaLoader<Status, RequestID>: ObservableObject {
 
   let requestQueue: DispatchQueue = {
-    let name = String(format: "com.lebron.lbjmediabrowser.requestqueue-%08x%08x", arc4random(), arc4random())
+    let name = String(format: "com.lebron.LBJMediaBrowser.MediaLoader.requestQueue.\(UUID().uuidString)")
     return DispatchQueue(label: name, attributes: .concurrent)
   }()
 
