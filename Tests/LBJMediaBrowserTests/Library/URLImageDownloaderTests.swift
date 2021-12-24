@@ -11,6 +11,7 @@ final class URLImageLoaderTests: BaseTestCase {
   private let targetSize: ImageTargetSize = .larger
   private let progress: Float = 0.5
 
+  private let imageCache = ImageCache()
   private var cacheKey: String!
   private var uiImage: UIImage!
   private var imageLoader: URLImageLoader!
@@ -24,6 +25,7 @@ final class URLImageLoaderTests: BaseTestCase {
   override func tearDown() {
     super.tearDown()
     imageLoader = nil
+    try? imageCache.clearDiskCache(containsDirectory: true)
   }
 
   func test_loadImage_success() {
@@ -44,7 +46,7 @@ final class URLImageLoaderTests: BaseTestCase {
         .loaded(self.uiImage)
       )
       XCTAssertEqual(
-        self.imageLoader.imageCache.image(withIdentifier: self.cacheKey),
+        self.imageLoader.imageCache.image(forKey: self.cacheKey),
         self.uiImage
       )
     }
@@ -135,10 +137,9 @@ final class URLImageLoaderTests: BaseTestCase {
 
 private extension URLImageLoaderTests {
   func createImageLoader(progress: Float? = nil, uiImage: UIImage? = nil, error: Error? = nil, useCache: Bool = false) {
-    let imageCache = AutoPurgingImageCache()
 
     if useCache, let uiImage = uiImage {
-      imageCache.add(uiImage, withIdentifier: mockUrlImage.cacheKey(for: targetSize))
+      imageCache.store(uiImage, forKey: mockUrlImage.cacheKey(for: targetSize))
     }
 
     imageLoader = URLImageLoader(

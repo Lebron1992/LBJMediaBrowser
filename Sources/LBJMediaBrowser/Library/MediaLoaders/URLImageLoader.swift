@@ -6,11 +6,11 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
   static let shared = URLImageLoader()
 
   let downloader: URLImageDownloaderType
-  let imageCache: AutoPurgingImageCache
+  let imageCache: ImageCache
 
   init(
     downloader: URLImageDownloaderType = URLImageDownloader(),
-    imageCache: AutoPurgingImageCache = .shared
+    imageCache: ImageCache = .shared
   ) {
     self.downloader = downloader
     self.imageCache = imageCache
@@ -20,7 +20,7 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
     let cacheKey = urlImage.cacheKey(for: targetSize)
 
     // image did cache
-    if let cachedImage = imageCache.image(withIdentifier: cacheKey) {
+    if let cachedImage = imageCache.image(forKey: cacheKey) {
       updateStatus(.loaded(cachedImage), forKey: cacheKey)
       return
     }
@@ -46,7 +46,7 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
           switch result {
           case .success(let image):
             updateStatus(.loaded(image), forKey: cacheKey)
-            imageCache.add(image, withIdentifier: cacheKey)
+            imageCache.store(image, forKey: cacheKey)
           case .failure(let error):
             updateStatus(.failed(error), forKey: cacheKey)
           }

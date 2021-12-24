@@ -9,13 +9,13 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
   private let manager: PHImageManagerType
   private let thumbnailGenerator: ThumbnailGeneratorType
 
-  let imageCache: AutoPurgingImageCache
+  let imageCache: ImageCache
   private(set) var urlCache: SafeDictionary<String, URL>
 
   init(
     manager: PHImageManagerType = PHImageManager(),
     thumbnailGenerator: ThumbnailGeneratorType = ThumbnailGenerator(),
-    imageCache: AutoPurgingImageCache = .shared,
+    imageCache: ImageCache = .shared,
     urlCache: SafeDictionary<String, URL> = .init()
   ) {
     self.manager = manager
@@ -29,7 +29,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
     // image did cache
     if let cachedUrl = urlCache[cacheKey],
-       let cachedImage = imageCache.image(withIdentifier: cacheKey) {
+       let cachedImage = imageCache.image(forKey: cacheKey) {
       updateStatus(.loaded(previewImage: cachedImage, videoUrl: cachedUrl), forKey: cacheKey)
       return
     }
@@ -64,7 +64,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
           if let previewImage = previewImage {
             self.urlCache[cacheKey] = url
-            self.imageCache.add(previewImage, withIdentifier: cacheKey)
+            self.imageCache.store(previewImage, forKey: cacheKey)
           }
 
         case .failure(let error):

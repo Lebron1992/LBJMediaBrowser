@@ -22,6 +22,6 @@ struct SafeDictionary<Key: Hashable, Value> {
   mutating func removeValue(forKey key: Key) -> Value? {
     lock.lock()
     defer { lock.unlock() }
-    dictionary.removeValue(forKey: key)
+    return dictionary.removeValue(forKey: key)
   }
 }
