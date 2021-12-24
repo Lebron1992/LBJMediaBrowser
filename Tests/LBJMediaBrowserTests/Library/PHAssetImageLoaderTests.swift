@@ -9,6 +9,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
   private let targetSize: ImageTargetSize = .larger
   private var cacheKey: String!
 
+  private let imageCache = ImageCache()
   private var uiImage: UIImage!
   private var imageLoader: PHAssetImageLoader!
 
@@ -21,6 +22,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
   override func tearDown() {
     super.tearDown()
     imageLoader = nil
+    try? imageCache.clearDiskCache(containsDirectory: true)
   }
 
   func test_loadImage_success() {
@@ -34,7 +36,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
         .loaded(self.uiImage)
       )
       XCTAssertEqual(
-        self.imageLoader.imageCache.image(withIdentifier: self.cacheKey),
+        self.imageLoader.imageCache.image(forKey: self.cacheKey),
         self.uiImage
       )
     }
@@ -118,12 +120,11 @@ final class PHAssetImageLoaderTests: BaseTestCase {
 private extension PHAssetImageLoaderTests {
   func createImageLoader(uiImage: UIImage? = nil, error: Error? = nil, useCache: Bool = false) {
     let mockAsset = mockAssetImage.asset as! PHAssetMock
-    let imageCache = AutoPurgingImageCache()
 
     if useCache, let uiImage = uiImage {
-      imageCache.add(
+      imageCache.store(
         uiImage,
-        withIdentifier: mockAssetImage.cacheKey(for: targetSize)
+        forKey: mockAssetImage.cacheKey(for: targetSize)
       )
     }
 

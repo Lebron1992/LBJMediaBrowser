@@ -6,11 +6,11 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
   static let shared = PHAssetImageLoader()
 
   let manager: PHImageManagerType
-  let imageCache: AutoPurgingImageCache
+  let imageCache: ImageCache
 
   init(
     manager: PHImageManagerType = PHImageManager(),
-    imageCache: AutoPurgingImageCache = .shared
+    imageCache: ImageCache = .shared
   ) {
     self.manager = manager
     self.imageCache = imageCache
@@ -20,7 +20,7 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
     let cacheKey = assetImage.cacheKey(for: targetSize)
 
     // image did cache
-    if let cachedImage = imageCache.image(withIdentifier: cacheKey) {
+    if let cachedImage = imageCache.image(forKey: cacheKey) {
       updateStatus(.loaded(cachedImage), forKey: cacheKey)
       return
     }
@@ -49,7 +49,7 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
         switch result {
         case .success(let image):
           updateStatus(.loaded(image), forKey: cacheKey)
-          imageCache.add(image, withIdentifier: cacheKey)
+          imageCache.store(image, forKey: cacheKey)
         case .failure(let error):
           updateStatus(.failed(error), forKey: cacheKey)
         }

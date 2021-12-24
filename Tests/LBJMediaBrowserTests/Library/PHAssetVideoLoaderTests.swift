@@ -10,6 +10,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   private let mockAssetVideo = MediaPHAssetVideo(asset: PHAssetMock(id: 1, assetType: .video))
   private var cacheKey: String!
 
+  private let imageCache = ImageCache()
   private var uiImage: UIImage!
   private var videoLoader: PHAssetVideoLoader!
 
@@ -22,6 +23,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   override func tearDown() {
     super.tearDown()
     videoLoader = nil
+    try? imageCache.clearDiskCache(containsDirectory: true)
   }
 
   func test_loadUrl_success() {
@@ -35,7 +37,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
         .loaded(previewImage: self.uiImage, videoUrl: self.videoUrl)
       )
       XCTAssertEqual(
-        self.videoLoader.imageCache.image(withIdentifier: self.cacheKey),
+        self.videoLoader.imageCache.image(forKey: self.cacheKey),
         self.uiImage
       )
       XCTAssertEqual(
@@ -122,11 +124,10 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
 
 private extension PHAssetVideoLoaderTests {
   func createVideoLoader(uiImage: UIImage? = nil, url: URL? = nil, error: Error? = nil, useCache: Bool = false) {
-    let imageCache = AutoPurgingImageCache()
     var urlCache = SafeDictionary<String, URL>()
 
     if useCache, let uiImage = uiImage, let url = url {
-      imageCache.add(uiImage, withIdentifier: cacheKey)
+      imageCache.store(uiImage, forKey: cacheKey)
       urlCache[cacheKey] = url
     }
 
