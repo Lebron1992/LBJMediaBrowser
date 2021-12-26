@@ -27,19 +27,24 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
   func loadUrl(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
-    // image did cache
-    if let cachedUrl = urlCache[cacheKey],
-       let cachedImage = imageCache.image(forKey: cacheKey) {
-      updateStatus(.loaded(previewImage: cachedImage, videoUrl: cachedUrl), forKey: cacheKey)
-      return
+    if let cachedUrl = urlCache[cacheKey] {
+      imageCache.image(forKey: cacheKey) { [unowned self] result in
+        if let image = try? result.get() {
+          updateStatus(.loaded(previewImage: image, videoUrl: cachedUrl), forKey: cacheKey)
+        } else {
+          requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+        }
+      }
+    } else {
+      requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
     }
+  }
 
-    // image is loading
-    if isLoading(forKey: cacheKey) {
-      return
-    }
+  private func requestAVAsset(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
+    let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
-    // loading image
+    guard isLoading(forKey: cacheKey) == false else { return }
+
     requestQueue.async { [unowned self] in
 
       let options = PHVideoRequestOptions()

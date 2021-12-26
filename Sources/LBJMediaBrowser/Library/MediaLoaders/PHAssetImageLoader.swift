@@ -18,19 +18,20 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
 
   func loadImage(for assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) {
     let cacheKey = assetImage.cacheKey(for: targetSize)
-
-    // image did cache
-    if let cachedImage = imageCache.image(forKey: cacheKey) {
-      updateStatus(.loaded(cachedImage), forKey: cacheKey)
-      return
+    imageCache.image(forKey: cacheKey) { [unowned self] result in
+      if let image = try? result.get() {
+        updateStatus(.loaded(image), forKey: cacheKey)
+      } else {
+        requestImage(for: assetImage, targetSize: targetSize)
+      }
     }
+  }
 
-    // image is loading
-    if isLoading(forKey: cacheKey) {
-      return
-    }
+  private func requestImage(for assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) {
+    let cacheKey = assetImage.cacheKey(for: targetSize)
 
-    // loading image
+    guard isLoading(forKey: cacheKey) == false else { return }
+
     requestQueue.async { [unowned self] in
 
       let options = PHImageRequestOptions()

@@ -18,21 +18,21 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
 
   func loadImage(for urlImage: MediaURLImage, targetSize: ImageTargetSize) {
     let cacheKey = urlImage.cacheKey(for: targetSize)
-
-    // image did cache
-    if let cachedImage = imageCache.image(forKey: cacheKey) {
-      updateStatus(.loaded(cachedImage), forKey: cacheKey)
-      return
+    imageCache.image(forKey: cacheKey) { [unowned self] result in
+      if let image = try? result.get() {
+        updateStatus(.loaded(image), forKey: cacheKey)
+      } else {
+        downloadImage(for: urlImage, targetSize: targetSize)
+      }
     }
+  }
 
-    // image is loading
-    if isLoading(forKey: cacheKey) {
-      return
-    }
+  private func downloadImage(for urlImage: MediaURLImage, targetSize: ImageTargetSize) {
+    let cacheKey = urlImage.cacheKey(for: targetSize)
 
-    // loading image
+    guard isLoading(forKey: cacheKey) == false else { return }
+
     requestQueue.async { [unowned self] in
-
       let requestId = downloader.download(
         URLRequest(url: urlImage.imageUrl(for: targetSize)),
         cacheKey: cacheKey,

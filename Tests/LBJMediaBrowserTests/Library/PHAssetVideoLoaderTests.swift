@@ -23,7 +23,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
   override func tearDown() {
     super.tearDown()
     videoLoader = nil
-    try? imageCache.clearDiskCache(containsDirectory: true)
+    imageCache.clearDiskCache(containsDirectory: true)
   }
 
   func test_loadUrl_success() {
@@ -36,10 +36,9 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
         self.videoLoader.statusCache[self.cacheKey],
         .loaded(previewImage: self.uiImage, videoUrl: self.videoUrl)
       )
-      XCTAssertEqual(
-        self.videoLoader.imageCache.image(forKey: self.cacheKey),
-        self.uiImage
-      )
+      self.videoLoader.imageCache.image(forKey: self.cacheKey) { result in
+        XCTAssertEqual(try? result.get(), self.uiImage)
+      }
       XCTAssertEqual(
         self.videoLoader.urlCache[self.cacheKey],
         self.videoUrl

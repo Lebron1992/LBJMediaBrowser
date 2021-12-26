@@ -8,9 +8,9 @@ class MediaLoader<Status, RequestID>: ObservableObject {
   }()
 
   @Published
-  private(set) var statusCache: [String: Status] = [:]
+  private(set) var statusCache = SafeDictionary<String, Status>()
 
-  private(set) var requestIdCache: [String: RequestID] = [:]
+  private(set) var requestIdCache = SafeDictionary<String, RequestID>()
 
   func isLoading(forKey key: String) -> Bool {
     requestIdCache[key] != nil

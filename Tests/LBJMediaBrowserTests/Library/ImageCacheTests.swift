@@ -36,42 +36,72 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   override func tearDown() {
-    try? cache.clearDiskCache(containsDirectory: true)
+    cache.clearDiskCache(containsDirectory: true)
     super.tearDown()
   }
 
   func test_storeAndGetImage_inMemory() {
     cache.store(uiImage, forKey: "1", inMemory: true, inDisk: false)
-    XCTAssertEqual(cache.image(forKey: "1", fromMemory: true, fromDsik: false), uiImage)
-    XCTAssertNil(cache.image(forKey: "1", fromMemory: false, fromDsik: true))
+
+    wait(interval: 0.5) { [unowned self] in
+      cache.image(forKey: "1", fromMemory: true, fromDsik: false) { [unowned self] result in
+        XCTAssertEqual(try! result.get(), uiImage)
+      }
+      cache.image(forKey: "1", fromMemory: false, fromDsik: true) { result in
+        XCTAssertNil(try? result.get())
+      }
+    }
   }
 
   func test_storeAndGetImage_inDisk() {
     cache.store(uiImage, forKey: "1", inMemory: false, inDisk: true)
-    XCTAssertEqual(cache.image(forKey: "1", fromMemory: false, fromDsik: true)?.cacheSize, uiImage.cacheSize)
-    XCTAssertNil(cache.image(forKey: "1", fromMemory: true, fromDsik: false))
+
+    wait(interval: 0.5) { [unowned self] in
+      cache.image(forKey: "1", fromMemory: false, fromDsik: true) { [unowned self] result in
+        XCTAssertEqual((try! result.get()).cacheSize, uiImage.cacheSize)
+      }
+      cache.image(forKey: "1", fromMemory: true, fromDsik: false) { result in
+        XCTAssertNil(try? result.get())
+      }
+    }
   }
 
   func test_storeAndGetImage_inMemoryDisk() {
     cache.store(uiImage, forKey: "1", inMemory: true, inDisk: true)
-    XCTAssertEqual(cache.image(forKey: "1", fromMemory: true, fromDsik: false), uiImage)
-    XCTAssertEqual(cache.image(forKey: "1", fromMemory: false, fromDsik: true)?.cacheSize, uiImage.cacheSize)
+
+    wait(interval: 0.5) { [unowned self] in
+      cache.image(forKey: "1", fromMemory: true, fromDsik: false) { [unowned self] result in
+        XCTAssertEqual(try! result.get(), uiImage)
+      }
+      cache.image(forKey: "1", fromMemory: false, fromDsik: true) { [unowned self] result in
+        XCTAssertEqual((try! result.get()).cacheSize, uiImage.cacheSize)
+      }
+    }
   }
 
   func test_clearDiskCache_containsDirectory() throws {
     cache.store(uiImage, forKey: "1")
     XCTAssertFalse(cache.isDiskCacheRemoved(containsDirectory: true))
 
-    try cache.clearDiskCache(containsDirectory: true)
-    XCTAssertTrue(cache.isDiskCacheRemoved(containsDirectory: true))
+    wait(interval: 0.5) { [unowned self] in
+      cache.clearDiskCache(containsDirectory: true)
+    }
+
+    wait(interval: 0.5) { [unowned self] in
+      XCTAssertTrue(cache.isDiskCacheRemoved(containsDirectory: true))
+    }
   }
 
   func test_clearDiskCache_notContainsDirectory() throws {
     cache.store(uiImage, forKey: "1")
-    XCTAssertFalse(cache.isDiskCacheRemoved(containsDirectory: false))
+    wait(interval: 0.5) { [unowned self] in
+      XCTAssertFalse(cache.isDiskCacheRemoved(containsDirectory: false))
+    }
 
-    try cache.clearDiskCache(containsDirectory: false)
-    XCTAssertTrue(cache.isDiskCacheRemoved(containsDirectory: false))
+    cache.clearDiskCache(containsDirectory: false)
+    wait(interval: 0.5) { [unowned self] in
+      XCTAssertTrue(cache.isDiskCacheRemoved(containsDirectory: false))
+    }
   }
 
   func test_clearExpiredDiskCache() throws {
@@ -80,17 +110,30 @@ final class ImageCacheTests: BaseTestCase {
     cache.store(uiImage, forKey: "2", inMemory: false, referenceDate: now.addingTimeInterval(2))
     cache.store(uiImage, forKey: "3", inMemory: false, referenceDate: now.addingTimeInterval(4))
 
-    try cache.clearExpiredDiskCache(referenceDate: now.addingTimeInterval(expirationDuration + 3))
+    wait(interval: 0.5) { [unowned self] in
+      cache.clearExpiredDiskCache(referenceDate: now.addingTimeInterval(expirationDuration + 3.5))
+    }
 
-    XCTAssertNil(cache.image(forKey: "1"))
-    XCTAssertNil(cache.image(forKey: "2"))
-    XCTAssertNotNil(cache.image(forKey: "3"))
+    wait(interval: 0.5) { [unowned self] in
+      cache.image(forKey: "1") { result in
+        XCTAssertNil(try? result.get())
+      }
+      cache.image(forKey: "2") { result in
+        XCTAssertNil(try? result.get())
+      }
+      cache.image(forKey: "3") { result in
+        XCTAssertNotNil(try? result.get())
+      }
+    }
   }
 
   func test_diskStorageSize() {
     cache.store(uiImage, forKey: "1")
     cache.store(uiImage, forKey: "2")
-    XCTAssertEqual(cache.diskStorageSize(), UInt(imageSizeInFile * 2))
+
+    wait(interval: 0.5) { [unowned self] in
+      XCTAssertEqual(cache.diskStorageSize(), UInt(imageSizeInFile * 2))
+    }
   }
 
   func test_appwillTerminate() {
@@ -102,21 +145,34 @@ final class ImageCacheTests: BaseTestCase {
       cache.store(uiImage, forKey: "\(i)", inMemory: false, referenceDate: now.addingTimeInterval(TimeInterval(i)))
     }
 
-    NotificationCenter.default.post(
-      name: UIApplication.willTerminateNotification,
-      object: now.addingTimeInterval(3),
-      userInfo: nil
-    )
-
-    XCTAssertNil(cache.image(forKey: "1"))
-    XCTAssertNil(cache.image(forKey: "2"))
-
-    for i in 4...7 {
-      XCTAssertNil(cache.image(forKey: "\(i)"))
+    wait(interval: 0.5) {
+      NotificationCenter.default.post(
+        name: UIApplication.willTerminateNotification,
+        object: now.addingTimeInterval(3),
+        userInfo: nil
+      )
     }
 
-    for i in 8...10 {
-      XCTAssertNotNil(cache.image(forKey: "\(i)"))
+    wait(interval: 0.5) { [unowned self] in
+
+      cache.image(forKey: "1", callbackQueue: .main) { result in
+        XCTAssertNil(try? result.get())
+      }
+      cache.image(forKey: "2", callbackQueue: .main) { result in
+        XCTAssertNil(try? result.get())
+      }
+
+      for i in 4...7 {
+        cache.image(forKey: "\(i)", callbackQueue: .main) { result in
+          XCTAssertNil(try? result.get())
+        }
+      }
+
+      for i in 8...10 {
+        cache.image(forKey: "\(i)", callbackQueue: .main) { result in
+          XCTAssertNotNil(try! result.get())
+        }
+      }
     }
   }
 }

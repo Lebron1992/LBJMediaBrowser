@@ -10,6 +10,11 @@ final class ImageCache {
   private let diskStorage: ImageDiskStorage?
   private let memoryStorage: ImageMemoryStorage
 
+  private let ioQueue: DispatchQueue = {
+    let name = String(format: "com.lebron.LBJMediaBrowser.ImageCache.ioQueue.\(UUID().uuidString)")
+    return DispatchQueue(label: name, attributes: .concurrent)
+  }()
+
   init(diskStorage: ImageDiskStorage, memoryStorage: ImageMemoryStorage = .init()) {
     self.diskStorage = diskStorage
     self.memoryStorage = memoryStorage
@@ -46,29 +51,76 @@ final class ImageCache {
       memoryStorage.add(image, forKey: key)
     }
     if inDisk {
-      try? diskStorage?.store(image, forKey: key, referenceDate: referenceDate)
+      ioQueue.async { [unowned self] in
+        try? diskStorage?.store(image, forKey: key, referenceDate: referenceDate)
+      }
     }
   }
 
   func image(
     forKey key: String,
     fromMemory: Bool = true,
-    fromDsik: Bool = true
-  ) -> UIImage? {
+    fromDsik: Bool = true,
+    callbackQueue: CallbackQueue = .current,
+    completion: @escaping (Result<UIImage, LBJMediaBrowserError>) -> Void
+  ) {
     if fromMemory && fromDsik {
-      return memoryStorage.value(forKey: key) ?? (try? diskStorage?.value(forKey: key))
+      if let image = memoryStorage.value(forKey: key) {
+        callbackQueue.execute { completion(.success(image)) }
+        return
+      }
+      asyncGetImageFromDisk(forKey: key, callbackQueue: callbackQueue, completion: completion)
+      return
     }
+
     if fromMemory {
-      return memoryStorage.value(forKey: key)
+      if let image = memoryStorage.value(forKey: key) {
+        callbackQueue.execute { completion(.success(image)) }
+      } else {
+        callbackQueue.execute {
+          completion(.failure(.cacheError(
+          reason: .cannotGetValueForKey(key: key, errorDescription: "Can't find image from memory for key: \(key)")
+        )))
+        }
+      }
+      return
     }
+
     if fromDsik {
-      return try? diskStorage?.value(forKey: key)
+      asyncGetImageFromDisk(forKey: key, callbackQueue: callbackQueue, completion: completion)
     }
-    return nil
   }
 
-  func clearDiskCache(containsDirectory: Bool = false) throws {
-    try diskStorage?.removeAll(containsDirectory: containsDirectory)
+  private func asyncGetImageFromDisk(
+    forKey key: String,
+    callbackQueue: CallbackQueue = .current,
+    completion: @escaping (Result<UIImage, LBJMediaBrowserError>) -> Void
+  ) {
+    ioQueue.async { [unowned self] in
+      do {
+        if let image = try diskStorage?.value(forKey: key) {
+          callbackQueue.execute { completion(.success(image)) }
+        } else {
+          callbackQueue.execute {
+            completion(.failure(.cacheError(
+              reason: .cannotGetValueForKey(key: key, errorDescription: "Can't read file for key: \(key)")
+            )))
+          }
+        }
+      } catch {
+        callbackQueue.execute {
+          completion(.failure(.cacheError(
+            reason: .cannotGetValueForKey(key: key, errorDescription: error.localizedDescription)
+          )))
+        }
+      }
+    }
+  }
+
+  func clearDiskCache(containsDirectory: Bool = false) {
+    ioQueue.async { [unowned self] in
+      try? diskStorage?.removeAll(containsDirectory: containsDirectory)
+    }
   }
 
   func isDiskCacheRemoved(containsDirectory: Bool) -> Bool {
@@ -90,18 +142,24 @@ final class ImageCache {
     }
   }
 
-  func clearExpiredDiskCache(referenceDate: Date = Date()) throws {
-    try diskStorage?.removeExpiredValues(referenceDate: referenceDate)
+  func clearExpiredDiskCache(referenceDate: Date = Date()) {
+    ioQueue.async { [unowned self] in
+      let _ = try? diskStorage?.removeExpiredValues(referenceDate: referenceDate)
+    }
   }
 
   func diskStorageSize() -> UInt {
-    (try? diskStorage?.totalSize()) ?? 0
+    ioQueue.sync { [unowned self] in
+      return (try? diskStorage?.totalSize()) ?? 0
+    }
   }
 
   @objc
   private func appwillTerminate(noti: Notification) {
     let referenceDate = (noti.object as? Date) ?? Date()
-    try? clearExpiredDiskCache(referenceDate: referenceDate)
-    let _ = try? diskStorage?.removeValuesToHalfSizeIfSizeExceeded()
+    clearExpiredDiskCache(referenceDate: referenceDate)
+    ioQueue.async { [unowned self] in
+      let _ = try? diskStorage?.removeValuesToHalfSizeIfSizeExceeded()
+    }
   }
 }

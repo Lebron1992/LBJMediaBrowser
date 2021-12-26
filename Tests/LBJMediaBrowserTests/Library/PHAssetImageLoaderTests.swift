@@ -22,7 +22,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
   override func tearDown() {
     super.tearDown()
     imageLoader = nil
-    try? imageCache.clearDiskCache(containsDirectory: true)
+    imageCache.clearDiskCache(containsDirectory: true)
   }
 
   func test_loadImage_success() {
@@ -35,10 +35,9 @@ final class PHAssetImageLoaderTests: BaseTestCase {
         self.imageLoader.statusCache[self.cacheKey],
         .loaded(self.uiImage)
       )
-      XCTAssertEqual(
-        self.imageLoader.imageCache.image(forKey: self.cacheKey),
-        self.uiImage
-      )
+      self.imageLoader.imageCache.image(forKey: self.cacheKey) { result in
+        XCTAssertEqual(try? result.get(), self.uiImage)
+      }
     }
   }
 
