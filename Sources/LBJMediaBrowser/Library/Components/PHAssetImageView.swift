@@ -2,8 +2,8 @@ import SwiftUI
 
 struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
-  @ObservedObject
-  private var imageLoader = PHAssetImageLoader.shared
+  @EnvironmentObject
+  private var imageLoader: PHAssetImageLoader
 
   private let assetImage: MediaPHAssetImage
   private let targetSize: ImageTargetSize

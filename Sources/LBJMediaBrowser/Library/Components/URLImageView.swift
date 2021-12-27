@@ -2,8 +2,8 @@ import SwiftUI
 
 struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
 
-  @ObservedObject
-  private var imageLoader = URLImageLoader.shared
+  @EnvironmentObject
+  private var imageLoader: URLImageLoader
 
   private let urlImage: MediaURLImage
   private let targetSize: ImageTargetSize

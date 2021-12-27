@@ -4,18 +4,16 @@ import AlamofireImage
 
 final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> {
 
-  static let shared = PHAssetVideoLoader()
-
   private let manager: PHImageManagerType
   private let thumbnailGenerator: ThumbnailGeneratorType
 
-  let imageCache: ImageCache
+  let imageCache: ImageCache?
   private(set) var urlCache: SafeDictionary<String, URL>
 
   init(
     manager: PHImageManagerType = PHImageManager(),
     thumbnailGenerator: ThumbnailGeneratorType = ThumbnailGenerator(),
-    imageCache: ImageCache = .shared,
+    imageCache: ImageCache?,
     urlCache: SafeDictionary<String, URL> = .init()
   ) {
     self.manager = manager
@@ -27,16 +25,22 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
   func loadUrl(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
-    if let cachedUrl = urlCache[cacheKey] {
-      imageCache.image(forKey: cacheKey) { [unowned self] result in
-        if let image = try? result.get() {
-          updateStatus(.loaded(previewImage: image, videoUrl: cachedUrl), forKey: cacheKey)
-        } else {
-          requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
-        }
-      }
-    } else {
+    guard let cachedUrl = urlCache[cacheKey] else {
       requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+      return
+    }
+
+    guard let imageCache = imageCache else {
+      requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+      return
+    }
+
+    imageCache.image(forKey: cacheKey) { [unowned self] result in
+      if let image = try? result.get() {
+        updateStatus(.loaded(previewImage: image, videoUrl: cachedUrl), forKey: cacheKey)
+      } else {
+        requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+      }
     }
   }
 
@@ -60,7 +64,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
         var previewImage: UIImage?
         if case let .success(url) = result {
-          previewImage = self.thumbnailGenerator.thumbnail(for: url, maximumSize: maxThumbnailSize)
+          previewImage = thumbnailGenerator.thumbnail(for: url, maximumSize: maxThumbnailSize)
         }
 
         switch result {
@@ -68,8 +72,8 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
           updateStatus(.loaded(previewImage: previewImage, videoUrl: url), forKey: cacheKey)
 
           if let previewImage = previewImage {
-            self.urlCache[cacheKey] = url
-            self.imageCache.store(previewImage, forKey: cacheKey)
+            urlCache[cacheKey] = url
+            imageCache?.store(previewImage, forKey: cacheKey)
           }
 
         case .failure(let error):

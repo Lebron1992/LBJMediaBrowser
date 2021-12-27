@@ -1,11 +1,11 @@
 import UIKit
 
-typealias ImageDiskStorage = DiskStorage<UIImage>
-typealias ImageMemoryStorage = AutoPurgingMemoryStorage<UIImage>
+public typealias ImageDiskStorage = DiskStorage<UIImage>
+public typealias ImageMemoryStorage = AutoPurgingMemoryStorage<UIImage>
 
-final class ImageCache {
+public final class ImageCache {
 
-  static let shared = ImageCache()
+  public static let shared = ImageCache()
 
   private let diskStorage: ImageDiskStorage?
   private let memoryStorage: ImageMemoryStorage
@@ -15,7 +15,7 @@ final class ImageCache {
     return DispatchQueue(label: name, attributes: .concurrent)
   }()
 
-  init(diskStorage: ImageDiskStorage, memoryStorage: ImageMemoryStorage = .init()) {
+  public init(diskStorage: ImageDiskStorage, memoryStorage: ImageMemoryStorage = .init()) {
     self.diskStorage = diskStorage
     self.memoryStorage = memoryStorage
     commonInit()
@@ -117,7 +117,7 @@ final class ImageCache {
     }
   }
 
-  func clearDiskCache(containsDirectory: Bool = false) {
+  public func clearDiskCache(containsDirectory: Bool = false) {
     ioQueue.async { [unowned self] in
       try? diskStorage?.removeAll(containsDirectory: containsDirectory)
     }
@@ -142,13 +142,13 @@ final class ImageCache {
     }
   }
 
-  func clearExpiredDiskCache(referenceDate: Date = Date()) {
+  public func clearExpiredDiskCache(referenceDate: Date = Date()) {
     ioQueue.async { [unowned self] in
       let _ = try? diskStorage?.removeExpiredValues(referenceDate: referenceDate)
     }
   }
 
-  func diskStorageSize() -> UInt {
+  public func diskStorageSize() -> UInt {
     ioQueue.sync { [unowned self] in
       return (try? diskStorage?.totalSize()) ?? 0
     }

@@ -1,11 +1,11 @@
 import Foundation
 
-final class DiskStorage<T: DataConvertible> {
+public final class DiskStorage<T: DataConvertible> {
 
   let config: Config
   let directoryUrl: URL
 
-  init(config: Config) throws {
+  public init(config: Config) throws {
     self.config = config
 
     guard let cacheDirectory = config.fileManager
@@ -231,13 +231,13 @@ extension DiskStorage {
 
 // MARK: - Config
 extension DiskStorage {
-  struct Config {
+  public struct Config {
     let name: String
     let fileManager: FileManager
     let sizeLimit: UInt
     let expiration: StorageExpiration
 
-    init(
+    public init(
       name: String,
       fileManager: FileManager = .default,
       sizeLimit: UInt = 0,

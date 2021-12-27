@@ -1,11 +1,11 @@
 import UIKit
 
-protocol CacheSizeCalculable {
+public protocol CacheSizeCalculable {
   var cacheSize: UInt { get }
 }
 
 extension UIImage: CacheSizeCalculable {
-  var cacheSize: UInt {
+  public var cacheSize: UInt {
     let size = CGSize(width: size.width * scale, height: size.height * scale)
 
     let bytesPerPixel: CGFloat = 4.0

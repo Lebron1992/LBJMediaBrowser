@@ -6,6 +6,9 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 
   var onTapMedia: (Media) -> Void = { _ in }
 
+  @Environment(\.mediaBrowserEnvironment)
+  private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment
+
   @ObservedObject
   private var browser: LBJPagingBrowser
 
@@ -88,6 +91,7 @@ private extension LBJPagingMediaBrowser {
         failure: failure,
         content: content
       )
+        .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
     case let assetImage as MediaPHAssetImage:
       PHAssetImageView(
@@ -98,6 +102,7 @@ private extension LBJPagingMediaBrowser {
         failure: failure,
         content: content
       )
+        .environmentObject(mediaBrowserEnvironment.assetImageLoader)
 
     default:
       EmptyView()
@@ -114,6 +119,7 @@ private extension LBJPagingMediaBrowser {
         placeholder: placeholder,
         content: content
       )
+        .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
     case let assetVideo as MediaPHAssetVideo:
       PHAssetVideoView(
@@ -123,6 +129,7 @@ private extension LBJPagingMediaBrowser {
         failure: failure,
         content: content
       )
+        .environmentObject(mediaBrowserEnvironment.assetVideoLoader)
 
     default:
       EmptyView()

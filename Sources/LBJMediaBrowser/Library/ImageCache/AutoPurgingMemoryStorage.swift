@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class AutoPurgingMemoryStorage<T: CacheSizeCalculable> {
+public final class AutoPurgingMemoryStorage<T: CacheSizeCalculable> {
 
   private let lock = NSLock()
 
@@ -11,7 +11,7 @@ final class AutoPurgingMemoryStorage<T: CacheSizeCalculable> {
   private var cachedObjects: [String: StorageObject<T>] = [:]
   private(set) var currentMemoryUsage: UInt = 0
 
-  init(
+  public init(
     memoryCapacity: UInt = 100_000_000,
     preferredMemoryCapacityAfterPurge: UInt = 80_000_000
   ) {

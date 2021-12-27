@@ -1,9 +1,10 @@
 import Foundation
 
+private let lock = NSLock()
+
 struct SafeDictionary<Key: Hashable, Value> {
 
   private var dictionary: [Key: Value] = [:]
-  private let lock = NSLock()
 
   subscript(key: Key) -> Value? {
     get {

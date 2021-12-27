@@ -36,7 +36,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
         self.videoLoader.statusCache[self.cacheKey],
         .loaded(previewImage: self.uiImage, videoUrl: self.videoUrl)
       )
-      self.videoLoader.imageCache.image(forKey: self.cacheKey) { result in
+      self.videoLoader.imageCache?.image(forKey: self.cacheKey) { result in
         XCTAssertEqual(try? result.get(), self.uiImage)
       }
       XCTAssertEqual(

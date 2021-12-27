@@ -2,8 +2,8 @@ import SwiftUI
 
 struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
-  @ObservedObject
-  private var videoLoader = PHAssetVideoLoader.shared
+  @EnvironmentObject
+  private var videoLoader: PHAssetVideoLoader
 
   private let assetVideo: MediaPHAssetVideo
   private let maxThumbnailSize: CGSize

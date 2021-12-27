@@ -45,7 +45,7 @@ final class URLImageLoaderTests: BaseTestCase {
         self.imageLoader.statusCache[self.cacheKey],
         .loaded(self.uiImage)
       )
-      self.imageLoader.imageCache.image(forKey: self.cacheKey) { result in
+      self.imageLoader.imageCache?.image(forKey: self.cacheKey) { result in
         XCTAssertEqual(try? result.get(), self.uiImage)
       }
     }

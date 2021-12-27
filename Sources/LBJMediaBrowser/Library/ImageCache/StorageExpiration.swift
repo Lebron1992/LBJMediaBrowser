@@ -1,6 +1,6 @@
 import Foundation
 
-enum StorageExpiration {
+public enum StorageExpiration {
   case never
   case seconds(TimeInterval)
   case days(Int)

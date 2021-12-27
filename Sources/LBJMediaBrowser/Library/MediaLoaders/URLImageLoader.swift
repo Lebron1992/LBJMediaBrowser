@@ -3,14 +3,12 @@ import AlamofireImage
 
 final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
 
-  static let shared = URLImageLoader()
-
   let downloader: URLImageDownloaderType
-  let imageCache: ImageCache
+  let imageCache: ImageCache?
 
   init(
     downloader: URLImageDownloaderType = URLImageDownloader(),
-    imageCache: ImageCache = .shared
+    imageCache: ImageCache?
   ) {
     self.downloader = downloader
     self.imageCache = imageCache
@@ -18,6 +16,12 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
 
   func loadImage(for urlImage: MediaURLImage, targetSize: ImageTargetSize) {
     let cacheKey = urlImage.cacheKey(for: targetSize)
+
+    guard let imageCache = imageCache else {
+      downloadImage(for: urlImage, targetSize: targetSize)
+      return
+    }
+
     imageCache.image(forKey: cacheKey) { [unowned self] result in
       if let image = try? result.get() {
         updateStatus(.loaded(image), forKey: cacheKey)
@@ -46,7 +50,7 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
           switch result {
           case .success(let image):
             updateStatus(.loaded(image), forKey: cacheKey)
-            imageCache.store(image, forKey: cacheKey)
+            imageCache?.store(image, forKey: cacheKey)
           case .failure(let error):
             updateStatus(.failed(error), forKey: cacheKey)
           }

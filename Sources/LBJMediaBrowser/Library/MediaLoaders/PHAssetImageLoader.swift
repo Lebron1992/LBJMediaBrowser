@@ -3,14 +3,12 @@ import AlamofireImage
 
 final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> {
 
-  static let shared = PHAssetImageLoader()
-
   let manager: PHImageManagerType
-  let imageCache: ImageCache
+  let imageCache: ImageCache?
 
   init(
     manager: PHImageManagerType = PHImageManager(),
-    imageCache: ImageCache = .shared
+    imageCache: ImageCache?
   ) {
     self.manager = manager
     self.imageCache = imageCache
@@ -18,6 +16,12 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
 
   func loadImage(for assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) {
     let cacheKey = assetImage.cacheKey(for: targetSize)
+
+    guard let imageCache = imageCache else {
+      requestImage(for: assetImage, targetSize: targetSize)
+      return
+    }
+
     imageCache.image(forKey: cacheKey) { [unowned self] result in
       if let image = try? result.get() {
         updateStatus(.loaded(image), forKey: cacheKey)
@@ -50,7 +54,7 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
         switch result {
         case .success(let image):
           updateStatus(.loaded(image), forKey: cacheKey)
-          imageCache.store(image, forKey: cacheKey)
+          imageCache?.store(image, forKey: cacheKey)
         case .failure(let error):
           updateStatus(.failed(error), forKey: cacheKey)
         }

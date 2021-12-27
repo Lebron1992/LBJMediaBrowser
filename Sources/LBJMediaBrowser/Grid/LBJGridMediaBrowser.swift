@@ -39,6 +39,9 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
     self.content = content
   }
 
+  @Environment(\.mediaBrowserEnvironment)
+  private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment
+
   public var body: some View {
     ScrollView {
       LazyVGrid(columns: [GridItem(.adaptive(minimum: minItemSize), spacing: itemSpacing)], spacing: itemSpacing) {
@@ -92,6 +95,7 @@ private extension LBJGridMediaBrowser {
           failure: { error, _ in failure(error) },
           content: content
         )
+          .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
       case let assetImage as MediaPHAssetImage:
         PHAssetImageView(
@@ -102,6 +106,7 @@ private extension LBJGridMediaBrowser {
           failure: { error, _ in failure(error) },
           content: content
         )
+          .environmentObject(mediaBrowserEnvironment.assetImageLoader)
 
       default:
         EmptyView()
@@ -123,6 +128,7 @@ private extension LBJGridMediaBrowser {
           placeholder: placeholder,
           content: content
         )
+          .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
       case let assetVideo as MediaPHAssetVideo:
         PHAssetVideoView(
@@ -132,6 +138,7 @@ private extension LBJGridMediaBrowser {
           failure: { error, _ in failure(error) },
           content: content
         )
+          .environmentObject(mediaBrowserEnvironment.assetVideoLoader)
 
       default:
         EmptyView()
