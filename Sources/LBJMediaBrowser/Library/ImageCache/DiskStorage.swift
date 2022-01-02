@@ -1,10 +1,16 @@
 import Foundation
 
+/// `DiskStorage` 可以把遵循 `DataConvertible` 协议的对象存到磁盘中。
+/// The `DiskStorage` is an disk cache used to store the objects that conforms to `DataConvertible` protocol.
 public final class DiskStorage<T: DataConvertible> {
 
   let config: Config
   let directoryUrl: URL
 
+  /// 使用给定的 `Config` 创建 `DiskStorage` 对象。
+  /// Creates a `DiskStorage` object with the given `Config` object.
+  /// - Parameters:
+  ///   - config: 缓存设置的对象。The `Config` object for disk.
   public init(config: Config) throws {
     self.config = config
 
@@ -231,12 +237,34 @@ extension DiskStorage {
 
 // MARK: - Config
 extension DiskStorage {
+  /// 表示磁盘缓存设置的类型。
+  /// Represents the config info for `DiskStorage`.
   public struct Config {
-    let name: String
-    let fileManager: FileManager
-    let sizeLimit: UInt
-    let expiration: StorageExpiration
 
+    /// 用于存储文件夹名称的一部分，两个具有相同 `name` 的存储将共享磁盘中的同一文件夹。
+    /// The name of disk storage which is used as a part of storage folder name.
+    /// Two storages with the same `name` would share the same folder in disk.
+    public let name: String
+
+    /// 用于管理磁盘文件的 `FileManager` 的对象，默认是 `FileManager.default`。
+    /// The `FileManager` used to manage files on disk. `FileManager.default` by default.
+    public let fileManager: FileManager
+
+    /// 磁盘缓存的总大小限制，单位是 `byte`，`0` 表示没有限制，默认是 `0`。
+    /// The file size limit on disk in bytes. 0 means no limit. `0` by default.
+    public let sizeLimit: UInt
+
+    /// 文件的过期类型，默认是 `.days(7)`。
+    /// The file expiration type. `.days(7)` by default.
+    public let expiration: StorageExpiration
+
+    /// 创建磁盘缓存设置。
+    /// Creates a `Config` object.
+    /// - Parameters:
+    ///   - name: 用于存储文件夹名称的一部分，两个具有相同 `name` 的存储将共享磁盘中的同一文件夹。The name of disk storage which is used as a part of storage folder name. Two storages with the same `name` would share the same folder in disk.
+    ///   - fileManager: 用于管理磁盘文件的 `FileManager` 的对象，默认是 `FileManager.default`。The `FileManager` used to manage files on disk. `FileManager.default` by default.
+    ///   - sizeLimit: 磁盘缓存的总大小限制，单位是 `byte`，`0` 表示没有限制，默认是 `0`。The file size limit on disk in bytes. 0 means no limit. `0` by default.
+    ///   - expiration: 文件的过期类型，默认是 `.days(7)`。The file expiration type. `.days(7)` by default.
     public init(
       name: String,
       fileManager: FileManager = .default,

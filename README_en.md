@@ -1,6 +1,6 @@
 # LBJMediaBrowser
 
-`LBJMediaBrowser` is a media browser implemented with SwiftUI.
+LBJMediaBrowser is a media browser implemented with SwiftUI.
 
 - [Features](#features)
 - [Preview](#preview)
@@ -9,6 +9,7 @@
     - [Create Media Object](#create-media-object)
     - [Grid Mode](#grid-mode)
     - [Paging Mode](#paging-mode)
+    - [Image Cache](#image-cache)
 - [Third Party Dependency](#third-party-dependency)
 - [Existing Issues](#existing-issues)
 - [Requesting a Feature](#requesting-a-feature)
@@ -30,7 +31,7 @@
 
 ## Installation
 
-`LBJMediaBrowser` can be installed using Swift Package Manager:
+LBJMediaBrowser can be installed using Swift Package Manager:
 
 1. Copy the package URL: 
 
@@ -46,7 +47,7 @@ https://github.com/Lebron1992/LBJMediaBrowser
 
 ### Create Media Object
 
-`LBJMediaBrowser` defines the corresponding type for each type of image and video. They are all `class` type and inherit from `Media`, which are convenient for customizing your own types.
+LBJMediaBrowser defines the corresponding type for each type of image and video. They are all `class` type and inherit from `Media`, which are convenient for customizing your own types.
 
 **Image**
 
@@ -100,7 +101,7 @@ final class MyMediaUIImage: MediaUIImage {
 
 ### Grid Mode
 
-`LBJMediaBrowser` defines a type of 'LBJGridMediaBrowser', which is used to browse media in grid mode. For example:
+LBJMediaBrowser defines a type of 'LBJGridMediaBrowser', which is used to browse media in grid mode. For example:
 
 ```swift
 let medias = [uiImage, urlImage, assetImage, urlVideo, assetVideo]
@@ -168,7 +169,7 @@ LBJGridMediaBrowser(medias: medias)
 
 ### Paging Mode
 
-`LBJMediaBrowser` defines a type of 'LBJPagingMediaBrowser', which is used to browse media in paging mode. For example:
+LBJMediaBrowser defines a type of 'LBJPagingMediaBrowser', which is used to browse media in paging mode. For example:
 
 ```swift
 let browser = LBJPagingBrowser(medias: medias)
@@ -266,6 +267,40 @@ LBJPagingMediaBrowser(browser: browser)
   .onTapMedia { media in
     // ...
   }
+```
+
+### Image Cache
+
+In order to provide users with a better experience when browsing media again, by default, LBJMediaBrowser will save images on disk, and the default expiration duration is `7` days, with no cache size limit. In addition, images will also be cached in memory. The default maximum memory usage is `100MB`; When memory usage exceeds `100MB`, it will automatically clean up the oldest images according to the cache date, so as to reduce the memory usage to less than `80MB`.
+
+When displaying an image, it will try to find the image from the memory cache. If not found, continue to search from the disk. If not found again, it will load the image from the image source.
+
+If you need to customize the cache rules, you can set them through `EnvironmentValues`. The code is as follows:
+
+```swift
+let imageCache: ImageCache? = {
+  let diskStorage = try? ImageDiskStorage(config: .init(
+    name: "ImageCache",
+    sizeLimit: 0,
+    expiration: .days(7)
+  ))
+  let memoryStorage = ImageMemoryStorage(
+    memoryCapacity: 100_000_000,
+    preferredMemoryCapacityAfterPurge: 80_000_000
+  )
+  let cache = ImageCache(diskStorage: diskStorage, memoryStorage: memoryStorage)
+  return cache
+}()
+let mediaBrowserEnvironment = LBJMediaBrowserEnvironment(imageCache: imageCache)
+
+LBJGridMediaBrowser(medias: medias)
+  .environment(\.mediaBrowserEnvironment, mediaBrowserEnvironment)
+```
+
+If you don't need the disk storage, set it to `nil`:
+
+```swift
+let cache = ImageCache(diskStorage: nil, memoryStorage: memoryStorage)
 ```
 
 ## Third Party Dependency

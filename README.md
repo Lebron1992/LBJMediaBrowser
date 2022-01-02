@@ -2,7 +2,7 @@
 
 [English Readme](./README_en.md)
 
-`LBJMediaBrowser` 是一个在 SwiftUI 框架下实现的图片视频浏览器。
+LBJMediaBrowser 是一个在 SwiftUI 框架下实现的图片视频浏览器。
 
 - [特性](#特性)
 - [示例](#示例)
@@ -11,6 +11,7 @@
     - [创建媒体对象](#创建媒体对象)
     - [网格模式](#网格模式)
     - [分页模式](#分页模式)
+    - [图片缓存](#图片缓存)
 - [第三方依赖](#第三方依赖)
 - [存在问题](#存在问题)
 - [请求添加新功能](#请求添加新功能)
@@ -46,7 +47,7 @@ https://github.com/Lebron1992/LBJMediaBrowser
 
 ### 创建媒体对象
 
-`LBJMediaBrowser` 为每一种图片和视频都定义了对应的类型。它们都是继承自 `Media` 的 `class` 类型，方便用于自定义自己的类型。
+LBJMediaBrowser 为每一种图片和视频都定义了对应的类型。它们都是继承自 `Media` 的 `class` 类型，方便用于自定义自己的类型。
 
 **图片**
 
@@ -100,7 +101,7 @@ final class MyMediaUIImage: MediaUIImage {
 
 ### 网格模式
 
-`LBJMediaBrowser` 定义了 `LBJGridMediaBrowser` 类型，用于以网格模式浏览媒体。例如：
+LBJMediaBrowser 定义了 `LBJGridMediaBrowser` 类型，用于以网格模式浏览媒体。例如：
 
 ```swift
 let medias = [uiImage, urlImage, assetImage, urlVideo, assetVideo]
@@ -168,7 +169,7 @@ LBJGridMediaBrowser(medias: medias)
 
 ### 分页模式
 
-`LBJMediaBrowser` 定义了 `LBJPagingMediaBrowser` 类型，用于以分页模式浏览媒体。例如：
+LBJMediaBrowser 定义了 `LBJPagingMediaBrowser` 类型，用于以分页模式浏览媒体。例如：
 
 ```swift
 let browser = LBJPagingBrowser(medias: medias)
@@ -266,6 +267,40 @@ LBJPagingMediaBrowser(browser: browser)
   .onTapMedia { media in
     // ...
   }
+```
+
+### 图片缓存
+
+为了给用户再次浏览媒体时提供更好的体验，默认情况下，LBJMediaBrowser 会把图片保存在磁盘中，并且默认过期时间为 `7` 天，没有缓存的大小限制。另外在使用中也会把图片缓存到内存，默认最大使用内存为 `100MB`；当超过 `100MB` 时，会自动根据缓存的时间自动清理最旧的图片，使内存占用减少到 `80MB` 以下。
+
+在显示图片时，首先从内存缓存中查找图片；如果没找到，则继续从磁盘中查找；如果还是没找到，才会真正去加载图片。
+
+如果需要自定义缓存的规则，可以通过 `EnvironmentValues` 来设置。代码如下：
+
+```swift
+let imageCache: ImageCache? = {
+  let diskStorage = try? ImageDiskStorage(config: .init(
+    name: "ImageCache",
+    sizeLimit: 0,
+    expiration: .days(7)
+  ))
+  let memoryStorage = ImageMemoryStorage(
+    memoryCapacity: 100_000_000,
+    preferredMemoryCapacityAfterPurge: 80_000_000
+  )
+  let cache = ImageCache(diskStorage: diskStorage, memoryStorage: memoryStorage)
+  return cache
+}()
+let mediaBrowserEnvironment = LBJMediaBrowserEnvironment(imageCache: imageCache)
+
+LBJGridMediaBrowser(medias: medias)
+  .environment(\.mediaBrowserEnvironment, mediaBrowserEnvironment)
+```
+
+如果不需要缓存到磁盘，把 `diskStorage` 设置为 `nil`：
+
+```swift
+let cache = ImageCache(diskStorage: nil, memoryStorage: memoryStorage)
 ```
 
 ## 第三方依赖

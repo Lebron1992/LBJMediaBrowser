@@ -1,10 +1,17 @@
 import UIKit
 
+/// 一个可以把图片缓存到磁盘中的类型。Represents a storage type that can cache images  on disk.
 public typealias ImageDiskStorage = DiskStorage<UIImage>
+
+/// 一个可以把图片缓存到内存中的类型。Represents a storage type that can cache images in memory.
 public typealias ImageMemoryStorage = AutoPurgingMemoryStorage<UIImage>
 
+/// `ImageCache` 是一个由 `ImageDiskStorage` 和 `ImageMemoryStorage` 组成的图片缓存系统。
+/// `ImageCache` is an image cache system which is composed by a `ImageDiskStorage` and a `ImageMemoryStorage`.
 public final class ImageCache {
 
+  /// 共享的 `ImageCache` 单例。
+  /// A shared singleton `ImageCache` object.
   public static let shared = ImageCache()
 
   private let diskStorage: ImageDiskStorage?
@@ -15,7 +22,12 @@ public final class ImageCache {
     return DispatchQueue(label: name, attributes: .concurrent)
   }()
 
-  public init(diskStorage: ImageDiskStorage, memoryStorage: ImageMemoryStorage = .init()) {
+  /// 创建 `ImageCache` 对象。
+  /// Creates an `ImageCache` object.
+  /// - Parameters:
+  ///   - diskStorage: `ImageDiskStorage` 对象。An `ImageDiskStorage` object.
+  ///   - memoryStorage: `ImageMemoryStorage` 对象。An `ImageMemoryStorage` object.
+  public init(diskStorage: ImageDiskStorage?, memoryStorage: ImageMemoryStorage) {
     self.diskStorage = diskStorage
     self.memoryStorage = memoryStorage
     commonInit()
@@ -117,7 +129,13 @@ public final class ImageCache {
     }
   }
 
-  public func clearDiskCache(containsDirectory: Bool = false) {
+  /// 清理磁盘缓存。
+  /// Clears the disk cache.
+  public func clearDiskCache() {
+    clearDiskCache(containsDirectory: false)
+  }
+
+  func clearDiskCache(containsDirectory: Bool = false) {
     ioQueue.async { [unowned self] in
       try? diskStorage?.removeAll(containsDirectory: containsDirectory)
     }
@@ -142,12 +160,21 @@ public final class ImageCache {
     }
   }
 
-  public func clearExpiredDiskCache(referenceDate: Date = Date()) {
+  /// 清理过期的缓存。
+  /// Clears the expired disk cache.
+  public func clearExpiredDiskCache() {
+    clearExpiredDiskCache(referenceDate: Date())
+  }
+
+  func clearExpiredDiskCache(referenceDate: Date = Date()) {
     ioQueue.async { [unowned self] in
       let _ = try? diskStorage?.removeExpiredValues(referenceDate: referenceDate)
     }
   }
 
+  /// 获取磁盘缓存的大小。
+  /// Get the cache size on disk.
+  /// - Returns: 磁盘缓存的大小，单位是 byte。The cache size in bytes on disk.
   public func diskStorageSize() -> UInt {
     ioQueue.sync { [unowned self] in
       return (try? diskStorage?.totalSize()) ?? 0
