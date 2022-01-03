@@ -25,26 +25,32 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
   func loadUrl(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
-    guard let cachedUrl = urlCache[cacheKey] else {
-      requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
-      return
-    }
+    if let imageCache = imageCache {
+      imageCache.image(forKey: cacheKey) { [unowned self] result in
 
-    guard let imageCache = imageCache else {
-      requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
-      return
-    }
+        if let cachedImage = try? result.get() {
 
-    imageCache.image(forKey: cacheKey) { [unowned self] result in
-      if let image = try? result.get() {
-        updateStatus(.loaded(previewImage: image, videoUrl: cachedUrl), forKey: cacheKey)
-      } else {
-        requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+          if let cachedUrl = urlCache[cacheKey] {
+            updateStatus(.loaded(previewImage: cachedImage, videoUrl: cachedUrl), forKey: cacheKey)
+          } else {
+            requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize, previousCachedImage: cachedImage)
+          }
+
+        } else {
+          requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
+        }
       }
+
+    } else {
+      requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize)
     }
   }
 
-  private func requestAVAsset(for assetVideo: MediaPHAssetVideo, maxThumbnailSize: CGSize) {
+  private func requestAVAsset(
+    for assetVideo: MediaPHAssetVideo,
+    maxThumbnailSize: CGSize,
+    previousCachedImage: UIImage? = nil
+  ) {
     let cacheKey = assetVideo.cacheKey(forMaxThumbnailSize: maxThumbnailSize)
 
     guard isLoading(forKey: cacheKey) == false else { return }
@@ -62,8 +68,9 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
         removeRequestId(forKey: cacheKey)
 
-        var previewImage: UIImage?
-        if case let .success(url) = result {
+        var previewImage = previousCachedImage
+        if case let .success(url) = result,
+           previewImage == nil {
           previewImage = thumbnailGenerator.thumbnail(for: url, maximumSize: maxThumbnailSize)
         }
 
