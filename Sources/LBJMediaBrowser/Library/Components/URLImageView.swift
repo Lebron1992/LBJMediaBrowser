@@ -53,14 +53,30 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   }
 
   private var imageStatus: MediaImageStatus {
-    imageLoader.imageStatus(for: urlImage, targetSize: targetSize)
+    switch targetSize {
+    case .thumbnail:
+      return imageLoader.imageStatus(for: urlImage, targetSize: .thumbnail) ?? .idle
+    case .larger:
+      let largerStatus = imageLoader.imageStatus(for: urlImage, targetSize: .larger)
+      let thumbStatus = imageLoader.imageStatus(for: urlImage, targetSize: .thumbnail)
+
+      if let largerImage = largerStatus?.uiImage {
+        return .loaded(largerImage)
+      }
+
+      if let thumbImage = thumbStatus?.uiImage {
+        return .loaded(thumbImage)
+      }
+
+      return largerStatus ?? .idle
+    }
   }
 
   private func loadImage() {
-    if imageStatus.isLoadingOrLoaded {
-      return
+    let status = imageLoader.imageStatus(for: urlImage, targetSize: targetSize) ?? .idle
+    if status.isLoadingOrLoaded == false {
+      imageLoader.loadImage(for: urlImage, targetSize: targetSize)
     }
-    imageLoader.loadImage(for: urlImage, targetSize: targetSize)
   }
 
   private func cancelLoading() {

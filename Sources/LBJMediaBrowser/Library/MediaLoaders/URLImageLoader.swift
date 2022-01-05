@@ -69,15 +69,15 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
       downloader.cancelRequest(forKey: requestId)
     }
 
-    let currentStatus = imageStatus(for: urlImage, targetSize: targetSize)
-    if currentStatus.isLoaded == false {
+    if let currentStatus = imageStatus(for: urlImage, targetSize: targetSize),
+       currentStatus.isLoaded == false {
       removeStatus(forKey: cacheKey)
     }
 
     removeRequestId(forKey: cacheKey)
   }
 
-  func imageStatus(for urlImage: MediaURLImage, targetSize: ImageTargetSize) -> MediaImageStatus {
-    statusCache[urlImage.cacheKey(for: targetSize)] ?? .idle
+  func imageStatus(for urlImage: MediaURLImage, targetSize: ImageTargetSize) -> MediaImageStatus? {
+    statusCache[urlImage.cacheKey(for: targetSize)]
   }
 }

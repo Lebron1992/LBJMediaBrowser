@@ -71,15 +71,15 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
       manager.cancelImageRequest(requestId)
     }
 
-    let currentStatus = imageStatus(for: assetImage, targetSize: targetSize)
-    if currentStatus.isLoaded == false {
+    if let currentStatus = imageStatus(for: assetImage, targetSize: targetSize),
+       currentStatus.isLoaded == false {
       removeStatus(forKey: cacheKey)
     }
 
     removeRequestId(forKey: cacheKey)
   }
 
-  func imageStatus(for assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) -> MediaImageStatus {
-    statusCache[assetImage.cacheKey(for: targetSize)] ?? .idle
+  func imageStatus(for assetImage: MediaPHAssetImage, targetSize: ImageTargetSize) -> MediaImageStatus? {
+    statusCache[assetImage.cacheKey(for: targetSize)]
   }
 }

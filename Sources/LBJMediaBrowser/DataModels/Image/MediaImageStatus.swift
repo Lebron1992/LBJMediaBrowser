@@ -20,6 +20,15 @@ public enum MediaImageStatus {
   /// Failed to load the image. The associated value is the reason why failed to load the image.
   case failed(Error)
 
+  var uiImage: UIImage? {
+    switch self {
+    case .loaded(let uIImage):
+      return uIImage
+    default:
+      return nil
+    }
+  }
+
   var isLoading: Bool {
     switch self {
     case .loading:
