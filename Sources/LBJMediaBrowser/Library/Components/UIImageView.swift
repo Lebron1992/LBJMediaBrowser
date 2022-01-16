@@ -5,6 +5,6 @@ struct UIImageView<Content: View>: View {
   let content: (MediaLoadedResult) -> Content
   
   var body: some View {
-    content(.image(image: image, uiImage: image.uiImage))
+    content(.image(image: image, result: .still(image.uiImage)))
   }
 }

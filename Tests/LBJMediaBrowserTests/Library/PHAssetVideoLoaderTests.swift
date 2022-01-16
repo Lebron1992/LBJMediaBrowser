@@ -37,7 +37,7 @@ final class PHAssetVideoLoaderTests: BaseTestCase {
         .loaded(previewImage: self.uiImage, videoUrl: self.videoUrl)
       )
       self.videoLoader.imageCache?.image(forKey: self.cacheKey) { result in
-        XCTAssertEqual(try? result.get(), self.uiImage)
+        XCTAssertEqual(try? result.get(), .still(self.uiImage))
       }
       XCTAssertEqual(
         self.videoLoader.urlCache[self.cacheKey],
@@ -126,7 +126,7 @@ private extension PHAssetVideoLoaderTests {
     var urlCache = SafeDictionary<String, URL>()
 
     if useCache, let uiImage = uiImage, let url = url {
-      imageCache.store(uiImage, forKey: cacheKey)
+      imageCache.store(.still(uiImage), forKey: cacheKey)
       urlCache[cacheKey] = url
     }
 

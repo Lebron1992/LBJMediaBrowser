@@ -53,8 +53,8 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
 
         switch result {
         case .success(let image):
-          updateStatus(.loaded(image), forKey: cacheKey)
-          imageCache?.store(image, forKey: cacheKey)
+          updateStatus(.loaded(.still(image)), forKey: cacheKey)
+          imageCache?.store(.still(image), forKey: cacheKey)
         case .failure(let error):
           updateStatus(.failed(error), forKey: cacheKey)
         }

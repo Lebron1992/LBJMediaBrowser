@@ -48,9 +48,9 @@ final class URLImageLoader: MediaLoader<MediaImageStatus, String> {
           removeRequestId(forKey: cacheKey)
 
           switch result {
-          case .success(let image):
-            updateStatus(.loaded(image), forKey: cacheKey)
-            imageCache?.store(image, forKey: cacheKey)
+          case .success(let loadedResult):
+            updateStatus(.loaded(loadedResult), forKey: cacheKey)
+            imageCache?.store(loadedResult, forKey: cacheKey)
           case .failure(let error):
             updateStatus(.failed(error), forKey: cacheKey)
           }

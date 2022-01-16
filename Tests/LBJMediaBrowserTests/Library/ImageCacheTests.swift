@@ -18,7 +18,7 @@ final class ImageCacheTests: BaseTestCase {
     super.setUp()
 
     uiImage = image(forResource: "unicorn", withExtension: "png")
-    imageSizeInFile = 43864
+    imageSizeInFile = 43791
 
     let config = ImageDiskStorage.Config(
       name: "DiskStorageTests.StringDiskStorage",
@@ -41,11 +41,11 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_storeAndGetImage_inMemory() {
-    cache.store(uiImage, forKey: "1", inMemory: true, inDisk: false)
+    cache.store(.still(uiImage), forKey: "1", inMemory: true, inDisk: false)
 
     wait(interval: 0.5) { [unowned self] in
       cache.image(forKey: "1", fromMemory: true, fromDsik: false) { [unowned self] result in
-        XCTAssertEqual(try! result.get(), uiImage)
+        XCTAssertEqual(try! result.get(), .still(uiImage))
       }
       cache.image(forKey: "1", fromMemory: false, fromDsik: true) { result in
         XCTAssertNil(try? result.get())
@@ -54,7 +54,7 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_storeAndGetImage_inDisk() {
-    cache.store(uiImage, forKey: "1", inMemory: false, inDisk: true)
+    cache.store(.still(uiImage), forKey: "1", inMemory: false, inDisk: true)
 
     wait(interval: 0.5) { [unowned self] in
       cache.image(forKey: "1", fromMemory: false, fromDsik: true) { [unowned self] result in
@@ -67,11 +67,11 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_storeAndGetImage_inMemoryDisk() {
-    cache.store(uiImage, forKey: "1", inMemory: true, inDisk: true)
+    cache.store(.still(uiImage), forKey: "1", inMemory: true, inDisk: true)
 
     wait(interval: 0.5) { [unowned self] in
       cache.image(forKey: "1", fromMemory: true, fromDsik: false) { [unowned self] result in
-        XCTAssertEqual(try! result.get(), uiImage)
+        XCTAssertEqual(try! result.get(), .still(uiImage))
       }
       cache.image(forKey: "1", fromMemory: false, fromDsik: true) { [unowned self] result in
         XCTAssertEqual((try! result.get()).cacheSize, uiImage.cacheSize)
@@ -80,7 +80,7 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_clearDiskCache_containsDirectory() throws {
-    cache.store(uiImage, forKey: "1")
+    cache.store(.still(uiImage), forKey: "1")
     XCTAssertFalse(cache.isDiskCacheRemoved(containsDirectory: true))
 
     wait(interval: 0.5) { [unowned self] in
@@ -93,7 +93,7 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_clearDiskCache_notContainsDirectory() throws {
-    cache.store(uiImage, forKey: "1")
+    cache.store(.still(uiImage), forKey: "1")
     wait(interval: 0.5) { [unowned self] in
       XCTAssertFalse(cache.isDiskCacheRemoved(containsDirectory: false))
     }
@@ -106,9 +106,9 @@ final class ImageCacheTests: BaseTestCase {
 
   func test_clearExpiredDiskCache() throws {
     let now = Date()
-    cache.store(uiImage, forKey: "1", inMemory: false, referenceDate: now)
-    cache.store(uiImage, forKey: "2", inMemory: false, referenceDate: now.addingTimeInterval(2))
-    cache.store(uiImage, forKey: "3", inMemory: false, referenceDate: now.addingTimeInterval(4))
+    cache.store(.still(uiImage), forKey: "1", inMemory: false, referenceDate: now)
+    cache.store(.still(uiImage), forKey: "2", inMemory: false, referenceDate: now.addingTimeInterval(2))
+    cache.store(.still(uiImage), forKey: "3", inMemory: false, referenceDate: now.addingTimeInterval(4))
 
     wait(interval: 0.5) { [unowned self] in
       cache.clearExpiredDiskCache(referenceDate: now.addingTimeInterval(expirationDuration + 3.5))
@@ -128,8 +128,8 @@ final class ImageCacheTests: BaseTestCase {
   }
 
   func test_diskStorageSize() {
-    cache.store(uiImage, forKey: "1")
-    cache.store(uiImage, forKey: "2")
+    cache.store(.still(uiImage), forKey: "1")
+    cache.store(.still(uiImage), forKey: "2")
 
     wait(interval: 0.5) { [unowned self] in
       XCTAssertEqual(cache.diskStorageSize(), UInt(imageSizeInFile * 2))
@@ -138,11 +138,11 @@ final class ImageCacheTests: BaseTestCase {
 
   func test_appwillTerminate() {
     let now = Date()
-    cache.store(uiImage, forKey: "1", inMemory: false, referenceDate: now)
-    cache.store(uiImage, forKey: "2", inMemory: false, referenceDate: now.addingTimeInterval(2))
+    cache.store(.still(uiImage), forKey: "1", inMemory: false, referenceDate: now)
+    cache.store(.still(uiImage), forKey: "2", inMemory: false, referenceDate: now.addingTimeInterval(2))
 
     for i in 4...10 {
-      cache.store(uiImage, forKey: "\(i)", inMemory: false, referenceDate: now.addingTimeInterval(TimeInterval(i)))
+      cache.store(.still(uiImage), forKey: "\(i)", inMemory: false, referenceDate: now.addingTimeInterval(TimeInterval(i)))
     }
 
     wait(interval: 0.5) {

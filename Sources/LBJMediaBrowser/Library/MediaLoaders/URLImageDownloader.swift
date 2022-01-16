@@ -12,7 +12,7 @@ extension URLImageDownloader: URLImageDownloaderType {
   public func download(
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String? {
     download(urlRequest, cacheKey: cacheKey, progress: nil, completion: completion)
   }
@@ -21,7 +21,7 @@ extension URLImageDownloader: URLImageDownloaderType {
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
     progress: ((Float) -> Void)?,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String? {
 
     let receipt = download(
@@ -29,9 +29,14 @@ extension URLImageDownloader: URLImageDownloaderType {
       cacheKey: nil,
       progress: { progress?(Float($0.completedUnitCount) / Float($0.totalUnitCount)) },
       completion: { response in
+
         switch response.result {
         case .success(let image):
-          completion(.success(image))
+          if let data = response.data, UIImage.isAnimatedImage(for: data) {
+            completion(.success(.gif(data)))
+          } else {
+            completion(.success(.still(image)))
+          }
         case .failure(let error):
           completion(.failure(error))
         }

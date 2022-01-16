@@ -86,6 +86,9 @@ private extension LBJGridMediaBrowser {
       case let uiImage as MediaUIImage:
         UIImageView(image: uiImage, content: content)
 
+      case let gifImage as MediaGifImage:
+        GifImageView(image: gifImage, in: .grid, content: content)
+
       case let urlImage as MediaURLImage:
         URLImageView(
           urlImage: urlImage,

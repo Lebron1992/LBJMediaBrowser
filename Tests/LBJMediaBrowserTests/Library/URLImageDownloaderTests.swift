@@ -43,10 +43,10 @@ final class URLImageLoaderTests: BaseTestCase {
     wait(interval: 1.1) {
       XCTAssertEqual(
         self.imageLoader.statusCache[self.cacheKey],
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
       self.imageLoader.imageCache?.image(forKey: self.cacheKey) { result in
-        XCTAssertEqual(try? result.get(), self.uiImage)
+        XCTAssertEqual(try? result.get(), .still(self.uiImage))
       }
     }
   }
@@ -59,7 +59,7 @@ final class URLImageLoaderTests: BaseTestCase {
     wait(interval: 0.1) {
       XCTAssertEqual(
         self.imageLoader.statusCache[self.cacheKey],
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
     }
   }
@@ -128,7 +128,7 @@ final class URLImageLoaderTests: BaseTestCase {
       self.imageLoader.cancelLoading(for: self.mockUrlImage, targetSize: self.targetSize)
       XCTAssertEqual(
         self.imageLoader.imageStatus(for: self.mockUrlImage, targetSize: self.targetSize),
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
     }
   }
@@ -138,7 +138,7 @@ private extension URLImageLoaderTests {
   func createImageLoader(progress: Float? = nil, uiImage: UIImage? = nil, error: Error? = nil, useCache: Bool = false) {
 
     if useCache, let uiImage = uiImage {
-      imageCache.store(uiImage, forKey: mockUrlImage.cacheKey(for: targetSize))
+      imageCache.store(.still(uiImage), forKey: mockUrlImage.cacheKey(for: targetSize))
     }
 
     imageLoader = URLImageLoader(

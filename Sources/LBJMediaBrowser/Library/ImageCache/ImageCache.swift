@@ -1,10 +1,10 @@
 import UIKit
 
 /// 一个可以把图片缓存到磁盘中的类型。Represents a storage type that can cache images  on disk.
-public typealias ImageDiskStorage = DiskStorage<UIImage>
+public typealias ImageDiskStorage = DiskStorage<ImageLoadedResult>
 
 /// 一个可以把图片缓存到内存中的类型。Represents a storage type that can cache images in memory.
-public typealias ImageMemoryStorage = AutoPurgingMemoryStorage<UIImage>
+public typealias ImageMemoryStorage = AutoPurgingMemoryStorage<ImageLoadedResult>
 
 /// `ImageCache` 是一个由 `ImageDiskStorage` 和 `ImageMemoryStorage` 组成的图片缓存系统。
 /// `ImageCache` is an image cache system which is composed by a `ImageDiskStorage` and a `ImageMemoryStorage`.
@@ -53,7 +53,7 @@ public final class ImageCache {
   }
 
   func store(
-    _ image: UIImage,
+    _ image: ImageLoadedResult,
     forKey key: String,
     inMemory: Bool = true,
     inDisk: Bool = true,
@@ -74,7 +74,7 @@ public final class ImageCache {
     fromMemory: Bool = true,
     fromDsik: Bool = true,
     callbackQueue: CallbackQueue = .current,
-    completion: @escaping (Result<UIImage, LBJMediaBrowserError>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, LBJMediaBrowserError>) -> Void
   ) {
     if fromMemory && fromDsik {
       if let image = memoryStorage.value(forKey: key) {
@@ -106,7 +106,7 @@ public final class ImageCache {
   private func asyncGetImageFromDisk(
     forKey key: String,
     callbackQueue: CallbackQueue = .current,
-    completion: @escaping (Result<UIImage, LBJMediaBrowserError>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, LBJMediaBrowserError>) -> Void
   ) {
     ioQueue.async { [unowned self] in
       do {

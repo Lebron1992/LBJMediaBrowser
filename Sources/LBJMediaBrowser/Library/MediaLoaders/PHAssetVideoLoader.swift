@@ -28,12 +28,12 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
     if let imageCache = imageCache {
       imageCache.image(forKey: cacheKey) { [unowned self] result in
 
-        if let cachedImage = try? result.get() {
+        if let cachedResult = try? result.get() {
 
           if let cachedUrl = urlCache[cacheKey] {
-            updateStatus(.loaded(previewImage: cachedImage, videoUrl: cachedUrl), forKey: cacheKey)
+            updateStatus(.loaded(previewImage: cachedResult.stillImage, videoUrl: cachedUrl), forKey: cacheKey)
           } else {
-            requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize, previousCachedImage: cachedImage)
+            requestAVAsset(for: assetVideo, maxThumbnailSize: maxThumbnailSize, previousCachedImage: cachedResult.stillImage)
           }
 
         } else {
@@ -80,7 +80,7 @@ final class PHAssetVideoLoader: MediaLoader<MediaVideoStatus, PHImageRequestID> 
 
           if let previewImage = previewImage {
             urlCache[cacheKey] = url
-            imageCache?.store(previewImage, forKey: cacheKey)
+            imageCache?.store(.still(previewImage), forKey: cacheKey)
           }
 
         case .failure(let error):

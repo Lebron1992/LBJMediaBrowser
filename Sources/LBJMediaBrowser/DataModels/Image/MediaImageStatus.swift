@@ -12,18 +12,18 @@ public enum MediaImageStatus {
   /// The image is in loading. The associated value is the progress (The range is 0~1).
   case loading(Float)
 
-  /// 图片加载完成，关联值是 `UIImage` 对象。
-  /// The image is loaded. The associated value is an `UIImage` object.
-  case loaded(UIImage)
+  /// 图片加载完成。The image is loaded.
+  /// - ImageLoadedResult: 图片结果。The image result.
+  case loaded(ImageLoadedResult)
 
   /// 图片加载失败，关键值是加载失败的原因。
   /// Failed to load the image. The associated value is the reason why failed to load the image.
   case failed(Error)
 
-  var uiImage: UIImage? {
+  var loadedResult: ImageLoadedResult? {
     switch self {
-    case .loaded(let uIImage):
-      return uIImage
+    case .loaded(let result):
+      return result
     default:
       return nil
     }

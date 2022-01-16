@@ -8,8 +8,8 @@ public struct PagingMediaLoadedResultView: View {
 
   public var body: some View {
     switch result {
-    case .image(_, let uiImage):
-      PagingImageResultView(uiImage: uiImage)
+    case .image(_, let result):
+      PagingImageResultView(result: result)
     case .video(let video, let previewImage, let videoUrl):
       PagingVideoResultView(video: video, previewImage: previewImage, videoUrl: videoUrl)
     }
@@ -19,7 +19,7 @@ public struct PagingMediaLoadedResultView: View {
 struct PagingMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
     let image = MediaUIImage.templates[0]
-    PagingMediaLoadedResultView(result: .image(image: image, uiImage: image.uiImage))
+    PagingMediaLoadedResultView(result: .image(image: image, result: .still(image.uiImage)))
 
     let video = MediaURLVideo.templates[0]
     PagingMediaLoadedResultView(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))

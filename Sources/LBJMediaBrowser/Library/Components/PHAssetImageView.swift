@@ -41,8 +41,8 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
           placeholder(assetImage)
         }
 
-      case .loaded(let uiImage):
-        content(.image(image: assetImage, uiImage: uiImage))
+      case .loaded(let result):
+        content(.image(image: assetImage, result: result))
 
       case .failed(let error):
         failure(error, loadImage)
@@ -60,12 +60,12 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
       let largerStatus = imageLoader.imageStatus(for: assetImage, targetSize: .larger)
       let thumbStatus = imageLoader.imageStatus(for: assetImage, targetSize: .thumbnail)
 
-      if let largerImage = largerStatus?.uiImage {
-        return .loaded(largerImage)
+      if let largerResult = largerStatus?.loadedResult {
+        return .loaded(largerResult)
       }
 
-      if let thumbImage = thumbStatus?.uiImage {
-        return .loaded(thumbImage)
+      if let thumbResult = thumbStatus?.loadedResult {
+        return .loaded(thumbResult)
       }
 
       return largerStatus ?? .idle

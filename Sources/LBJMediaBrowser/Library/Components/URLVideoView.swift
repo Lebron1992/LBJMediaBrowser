@@ -33,11 +33,11 @@ struct URLVideoView<Placeholder: View, Content: View>: View {
             videoUrl: urlVideo.videoUrl
           ))
         },
-        content: { result in
-          if case let .image(_, uiImage) = result {
+        content: { mediaResult in
+          if case let .image(_, imageResult) = mediaResult {
             content(.video(
               video: urlVideo,
-              previewImage: uiImage,
+              previewImage: imageResult.stillImage,
               videoUrl: urlVideo.videoUrl
             ))
           }

@@ -31,7 +31,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
   func download(
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
@@ -41,7 +41,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
       }
 
       if let image = self.imageDownloadResponse {
-        completion(.success(image))
+        completion(.success(.still(image)))
       } else if let error = self.imageDownloadError {
         completion(.failure(error))
       }
@@ -54,7 +54,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
     progress: ((Float) -> Void)?,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String? {
 
     DispatchQueue.main.asyncAfter(deadline: .now() + progressInterval) {
@@ -75,7 +75,7 @@ final class ImageDownloaderMock: URLImageDownloaderType {
       }
 
       if let image = self.imageDownloadResponse {
-        completion(.success(image))
+        completion(.success(.still(image)))
       } else if let error = self.imageDownloadError {
         completion(.failure(error))
       }

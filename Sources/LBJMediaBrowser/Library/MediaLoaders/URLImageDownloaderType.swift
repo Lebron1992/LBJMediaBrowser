@@ -8,14 +8,14 @@ protocol URLImageDownloaderType {
   func download(
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String?
 
   func download(
     _ urlRequest: URLRequestConvertible,
     cacheKey: String,
     progress: ((Float) -> Void)?,
-    completion: @escaping (Result<UIImage, Error>) -> Void
+    completion: @escaping (Result<ImageLoadedResult, Error>) -> Void
   ) -> String?
 
   func cancelRequest(forKey key: String)

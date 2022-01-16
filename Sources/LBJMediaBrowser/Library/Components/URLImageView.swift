@@ -41,8 +41,8 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
           placeholder(urlImage)
         }
 
-      case .loaded(let uiImage):
-        content(.image(image: urlImage, uiImage: uiImage))
+      case .loaded(let result):
+        content(.image(image: urlImage, result: result))
 
       case .failed(let error):
         failure(error, loadImage)
@@ -60,12 +60,12 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
       let largerStatus = imageLoader.imageStatus(for: urlImage, targetSize: .larger)
       let thumbStatus = imageLoader.imageStatus(for: urlImage, targetSize: .thumbnail)
 
-      if let largerImage = largerStatus?.uiImage {
-        return .loaded(largerImage)
+      if let largerResult = largerStatus?.loadedResult {
+        return .loaded(largerResult)
       }
 
-      if let thumbImage = thumbStatus?.uiImage {
-        return .loaded(thumbImage)
+      if let thumbResult = thumbStatus?.loadedResult {
+        return .loaded(thumbResult)
       }
 
       return largerStatus ?? .idle

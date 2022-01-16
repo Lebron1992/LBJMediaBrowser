@@ -11,7 +11,7 @@ class BaseTestCase: XCTestCase {
     let resourceURL = url(forResource: fileName, withExtension: ext)
     let data = try! Data(contentsOf: resourceURL)
     lock.lock()
-    let image = UIImage(data: data, scale: UIScreen.main.scale)
+    let image = UIImage(data: data)
     lock.unlock()
     return image!
   }

@@ -82,6 +82,9 @@ private extension LBJPagingMediaBrowser {
     case let uiImage as MediaUIImage:
       UIImageView(image: uiImage, content: content)
 
+    case let gifImage as MediaGifImage:
+      GifImageView(image: gifImage, in: .paging, content: content)
+
     case let urlImage as MediaURLImage:
       URLImageView(
         urlImage: urlImage,

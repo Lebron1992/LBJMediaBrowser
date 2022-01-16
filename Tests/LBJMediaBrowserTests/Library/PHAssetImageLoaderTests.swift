@@ -33,10 +33,10 @@ final class PHAssetImageLoaderTests: BaseTestCase {
     wait(interval: 1.1) {
       XCTAssertEqual(
         self.imageLoader.statusCache[self.cacheKey],
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
       self.imageLoader.imageCache?.image(forKey: self.cacheKey) { result in
-        XCTAssertEqual(try? result.get(), self.uiImage)
+        XCTAssertEqual(try? result.get(), .still(self.uiImage))
       }
     }
   }
@@ -49,7 +49,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
     wait(interval: 0.1) {
       XCTAssertEqual(
         self.imageLoader.statusCache[self.cacheKey],
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
     }
   }
@@ -110,7 +110,7 @@ final class PHAssetImageLoaderTests: BaseTestCase {
       self.imageLoader.cancelLoading(for: self.mockAssetImage, targetSize: self.targetSize)
       XCTAssertEqual(
         self.imageLoader.imageStatus(for: self.mockAssetImage, targetSize: self.targetSize),
-        .loaded(self.uiImage)
+        .loaded(.still(self.uiImage))
       )
     }
   }
@@ -122,7 +122,7 @@ private extension PHAssetImageLoaderTests {
 
     if useCache, let uiImage = uiImage {
       imageCache.store(
-        uiImage,
+        .still(uiImage),
         forKey: mockAssetImage.cacheKey(for: targetSize)
       )
     }

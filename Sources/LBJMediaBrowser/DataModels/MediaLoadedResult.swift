@@ -7,8 +7,8 @@ public enum MediaLoadedResult {
   /// 图片成功加载完成的结果。
   /// The successfully loaded result of an image.
   /// - image: 图片类型。An image of `MediaImage`.
-  /// - uiImage: 加载完成后的图片。A successfully loaded image.
-  case image(image: MediaImage, uiImage: UIImage)
+  /// - result: 加载完成后的图片结果。A successfully loaded result of image.
+  case image(image: MediaImage, result: ImageLoadedResult)
 
   /// 视频成功加载完成的结果。
   /// The successfully loaded result of a video.
