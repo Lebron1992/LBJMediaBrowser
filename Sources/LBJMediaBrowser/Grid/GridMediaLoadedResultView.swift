@@ -7,9 +7,12 @@ public struct GridMediaLoadedResultView: View {
 
   public var body: some View {
     switch result {
-    case .image(_, let result):
-      if let image = result.stillImage {
-        Image(uiImage: image)
+    case .stillImage(_, let uiImage):
+      Image(uiImage: uiImage)
+        .resizable()
+    case .gifImage(_, let data):
+      if let uiImage = UIImage(data: data) {
+        Image(uiImage: uiImage)
           .resizable()
       }
     case .video(_, let previewImage, _):

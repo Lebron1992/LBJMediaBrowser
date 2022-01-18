@@ -42,7 +42,12 @@ struct PHAssetImageView<Placeholder: View, Progress: View, Failure: View, Conten
         }
 
       case .loaded(let result):
-        content(.image(image: assetImage, result: result))
+        switch result {
+        case .still(let uIImage):
+          content(.stillImage(image: assetImage, uiImage: uIImage))
+        case .gif(let data):
+          content(.gifImage(image: assetImage, data: data))
+        }
 
       case .failed(let error):
         failure(error, loadImage)

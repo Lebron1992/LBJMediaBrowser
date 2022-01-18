@@ -34,12 +34,21 @@ struct URLVideoView<Placeholder: View, Content: View>: View {
           ))
         },
         content: { mediaResult in
-          if case let .image(_, imageResult) = mediaResult {
+          switch mediaResult {
+          case .stillImage(_, let uiImage):
             content(.video(
               video: urlVideo,
-              previewImage: imageResult.stillImage,
+              previewImage: uiImage,
               videoUrl: urlVideo.videoUrl
             ))
+          case .gifImage(_, let data):
+            content(.video(
+              video: urlVideo,
+              previewImage: UIImage(data: data),
+              videoUrl: urlVideo.videoUrl
+            ))
+          default:
+            EmptyView()
           }
         }
       )

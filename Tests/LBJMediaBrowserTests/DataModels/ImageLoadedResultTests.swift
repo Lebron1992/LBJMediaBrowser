@@ -25,14 +25,6 @@ final class ImageLoadedResultTests: BaseTestCase {
     )
   }
 
-  func test_gifData() {
-    XCTAssertNil(ImageLoadedResult.still(uiImage).gifData)
-    XCTAssertEqual(
-      ImageLoadedResult.gif(gifData).gifData,
-      gifData
-    )
-  }
-
   func test_equatable() {
     XCTAssertEqual(
       ImageLoadedResult.still(uiImage),

@@ -42,7 +42,12 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
         }
 
       case .loaded(let result):
-        content(.image(image: urlImage, result: result))
+        switch result {
+        case .still(let uiImage):
+          content(.stillImage(image: urlImage, uiImage: uiImage))
+        case .gif(let data):
+          content(.gifImage(image: urlImage, data: data))
+        }
 
       case .failed(let error):
         failure(error, loadImage)

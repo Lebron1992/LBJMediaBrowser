@@ -21,16 +21,6 @@ public enum ImageLoadedResult {
       return UIImage(data: data)
     }
   }
-
-  /// 动态图片的数据。The data of a gif image.
-  public var gifData: Data? {
-    switch self {
-    case .still:
-      return nil
-    case .gif(let data):
-      return data
-    }
-  }
 }
 
 extension ImageLoadedResult: Equatable {

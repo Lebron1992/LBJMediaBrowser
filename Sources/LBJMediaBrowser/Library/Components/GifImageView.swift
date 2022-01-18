@@ -16,20 +16,14 @@ struct GifImageView<Content: View>: View {
   }
 
   var body: some View {
-    var result: ImageLoadedResult?
     switch browseMode {
     case .grid:
       if let uiImage = image.stillImage {
-        result = .still(uiImage)
+        content(.stillImage(image: image, uiImage: uiImage))
       }
     case .paging:
       if let data = image.gifData {
-        result = .gif(data)
-      }
-    }
-    return ZStack {
-      if let result = result {
-        content(.image(image: image, result: result))
+        content(.gifImage(image: image, data: data))
       }
     }
   }

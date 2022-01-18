@@ -26,7 +26,7 @@ extension URLImageDownloader: URLImageDownloaderType {
 
     let receipt = download(
       urlRequest,
-      cacheKey: nil,
+      cacheKey: cacheKey,
       progress: { progress?(Float($0.completedUnitCount) / Float($0.totalUnitCount)) },
       completion: { response in
 

@@ -4,11 +4,17 @@ import UIKit
 /// Constants identifying the loaded result of a media.
 public enum MediaLoadedResult {
 
-  /// 图片成功加载完成的结果。
-  /// The successfully loaded result of an image.
+  /// 静态图片成功加载完成的结果。
+  /// The successfully loaded result of a still image.
   /// - image: 图片类型。An image of `MediaImage`.
-  /// - result: 加载完成后的图片结果。A successfully loaded result of image.
-  case image(image: MediaImage, result: ImageLoadedResult)
+  /// - uiImage: 加载完成后的图片结果。A successfully loaded result of image.
+  case stillImage(image: MediaImage, uiImage: UIImage)
+
+  /// 动态图片成功加载完成的结果。
+  /// The successfully loaded result of a gif image.
+  /// - image: 图片类型。An image of `MediaImage`.
+  /// - data: 动态图片的数据。The data of a gif image..
+  case gifImage(image: MediaImage, data: Data)
 
   /// 视频成功加载完成的结果。
   /// The successfully loaded result of a video.
