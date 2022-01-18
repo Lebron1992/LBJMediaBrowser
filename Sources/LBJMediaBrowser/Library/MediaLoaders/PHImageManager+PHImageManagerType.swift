@@ -28,6 +28,22 @@ extension PHImageManager: PHImageManagerType {
     }
   }
 
+  func requestImageData(
+    for asset: PHAsset,
+    options: PHImageRequestOptions?,
+    completion: @escaping (Result<Data, Error>) -> Void
+  ) -> PHImageRequestID {
+    requestImageDataAndOrientation(for: asset, options: options) { imageData, _, _, info in
+      if let imageData = imageData {
+        completion(.success(imageData))
+      } else if let error = info?[PHImageErrorKey] as? Error {
+        completion(.failure(error))
+      } else {
+        completion(.failure(NSError.unknownError))
+      }
+    }
+  }
+
   func requestAVAsset(
     forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,

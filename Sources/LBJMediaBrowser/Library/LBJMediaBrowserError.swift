@@ -3,12 +3,15 @@ import UIKit
 
 enum LBJMediaBrowserError {
   case cacheError(reason: CacheErrorReason)
+  case loadMediaError(reason: LoadMediaErrorReason)
 }
 
 extension LBJMediaBrowserError: LocalizedError {
   var errorDescription: String? {
     switch self {
     case .cacheError(let reason):
+      return reason.errorDescription
+    case .loadMediaError(let reason):
       return reason.errorDescription
     }
   }
@@ -37,6 +40,19 @@ extension LBJMediaBrowserError {
         return "Can't get value for key: \(key), \(errorDescription)"
       case .cannotCreateCacheDirectory:
         return "Can't create the caches directory"
+      }
+    }
+  }
+}
+
+extension LBJMediaBrowserError {
+  enum LoadMediaErrorReason {
+    case cannotConvertDataToImage
+
+    var errorDescription: String {
+      switch self {
+      case .cannotConvertDataToImage:
+        return "Can't convert data to image"
       }
     }
   }

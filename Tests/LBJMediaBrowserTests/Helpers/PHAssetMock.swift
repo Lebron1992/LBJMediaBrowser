@@ -1,17 +1,24 @@
 import Photos
+@testable import LBJMediaBrowser
 
 final class PHAssetMock: PHAsset {
 
   let id: Int32
   let assetType: PHAssetMediaType
+  let isGifImage: Bool?
 
-  init(id: Int32, assetType: PHAssetMediaType) {
+  init(id: Int32, assetType: PHAssetMediaType, isGifImage: Bool? = nil) {
     self.id = id
     self.assetType = assetType
+    self.isGifImage = isGifImage
   }
 
   override var mediaType: PHAssetMediaType {
     assetType
+  }
+
+  override var isGif: Bool {
+    isGifImage ?? false
   }
 
   // MARK: Fix error: Must have a uuid if no _objectID (NSInternalInconsistencyException)

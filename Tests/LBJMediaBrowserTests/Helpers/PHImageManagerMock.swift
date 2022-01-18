@@ -51,6 +51,31 @@ final class PHImageManagerMock: PHImageManagerType {
     return mockAsset.id
   }
 
+  func requestImageData(
+    for asset: PHAsset,
+    options: PHImageRequestOptions?,
+    completion: @escaping (Result<Data, Error>) -> Void
+  ) -> PHImageRequestID {
+    let mockAsset = asset as! PHAssetMock
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + completionInterval) {
+
+      guard self.cancelledImageRequests.contains(mockAsset.id) == false else {
+        return
+      }
+
+      if let data = self.requestImageResults?[mockAsset] as? Data {
+        completion(.success(data))
+      } else if let error = self.requestImageResults?[mockAsset] as? Error {
+        completion(.failure(error))
+      } else {
+        completion(.failure(NSError.unknownError))
+      }
+    }
+
+    return mockAsset.id
+  }
+
   func requestAVAsset(
     forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,

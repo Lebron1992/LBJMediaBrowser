@@ -1,4 +1,5 @@
 import Photos
+import UIKit
 import AlamofireImage
 
 final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> {
@@ -42,21 +43,48 @@ final class PHAssetImageLoader: MediaLoader<MediaImageStatus, PHImageRequestID> 
       options.version = .original
       options.isNetworkAccessAllowed = true
 
-      let requestId = manager.requestImage(
-        for: assetImage.asset,
-           targetSize: assetImage.targetSize(for: targetSize),
-           contentMode: assetImage.contentMode(for: targetSize),
-           options: options
-      ) { [unowned self] result in
+      let requestId: PHImageRequestID
+      if assetImage.asset.isGif {
+        requestId = manager.requestImageData(
+          for: assetImage.asset,
+          options: options
+        ) { [unowned self] result in
+          removeRequestId(forKey: cacheKey)
 
-        removeRequestId(forKey: cacheKey)
+          switch result {
+          case .success(let data):
+            if UIImage.isAnimatedImage(for: data) {
+              updateStatus(.loaded(.gif(data)), forKey: cacheKey)
+              imageCache?.store(.gif(data), forKey: cacheKey)
 
-        switch result {
-        case .success(let image):
-          updateStatus(.loaded(.still(image)), forKey: cacheKey)
-          imageCache?.store(.still(image), forKey: cacheKey)
-        case .failure(let error):
-          updateStatus(.failed(error), forKey: cacheKey)
+            } else if let image = UIImage(data: data) {
+              updateStatus(.loaded(.still(image)), forKey: cacheKey)
+              imageCache?.store(.still(image), forKey: cacheKey)
+
+            } else {
+              updateStatus(.failed(LBJMediaBrowserError.loadMediaError(reason: .cannotConvertDataToImage)), forKey: cacheKey)
+            }
+          case .failure(let error):
+            updateStatus(.failed(error), forKey: cacheKey)
+          }
+        }
+      } else {
+        requestId = manager.requestImage(
+          for: assetImage.asset,
+             targetSize: assetImage.targetSize(for: targetSize),
+             contentMode: assetImage.contentMode(for: targetSize),
+             options: options
+        ) { [unowned self] result in
+
+          removeRequestId(forKey: cacheKey)
+
+          switch result {
+          case .success(let image):
+            updateStatus(.loaded(.still(image)), forKey: cacheKey)
+            imageCache?.store(.still(image), forKey: cacheKey)
+          case .failure(let error):
+            updateStatus(.failed(error), forKey: cacheKey)
+          }
         }
       }
 

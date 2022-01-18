@@ -10,6 +10,12 @@ protocol PHImageManagerType {
     completion: @escaping (Result<UIImage, Error>) -> Void
   ) -> PHImageRequestID
 
+  func requestImageData(
+    for asset: PHAsset,
+    options: PHImageRequestOptions?,
+    completion: @escaping (Result<Data, Error>) -> Void
+  ) -> PHImageRequestID
+
   func requestAVAsset(
     forVideo asset: PHAsset,
     options: PHVideoRequestOptions?,
