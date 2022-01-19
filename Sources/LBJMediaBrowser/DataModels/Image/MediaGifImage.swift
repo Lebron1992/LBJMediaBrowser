@@ -6,11 +6,11 @@ import LBJImagePreviewer
 open class MediaGifImage: MediaImage {
 
   /// gif 图片的来源。The gif image source.
-  public let source: GifImageSource
+  public let source: Source
 
   /// 创建 `MediaGifImage` 对象。Creates a `MediaGifImage` object.
   /// - Parameter source: gif 图片的来源。The gif image source.
-  public init(source: GifImageSource) {
+  public init(source: Source) {
     self.source = source
   }
 
@@ -36,7 +36,7 @@ open class MediaGifImage: MediaImage {
 
 extension MediaGifImage {
   /// 标识 gif 图片来源的常量。Constants identifying the source of a gif image.
-  public enum GifImageSource {
+  public enum Source {
 
     /// gif 图片来源是 `Bundle`。The source of a gif image is a `Bundle` object.
     /// - name: gif 图片名字。The name of a gif image.
