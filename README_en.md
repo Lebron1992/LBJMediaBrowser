@@ -16,7 +16,7 @@ LBJMediaBrowser is a media browser implemented with SwiftUI.
 
 ## Features
 
-- Supported image types: `UIImage`、`PHAsset` and `URL`.
+- Supported image types: `UIImage`、`PHAsset`、`URL` and gif.
 - Supported video types: `PHAsset` and `URL`.
 - Browsing in grid mode.
 - Browsing in paging mode.
@@ -54,6 +54,7 @@ LBJMediaBrowser defines the corresponding type for each type of image and video.
 - `MediaUIImage`: An image type with a `UIImage` object.
 - `MediaURLImage`: An image type with a `URL` object.
 - `MediaPHAssetImage`: An image type with a `PHAsset` object whose `mediaType` is `image`.
+- `MediaGifImage`：Represents a gif image. It can get gif data from `Bundle` and `Data`。`MediaURLImage` and `MediaPHAssetImage` can automatically recognize the gif images.
 
 **Video**
 
@@ -74,6 +75,13 @@ let urlImage = MediaURLImage(imageUrl: imageUrl)
 // MediaPHAssetImage
 let phAsset = ... // Fetch from photo library
 let assetImage = MediaPHAssetImage(asset: phAsset)
+
+// Gif Image
+let gifImage1 = MediaGifImage(source: .bundle(name: "lebron", bundle: .main)
+let gifImage2 = MediaGifImage(source: .data(gifData))
+
+let gifUrl = URL(string: "https://www.example.com/test.gif")!
+let gifImage3 = MediaURLImage(imageUrl: gifUrl)
 
 // MediaURLVideo
 let videoUrl = URL(string: "https://www.example.com/test.mp4")!
@@ -198,37 +206,6 @@ The generic types represent the display contents of the four stages:
 -  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
 -  `failure`: The content displayed when media loading fails. The first parameter is `Error` and you could call the second parameter `retry` to reload the media.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
-
-```swift
-struct MyPagingMediaErrorView: View {
-  let error: Error
-
-  @EnvironmentObject
-  private var mediaLoader: MediaLoader
-
-  var body: some View {
-    VStack {
-      Image(systemName: "multiply")
-        .foregroundColor(.white)
-        .font(.system(size: 50))
-
-      Text(error.localizedDescription)
-        .foregroundColor(.white)
-
-      Button {
-        mediaLoader.startLoadingMedia()
-      } label: {
-        Text("Retry")
-          .foregroundColor(.black)
-          .frame(size: .init(width: 100, height: 40))
-          .background(Color.white)
-          .cornerRadius(20)
-      }
-    }
-    .background(Color.black)
-  }
-}
-```
 
 **Set current page**
 

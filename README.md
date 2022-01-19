@@ -18,7 +18,7 @@ LBJMediaBrowser 是一个在 SwiftUI 框架下实现的图片视频浏览器。
 
 ## 特性
 
-- 支持的图片类型：`UIImage`、`PHAsset` 和 `URL`。
+- 支持的图片类型：`UIImage`、`PHAsset` 、`URL` 和 Gif 动态图。
 - 支持的视频类型：`PHAsset` 和 `URL`。
 - 网格模式浏览。
 - 分页模式浏览。
@@ -54,6 +54,7 @@ LBJMediaBrowser 为每一种图片和视频都定义了对应的类型。它们�
 - `MediaUIImage`：`UIImage` 类型的图片。
 - `MediaURLImage`：`URL` 类型的图片。
 - `MediaPHAssetImage`：`PHAsset` 类型的图片。
+- `MediaGifImage`：Gif 动态图，支持从 `Bundle` 和 `Data` 中获取动态图数据。`MediaURLImage` 和 `MediaPHAssetImage` 会自动识别对应类型的动态图。
 
 **视频**
 
@@ -74,6 +75,13 @@ let urlImage = MediaURLImage(imageUrl: imageUrl)
 // MediaPHAssetImage
 let phAsset = ... // 从 Photo Library 中获取
 let assetImage = MediaPHAssetImage(asset: phAsset)
+
+// Gif Image
+let gifImage1 = MediaGifImage(source: .bundle(name: "lebron", bundle: .main)
+let gifImage2 = MediaGifImage(source: .data(gifData))
+
+let gifUrl = URL(string: "https://www.example.com/test.gif")!
+let gifImage3 = MediaURLImage(imageUrl: gifUrl)
 
 // MediaURLVideo
 let videoUrl = URL(string: "https://www.example.com/test.mp4")!
@@ -198,37 +206,6 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
 -  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
 -  `failure`: 媒体加载失败时显示的内容，闭包的第一个参数是 `Error` 类型，第二参数是 `retry` 闭包，可以调用 `retry()` 重新加载媒体。
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
-
-```swift
-struct MyPagingMediaErrorView: View {
-  let error: Error
-
-  @EnvironmentObject
-  private var mediaLoader: MediaLoader
-
-  var body: some View {
-    VStack {
-      Image(systemName: "multiply")
-        .foregroundColor(.white)
-        .font(.system(size: 50))
-
-      Text(error.localizedDescription)
-        .foregroundColor(.white)
-
-      Button {
-        mediaLoader.startLoadingMedia()
-      } label: {
-        Text("Retry")
-          .foregroundColor(.black)
-          .frame(size: .init(width: 100, height: 40))
-          .background(Color.white)
-          .cornerRadius(20)
-      }
-    }
-    .background(Color.black)
-  }
-}
-```
 
 **设置当前页数**
 
