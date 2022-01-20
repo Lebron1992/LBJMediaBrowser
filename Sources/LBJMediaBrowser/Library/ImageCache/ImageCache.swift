@@ -63,7 +63,7 @@ public final class ImageCache {
       memoryStorage.add(image, forKey: key)
     }
     if inDisk {
-      ioQueue.async { [unowned self] in
+      ioQueue.async(flags: .barrier) { [unowned self] in
         try? diskStorage?.store(image, forKey: key, referenceDate: referenceDate)
       }
     }
@@ -136,7 +136,7 @@ public final class ImageCache {
   }
 
   func clearDiskCache(containsDirectory: Bool = false) {
-    ioQueue.async { [unowned self] in
+    ioQueue.async(flags: .barrier) { [unowned self] in
       try? diskStorage?.removeAll(containsDirectory: containsDirectory)
     }
   }
@@ -167,7 +167,7 @@ public final class ImageCache {
   }
 
   func clearExpiredDiskCache(referenceDate: Date = Date()) {
-    ioQueue.async { [unowned self] in
+    ioQueue.async(flags: .barrier) { [unowned self] in
       let _ = try? diskStorage?.removeExpiredValues(referenceDate: referenceDate)
     }
   }
@@ -185,7 +185,7 @@ public final class ImageCache {
   private func appwillTerminate(noti: Notification) {
     let referenceDate = (noti.object as? Date) ?? Date()
     clearExpiredDiskCache(referenceDate: referenceDate)
-    ioQueue.async { [unowned self] in
+    ioQueue.async(flags: .barrier) { [unowned self] in
       let _ = try? diskStorage?.removeValuesToHalfSizeIfSizeExceeded()
     }
   }
