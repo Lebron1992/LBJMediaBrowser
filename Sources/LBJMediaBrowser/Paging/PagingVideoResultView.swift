@@ -65,7 +65,11 @@ private extension PagingVideoResultView {
   }
 
   var isThePlayingVideo: Bool {
-    switch (video, browser.playingVideo) {
+    guard let videoAtCurrentPage = browser.media(at: browser.currentPage) as? MediaVideo else {
+      return false
+    }
+
+    switch (video, videoAtCurrentPage) {
     case (let v1 as MediaURLVideo, let v2 as MediaURLVideo):
       return v1 == v2
 

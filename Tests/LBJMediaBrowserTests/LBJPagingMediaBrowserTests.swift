@@ -39,18 +39,6 @@ final class LBJPagingMediaBrowserTests: BaseTestCase {
     XCTAssertEqual(browser.currentPage, 2)
   }
 
-  func test_setCurrentPage_playingVideoUpdated() {
-    browser = LBJPagingBrowser(medias: [mediaUIImage, urlVideo, urlImage])
-
-    XCTAssertNil(browser.playingVideo)
-
-    browser.setCurrentPage(1)
-    XCTAssertEqual((browser.playingVideo as! MediaURLVideo), urlVideo)
-
-    browser.setCurrentPage(2)
-    XCTAssertNil(browser.playingVideo)
-  }
-
   func test_mediaAtPage() {
     browser = LBJPagingBrowser(medias: MediaUIImage.templates)
     XCTAssertNil(browser.media(at: -1))

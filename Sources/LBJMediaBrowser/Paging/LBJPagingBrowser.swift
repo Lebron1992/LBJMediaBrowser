@@ -14,11 +14,6 @@ public final class LBJPagingBrowser: ObservableObject {
   @Published
   public private(set) var currentPage: Int = 0
 
-  /// 正在播放的视频，如果当前浏览的是视频，返回当前视频，否则返回 `nil`。
-  /// The playing video. If the current page displaying a video, return the video, nil otherwise.
-  @Published
-  public private(set) var playingVideo: MediaVideo?
-
   /// 浏览器中所有的媒体。
   /// The medias in the browser.
   public private(set) var medias: [Media]
@@ -45,8 +40,6 @@ extension LBJPagingBrowser {
       return
     }
 
-    playingVideo = media(at: page) as? MediaVideo
-
     if animated {
       withAnimation {
         currentPage = validatedPage(page)
@@ -55,18 +48,18 @@ extension LBJPagingBrowser {
       currentPage = validatedPage(page)
     }
   }
-}
 
-// MARK: - Helper Methods
-extension LBJPagingBrowser {
-
-  func media(at page: Int) -> Media? {
+  /// 获取给定索引对应的媒体。Get the media for the given page.
+  public func media(at page: Int) -> Media? {
     guard page >= 0 && page < medias.count else {
       return nil
     }
     return medias[page]
   }
+}
 
+// MARK: - Helper Methods
+extension LBJPagingBrowser {
   func validatedPage(_ page: Int) -> Int {
     min(medias.count - 1, max(0, page))
   }
