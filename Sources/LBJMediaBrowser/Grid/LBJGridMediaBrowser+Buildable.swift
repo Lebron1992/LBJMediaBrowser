@@ -2,10 +2,10 @@ import CoreGraphics
 
 extension LBJGridMediaBrowser: Buildable {
 
-  /// 设置媒体的最小大小。
+  /// 设置媒体的最小尺寸。
   /// Sets the min item size.
-  /// - Parameter value: 媒体的最小大小。The min item size.
-  public func minItemSize(_ value: CGFloat) -> Self {
+  /// - Parameter value: 媒体的最小尺寸。The min item size.
+  public func minItemSize(_ value: CGSize) -> Self {
     mutating(keyPath: \.minItemSize, value: value)
   }
 

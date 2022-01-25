@@ -127,7 +127,8 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content,
+    pagingMediaBrowser: ((Int) -> AnyView)? = nil
   ) { }
 }
 ```
@@ -139,13 +140,46 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 -  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
 -  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 
+**自定义点击跳转的分页浏览器**
+
+`LBJGridMediaBrowser` 的初始化函数还可以接受 `pagingMediaBrowser` 闭包参数，用于自定义点击跳转的分页浏览器。闭包的 `Int` 类型参数是用户点击的媒体在媒体数组中的索引：
+
+```swift
+LBJGridMediaBrowser(
+  medias: medias,
+  pagingMediaBrowser: { page in
+    let browser: LBJPagingBrowser = {
+      let browser = LBJPagingBrowser(medias: medias, currentPage: page)
+      browser.autoPlayVideo = true
+      return browser
+    }()
+    return AnyView(
+      LBJPagingMediaBrowser(
+        browser: browser,
+        placeholder: { MyPlaceholderView(media: $0) },
+        progress: {
+          MyProgressView(progress: $0)
+            .foregroundColor(.white)
+            .frame(width: 100, height: 100)
+        },
+        failure: { error, retry in
+          MyErrorView(error: error, retry: retry)
+              .font(.system(size: 16))
+        },
+        content: { MyPagingContentView(result: $0) }
+      )
+    )
+  }
+)
+```
+
 **设置媒体的大小**
 
-通过调用 `minItemSize` 方法设置媒体的大小，默认是 `80`。
+通过调用 `minItemSize` 方法设置媒体的大小，默认是 `(80, 80)`。
 
 ```swift
 LBJGridMediaBrowser(medias: medias)
-  .minItemSize(100)
+  .minItemSize(.init(width: 100, height: 200))
 ```
 
 **设置媒体之间的间隔**

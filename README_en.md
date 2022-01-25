@@ -127,7 +127,8 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
+    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content,
+    pagingMediaBrowser: ((Int) -> AnyView)? = nil
   ) { }
 }
 ```
@@ -139,13 +140,46 @@ The generic types represent the display contents of the four stages:
 -  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
 -  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
 
+**Custom the paging media browser on tap item**
+
+The initializer of `LBJGridMediaBrowser` can also accept the `pagingMediaBrowser` closure, which is used to customize the paging browser on tap item. The 'Int' parameter of the closure is the index of the media tapped by the user in the medias array:
+
+```swift
+LBJGridMediaBrowser(
+  medias: medias,
+  pagingMediaBrowser: { page in
+    let browser: LBJPagingBrowser = {
+      let browser = LBJPagingBrowser(medias: medias, currentPage: page)
+      browser.autoPlayVideo = true
+      return browser
+    }()
+    return AnyView(
+      LBJPagingMediaBrowser(
+        browser: browser,
+        placeholder: { MyPlaceholderView(media: $0) },
+        progress: {
+          MyProgressView(progress: $0)
+            .foregroundColor(.white)
+            .frame(width: 100, height: 100)
+        },
+        failure: { error, retry in
+          MyErrorView(error: error, retry: retry)
+              .font(.system(size: 16))
+        },
+        content: { MyPagingContentView(result: $0) }
+      )
+    )
+  }
+)
+```
+
 **Set the item size**
 
-Set the item size by calling `minItemSize`, `80` by default:
+Set the item size by calling `minItemSize`, `(80, 80)` by default:
 
 ```swift
 LBJGridMediaBrowser(medias: medias)
-  .minItemSize(100)
+  .minItemSize(.init(width: 100, height: 200))
 ```
 
 **Set the item spacing**

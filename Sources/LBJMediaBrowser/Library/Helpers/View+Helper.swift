@@ -4,4 +4,8 @@ extension View {
   func frame(size: CGSize) -> some View {
     frame(width: size.width, height: size.height)
   }
+
+  func asAnyView() -> AnyView {
+    AnyView(self)
+  }
 }

@@ -20,10 +20,10 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - browser: 管理分页模式浏览的对象。An object that manages the media paging browser.
-  ///   - placeholder: 用于显示媒体处于未处理状态时的代码块。A block object that displays the media in idle.
-  ///   - progress: 用于显示媒体处于加载中的代码块。A block object that displays the media in progress.
-  ///   - failure: 用于显示媒体处于加载失败时的代码块。A block object that displays the media in failure.
-  ///   - content: 用于显示媒体处于加载完成时的代码块。A block object that displays the media in loaded.
+  ///   - placeholder: 用于自定义媒体处于未处理状态时的视图的代码块。A block to custom the view when the media in idle.
+  ///   - progress: 用于自定义媒体处于加载中的视图的代码块。A block to custom the view when the media in progress.
+  ///   - failure: 用于自定义媒体处于加载失败时的视图的代码块。A block to custom the view when the media in failure.
+  ///   - content: 用于自定义媒体处于加载完成时的视图的代码块。A block to custom the view when the media in loaded.
   public init(
     browser: LBJPagingBrowser,
     @ViewBuilder placeholder: @escaping (Media) -> Placeholder,

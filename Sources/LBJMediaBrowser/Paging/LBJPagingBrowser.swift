@@ -5,8 +5,8 @@ import SwiftUI
 /// An object that manages the medias paging browser.
 public final class LBJPagingBrowser: ObservableObject {
 
-  /// 是否自动播放视频，默认是 `true`。
-  /// Weather auto play a video, `true` by default.
+  /// 是否自动播放视频，默认是 `false`。
+  /// Weather auto play a video, `false` by default.
   public var autoPlayVideo = false
 
   /// 当前页所在的索引。
