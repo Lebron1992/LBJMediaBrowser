@@ -2,7 +2,9 @@ import SwiftUI
 
 /// 一个以网格模式浏览媒体的对象。
 /// An object that browsers the medias in grid mode.
-public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
+public struct LBJGridMediaBrowser<SectionType: GridSection>: View {
+
+  public typealias DataSource = LBJGridMediaBrowserDataSource<SectionType>
 
   var minItemSize = LBJGridMediaBrowserConstant.minItemSize
   var itemSpacing = LBJGridMediaBrowserConstant.itemSapcing
@@ -10,52 +12,23 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
   var browseInPagingOnTapItem = true
   var autoPlayVideoInPaging = false
 
-  private let medias: [Media]
-  private let placeholder: (Media) -> Placeholder
-  private let progress: (Float) -> Progress
-  private let failure: (Error) -> Failure
-  private let content: (MediaLoadedResult) -> Content
-  private let pagingMediaBrowser: ((Int) -> AnyView)?
-
-  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
-  /// - Parameters:
-  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
-  ///   - placeholder: 用于自定义媒体处于未处理状态时的视图的代码块。A block to custom the view when the media in idle.
-  ///   - progress: 用于自定义媒体处于加载中的视图的代码块。A block to custom the view when the media in progress.
-  ///   - failure: 用于自定义媒体处于加载失败时的视图的代码块。A block to custom the view when the media in failure.
-  ///   - content: 用于自定义媒体处于加载完成时的视图的代码块。A block to custom the view when the media in loaded.
-  ///   - pagingMediaBrowser: 用于自定义点击跳转分页浏览的代码块。A block to custom the paging media browser on tap item.
-  public init(
-    medias: [Media],
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content,
-    pagingMediaBrowser: ((Int) -> AnyView)? = nil
-  ) {
-    self.medias = medias
-    self.placeholder = placeholder
-    self.progress = progress
-    self.failure = failure
-    self.content = content
-    self.pagingMediaBrowser = pagingMediaBrowser
-  }
-
   @Environment(\.mediaBrowserEnvironment)
   private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment
 
+  @ObservedObject
+  private var dataSource: DataSource
+
+  public init(dataSource: DataSource) {
+    self.dataSource = dataSource
+  }
+
   public var body: some View {
     ScrollView {
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: minItemSize.width), spacing: itemSpacing)], spacing: itemSpacing) {
-        ForEach(0..<medias.count, id: \.self) { index in
-          if browseInPagingOnTapItem {
-            NavigationLink(destination: pagingMediaBrowser(page: index)) {
-              item(for: medias[index])
-            }
-          } else {
-            item(for: medias[index])
-          }
-        }
+      LazyVGrid(
+        columns: [GridItem(.adaptive(minimum: minItemSize.width), spacing: itemSpacing)],
+        spacing: itemSpacing
+      ) {
+        ForEach(dataSource.sections) { sectionView(for: $0) }
       }
       .padding(0)
     }
@@ -64,8 +37,29 @@ public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: Vi
 
 // MARK: - Subviews
 private extension LBJGridMediaBrowser {
+  func sectionView(for section: SectionType) -> some View {
+    Section(header: dataSource.sectionHeaderProvider(section)) {
+      ForEach(0..<dataSource.numberOfMedias(in: section), id: \.self) { index in
+        if let media = dataSource.media(at: index, in: section) {
+          itemView(for: media, at: index)
+        }
+      }
+    }
+  }
+
   @ViewBuilder
-  func item(for media: Media) -> some View {
+  func itemView(for media: Media, at index: Int) -> some View {
+    if browseInPagingOnTapItem {
+      NavigationLink(destination: dataSource.pagingMediaBrowserProvider(index)) {
+        mediaView(for: media)
+      }
+    } else {
+      mediaView(for: media)
+    }
+  }
+
+  @ViewBuilder
+  func mediaView(for media: Media) -> some View {
     Group {
       switch media {
       case let image as MediaImage:
@@ -86,19 +80,19 @@ private extension LBJGridMediaBrowser {
     Group {
       switch image {
       case let uiImage as MediaUIImage:
-        UIImageView(image: uiImage, content: content)
+        UIImageView(image: uiImage, content: dataSource.contentProvider)
 
       case let gifImage as MediaGifImage:
-        GifImageView(image: gifImage, in: .grid, content: content)
+        GifImageView(image: gifImage, in: .grid, content: dataSource.contentProvider)
 
       case let urlImage as MediaURLImage:
         URLImageView(
           urlImage: urlImage,
           targetSize: .thumbnail,
-          placeholder: placeholder,
-          progress: progress,
-          failure: { error, _ in failure(error) },
-          content: content
+          placeholder: dataSource.placeholderProvider,
+          progress: dataSource.progressProvider,
+          failure: { error, _ in dataSource.failureProvider(error) },
+          content: dataSource.contentProvider
         )
           .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
@@ -106,10 +100,10 @@ private extension LBJGridMediaBrowser {
         PHAssetImageView(
           assetImage: assetImage,
           targetSize: .thumbnail,
-          placeholder: placeholder,
-          progress: progress,
-          failure: { error, _ in failure(error) },
-          content: content
+          placeholder: dataSource.placeholderProvider,
+          progress: dataSource.progressProvider,
+          failure: { error, _ in dataSource.failureProvider(error) },
+          content: dataSource.contentProvider
         )
           .environmentObject(mediaBrowserEnvironment.assetImageLoader)
 
@@ -130,8 +124,8 @@ private extension LBJGridMediaBrowser {
         URLVideoView(
           urlVideo: urlVideo,
           imageTargetSize: .thumbnail,
-          placeholder: placeholder,
-          content: content
+          placeholder: dataSource.placeholderProvider,
+          content: dataSource.contentProvider
         )
           .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
@@ -139,9 +133,9 @@ private extension LBJGridMediaBrowser {
         PHAssetVideoView(
           assetVideo: assetVideo,
           maxThumbnailSize: .init(width: 200, height: 200),
-          placeholder: placeholder,
-          failure: { error, _ in failure(error) },
-          content: content
+          placeholder: dataSource.placeholderProvider,
+          failure: { error, _ in dataSource.failureProvider(error) },
+          content: dataSource.contentProvider
         )
           .environmentObject(mediaBrowserEnvironment.assetVideoLoader)
 
@@ -152,15 +146,6 @@ private extension LBJGridMediaBrowser {
     .aspectRatio(contentMode: .fill)
     .frame(minWidth: minItemSize.width, minHeight: minItemSize.height, alignment: .center)
     .clipped()
-  }
-
-  func pagingMediaBrowser(page: Int) -> AnyView {
-    if let customPaging = pagingMediaBrowser?(page) {
-      return customPaging
-    }
-    let browser = LBJPagingBrowser(medias: medias, currentPage: page)
-    browser.autoPlayVideo = autoPlayVideoInPaging
-    return LBJPagingMediaBrowser(browser: browser).asAnyView()
   }
 }
 
@@ -173,10 +158,11 @@ enum LBJGridMediaBrowserConstant {
 #if DEBUG
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
-    let mixed = [MediaUIImage.templates, MediaURLImage.templates, MediaURLVideo.templates]
-      .compactMap { $0 as? [Media] }
-      .reduce([], +)
-    LBJGridMediaBrowser(medias: mixed)
+    let dataSource = LBJGridMediaBrowserDataSource(
+      sections: GridSectionTemplate.allCases,
+      sectionHeaderProvider: { Text($0.title).asAnyView() }
+    )
+    return LBJGridMediaBrowser(dataSource: dataSource)
   }
 }
 #endif
