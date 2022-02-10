@@ -24,7 +24,8 @@ extension MediaPHAssetVideo {
   }
 }
 
-extension MediaPHAssetVideo: Equatable {
+// MARK: - Equatable
+extension MediaPHAssetVideo {
   public static func == (lhs: MediaPHAssetVideo, rhs: MediaPHAssetVideo) -> Bool {
     lhs.id == rhs.id &&
     lhs.asset == rhs.asset

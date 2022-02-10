@@ -25,15 +25,5 @@ extension LBJGridMediaBrowser: Buildable {
   public func browseInPagingOnTapItem(_ value: Bool = true) -> Self {
     mutating(keyPath: \.browseInPagingOnTapItem, value: value)
   }
-
-  /// 设置在分页模式时，是否自动播放视频。
-  /// Sets wheather auto play video in paging mode.
-  /// - Parameter value: 是否自动播放视频，默认是 `true`。 `true` if  should auto play video in paging mode, `true` by default.
-  ///
-  /// 只在调用了 `browseInPagingOnTapItem(true)` 才有效。
-  /// Only available when `browseInPagingOnTapItem(true)` is called.
-  public func autoPlayVideoInPaging(_ value: Bool = true) -> Self {
-    mutating(keyPath: \.autoPlayVideoInPaging, value: value)
-  }
 }
 

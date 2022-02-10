@@ -10,7 +10,6 @@ public struct LBJGridMediaBrowser<SectionType: GridSection>: View {
   var itemSpacing = LBJGridMediaBrowserConstant.itemSapcing
 
   var browseInPagingOnTapItem = true
-  var autoPlayVideoInPaging = false
 
   @Environment(\.mediaBrowserEnvironment)
   private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment

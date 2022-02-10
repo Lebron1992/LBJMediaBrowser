@@ -16,7 +16,7 @@ open class MediaUIImage: MediaImage {
 }
 
 // MARK: - Equatable
-extension MediaUIImage: Equatable {
+extension MediaUIImage {
   public static func == (lhs: MediaUIImage, rhs: MediaUIImage) -> Bool {
     lhs.id == rhs.id &&
     lhs.uiImage == rhs.uiImage

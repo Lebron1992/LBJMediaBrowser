@@ -36,8 +36,9 @@ extension MediaURLImage {
 }
 
 // MARK: - Equatable
-extension MediaURLImage: Equatable {
+extension MediaURLImage {
   public static func == (lhs: MediaURLImage, rhs: MediaURLImage) -> Bool {
+    lhs.id == rhs.id &&
     lhs.imageUrl == rhs.imageUrl &&
     lhs.thumbnailUrl == rhs.thumbnailUrl
   }

@@ -46,40 +46,21 @@ final class LBJGridMediaBrowserDataSourceTests: BaseTestCase {
     XCTAssertNil(dataSource.media(at: 4, in: .uiImage))
   }
 
-  func test_appendSection() {
+  func test_append() {
     XCTAssertEqual(dataSource.numberOfSections, 2)
-    dataSource.appendSection(.urlVideo)
+    dataSource.append(.urlVideo)
     XCTAssertEqual(dataSource.numberOfSections, 3)
   }
 
-  func test_appendSection_ignoredExisting() {
+  func test_append_ignoredExisting() {
     XCTAssertEqual(dataSource.numberOfSections, 2)
-    dataSource.appendSection(.uiImage)
-    XCTAssertEqual(dataSource.numberOfSections, 2)
-  }
-
-  func test_insertSectionBefore() {
-    XCTAssertEqual(dataSource.numberOfSections, 2)
-
-    dataSource.insertSection(.urlVideo, before: .urlImage)
-
-    XCTAssertEqual(dataSource.numberOfSections, 3)
-    XCTAssertEqual(
-      dataSource.sections,
-      [GridSectionTemplate.uiImage, GridSectionTemplate.urlVideo, GridSectionTemplate.urlImage]
-    )
-  }
-
-  func test_insertSectionBefore_ignoredExisting() {
-    XCTAssertEqual(dataSource.numberOfSections, 2)
-    dataSource.insertSection(.uiImage, before: .urlImage)
+    dataSource.append(.uiImage)
     XCTAssertEqual(dataSource.numberOfSections, 2)
   }
 
-  func test_insertSectionAfter() {
+  func test_insertBefore() {
     XCTAssertEqual(dataSource.numberOfSections, 2)
-
-    dataSource.insertSection(.urlVideo, after: .uiImage)
+    dataSource.insert(.urlVideo, before: .urlImage)
 
     XCTAssertEqual(dataSource.numberOfSections, 3)
     XCTAssertEqual(
@@ -88,9 +69,27 @@ final class LBJGridMediaBrowserDataSourceTests: BaseTestCase {
     )
   }
 
-  func test_insertSectionAfter_ignoredExisting() {
+  func test_insertBefore_ignoredExisting() {
     XCTAssertEqual(dataSource.numberOfSections, 2)
-    dataSource.insertSection(.uiImage, after: .urlImage)
+    dataSource.insert(.uiImage, before: .urlImage)
+    XCTAssertEqual(dataSource.numberOfSections, 2)
+  }
+
+  func test_insertAfter() {
+    XCTAssertEqual(dataSource.numberOfSections, 2)
+
+    dataSource.insert(.urlVideo, after: .uiImage)
+
+    XCTAssertEqual(dataSource.numberOfSections, 3)
+    XCTAssertEqual(
+      dataSource.sections,
+      [GridSectionTemplate.uiImage, GridSectionTemplate.urlVideo, GridSectionTemplate.urlImage]
+    )
+  }
+
+  func test_insertAfter_ignoredExisting() {
+    XCTAssertEqual(dataSource.numberOfSections, 2)
+    dataSource.insert(.uiImage, after: .urlImage)
     XCTAssertEqual(dataSource.numberOfSections, 2)
   }
 }

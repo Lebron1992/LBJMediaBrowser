@@ -200,15 +200,6 @@ LBJGridMediaBrowser(medias: medias)
   .browseInPagingOnTapItem(true)
 ```
 
-**Set wheather auto play video in paging mode**
-
-Set wheather auto play video in paging mode by calling `autoPlayVideoInPaging`, `false` by default:
-
-```swift
-LBJGridMediaBrowser(medias: medias)
-  .autoPlayVideoInPaging(false)
-```
-
 ### Paging Mode
 
 LBJMediaBrowser defines a type of 'LBJPagingMediaBrowser', which is used to browse media in paging mode. For example:

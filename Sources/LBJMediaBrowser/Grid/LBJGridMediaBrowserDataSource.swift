@@ -1,17 +1,21 @@
 import Combine
 import SwiftUI
 
-open class LBJGridMediaBrowserDataSource<SectionType: GridSection>: ObservableObject {
+public class LBJGridMediaBrowserDataSource<SectionType: GridSection>: ObservableObject {
 
   @Published
-  public private(set) var sections: [SectionType]
+  public private(set) var sections: [SectionType] {
+    didSet {
+      updatePagingMediaBrowserProvider()
+    }
+  }
 
   let placeholderProvider: (Media) -> AnyView
   let progressProvider: (Float) -> AnyView
   let failureProvider: (Error) -> AnyView
   let contentProvider: (MediaLoadedResult) -> AnyView
   let sectionHeaderProvider: (SectionType) -> AnyView
-  let pagingMediaBrowserProvider: (Int) -> AnyView
+  private(set) var pagingMediaBrowserProvider: (Int) -> LBJPagingMediaBrowser
 
   public init(
     sections: [SectionType],
@@ -20,7 +24,7 @@ open class LBJGridMediaBrowserDataSource<SectionType: GridSection>: ObservableOb
     failureProvider: ((Error) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
     sectionHeaderProvider: ((SectionType) -> AnyView)? = nil,
-    pagingMediaBrowserProvider: ((Int) -> AnyView)? = nil
+    pagingMediaBrowserProvider: ((Int) -> LBJPagingMediaBrowser)? = nil
   ) {
     self.sections = sections
 
@@ -52,12 +56,29 @@ open class LBJGridMediaBrowserDataSource<SectionType: GridSection>: ObservableOb
         .asAnyView()
     }
 
-    self.pagingMediaBrowserProvider = pagingMediaBrowserProvider ?? { _ in AnyView(EmptyView()) }
+    self.pagingMediaBrowserProvider = pagingMediaBrowserProvider ?? { page in
+      let browser = LBJPagingBrowser(
+        medias: sections.reduce([]) { $0 + $1.medias },
+        currentPage: page
+      )
+      return LBJPagingMediaBrowser(browser: browser)
+    }
+  }
+
+  private func updatePagingMediaBrowserProvider() {
+    pagingMediaBrowserProvider = { [unowned self] page in
+      let browser = LBJPagingBrowser(medias: allMedias, currentPage: page)
+      return LBJPagingMediaBrowser(browser: browser)
+    }
   }
 }
 
 // MARK: - Manage Sections
 extension LBJGridMediaBrowserDataSource {
+  public var allMedias: [Media] {
+    sections.reduce([]) { $0 + $1.medias }
+  }
+
   public var numberOfMedias: Int {
     sections.reduce(0) { $0 + $1.medias.count }
   }
@@ -79,12 +100,12 @@ extension LBJGridMediaBrowserDataSource {
     return (0..<mediasInSection.count) ~= index ? mediasInSection[index] : nil
   }
 
-  public func appendSection(_ section: SectionType) {
+  public func append(_ section: SectionType) {
     guard sections.contains(section) == false else { return }
     sections.append(section)
   }
 
-  public func insertSection(_ section: SectionType, before: SectionType) {
+  public func insert(_ section: SectionType, before: SectionType) {
     guard
       sections.contains(section) == false,
       let beforeIndex = sections.firstIndex(of: before)
@@ -94,7 +115,7 @@ extension LBJGridMediaBrowserDataSource {
     sections.insert(section, at: beforeIndex)
   }
 
-  public func insertSection(_ section: SectionType, after: SectionType) {
+  public func insert(_ section: SectionType, after: SectionType) {
     guard
       sections.contains(section) == false,
       let afterIndex = sections.firstIndex(of: after)

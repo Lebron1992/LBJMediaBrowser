@@ -200,15 +200,6 @@ LBJGridMediaBrowser(medias: medias)
   .browseInPagingOnTapItem(true)
 ```
 
-**设置在分页模式浏览时是否自动播放视频**
-
-通过调用 `autoPlayVideoInPaging` 方法设置在分页模式浏览时是否自动播放视频，默认是 `false`。
-
-```swift
-LBJGridMediaBrowser(medias: medias)
-  .autoPlayVideoInPaging(false)
-```
-
 ### 分页模式
 
 LBJMediaBrowser 定义了 `LBJPagingMediaBrowser` 类型，用于以分页模式浏览媒体。例如：
