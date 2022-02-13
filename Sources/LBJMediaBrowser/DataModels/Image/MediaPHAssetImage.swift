@@ -67,7 +67,8 @@ extension MediaPHAssetImage {
     }
 }
 
-extension MediaPHAssetImage: Equatable {
+// MARK: - Equatable
+extension MediaPHAssetImage {
   public static func == (lhs: MediaPHAssetImage, rhs: MediaPHAssetImage) -> Bool {
     lhs.id == rhs.id &&
     lhs.asset == rhs.asset &&

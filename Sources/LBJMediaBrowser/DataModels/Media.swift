@@ -8,3 +8,9 @@ open class Media {
   /// The id of the media.
   public let id = UUID().uuidString
 }
+
+extension Media: Equatable {
+  public static func == (lhs: Media, rhs: Media) -> Bool {
+    lhs.id == rhs.id
+  }
+}

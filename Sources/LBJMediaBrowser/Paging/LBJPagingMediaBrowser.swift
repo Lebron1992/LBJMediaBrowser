@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 一个以分页模式浏览媒体的对象。
 /// An object that browse the medias in paging mode.
-public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
+public struct LBJPagingMediaBrowser: View {
 
   var onTapMedia: (Media) -> Void = { _ in }
 
@@ -12,37 +12,18 @@ public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: 
   @ObservedObject
   private var browser: LBJPagingBrowser
 
-  private let placeholder: (Media) -> Placeholder
-  private let progress: (Float) -> Progress
-  private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
-  private let content: (MediaLoadedResult) -> Content
-
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - browser: 管理分页模式浏览的对象。An object that manages the media paging browser.
-  ///   - placeholder: 用于自定义媒体处于未处理状态时的视图的代码块。A block to custom the view when the media in idle.
-  ///   - progress: 用于自定义媒体处于加载中的视图的代码块。A block to custom the view when the media in progress.
-  ///   - failure: 用于自定义媒体处于加载失败时的视图的代码块。A block to custom the view when the media in failure.
-  ///   - content: 用于自定义媒体处于加载完成时的视图的代码块。A block to custom the view when the media in loaded.
-  public init(
-    browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
-  ) {
+  public init(browser: LBJPagingBrowser) {
     self.browser = browser
-    self.placeholder = placeholder
-    self.progress = progress
-    self.failure = failure
-    self.content = content
   }
 
   public var body: some View {
     GeometryReader { geometry in
       TabView(selection: currentPage) {
-        ForEach(0..<browser.medias.count, id: \.self) { index in
-          let media = browser.medias[index]
+        ForEach(0..<browser.dataSource.medias.count, id: \.self) { index in
+          let media = browser.dataSource.medias[index]
           Group {
             switch media {
             case let image as MediaImage:
@@ -80,19 +61,19 @@ private extension LBJPagingMediaBrowser {
   func imageView(for image: MediaImage) -> some View {
     switch image {
     case let uiImage as MediaUIImage:
-      UIImageView(image: uiImage, content: content)
+      UIImageView(image: uiImage, content: browser.dataSource.contentProvider)
 
     case let gifImage as MediaGifImage:
-      GifImageView(image: gifImage, in: .paging, content: content)
+      GifImageView(image: gifImage, in: .paging, content: browser.dataSource.contentProvider)
 
     case let urlImage as MediaURLImage:
       URLImageView(
         urlImage: urlImage,
         targetSize: .larger,
-        placeholder: placeholder,
-        progress: progress,
-        failure: failure,
-        content: content
+        placeholder: browser.dataSource.placeholderProvider,
+        progress: browser.dataSource.progressProvider,
+        failure: browser.dataSource.failureProvider,
+        content: browser.dataSource.contentProvider
       )
         .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
@@ -100,10 +81,10 @@ private extension LBJPagingMediaBrowser {
       PHAssetImageView(
         assetImage: assetImage,
         targetSize: .larger,
-        placeholder: placeholder,
-        progress: progress,
-        failure: failure,
-        content: content
+        placeholder: browser.dataSource.placeholderProvider,
+        progress: browser.dataSource.progressProvider,
+        failure: browser.dataSource.failureProvider,
+        content: browser.dataSource.contentProvider
       )
         .environmentObject(mediaBrowserEnvironment.assetImageLoader)
 
@@ -119,8 +100,8 @@ private extension LBJPagingMediaBrowser {
       URLVideoView(
         urlVideo: urlVideo,
         imageTargetSize: .larger,
-        placeholder: placeholder,
-        content: content
+        placeholder: browser.dataSource.placeholderProvider,
+        content: browser.dataSource.contentProvider
       )
         .environmentObject(mediaBrowserEnvironment.urlImageLoader)
 
@@ -128,9 +109,9 @@ private extension LBJPagingMediaBrowser {
       PHAssetVideoView(
         assetVideo: assetVideo,
         maxThumbnailSize: UIScreen.main.bounds.size,
-        placeholder: placeholder,
-        failure: failure,
-        content: content
+        placeholder: browser.dataSource.placeholderProvider,
+        failure: browser.dataSource.failureProvider,
+        content: browser.dataSource.contentProvider
       )
         .environmentObject(mediaBrowserEnvironment.assetVideoLoader)
 
@@ -146,8 +127,7 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
     let mixed = [MediaUIImage.templates, MediaURLVideo.templates, MediaURLImage.templates]
       .compactMap { $0 as? [Media] }
       .reduce([], +)
-    let browser = LBJPagingBrowser(medias: mixed, currentPage: 0)
-    browser.autoPlayVideo = true
+    let browser = LBJPagingBrowser(dataSource: .init(medias: mixed))
     return LBJPagingMediaBrowser(browser: browser)
   }
 }

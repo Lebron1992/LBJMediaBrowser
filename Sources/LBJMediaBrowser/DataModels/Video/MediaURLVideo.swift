@@ -22,7 +22,8 @@ open class MediaURLVideo: MediaVideo {
   }
 }
 
-extension MediaURLVideo: Equatable {
+// MARK: - Equatable
+extension MediaURLVideo {
   public static func == (lhs: MediaURLVideo, rhs: MediaURLVideo) -> Bool {
     lhs.id == rhs.id &&
     lhs.videoUrl == rhs.videoUrl &&

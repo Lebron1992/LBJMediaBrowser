@@ -39,16 +39,6 @@ final class LBJPagingMediaBrowserTests: BaseTestCase {
     XCTAssertEqual(browser.currentPage, 2)
   }
 
-  func test_mediaAtPage() {
-    browser = LBJPagingBrowser(medias: MediaUIImage.templates)
-    XCTAssertNil(browser.media(at: -1))
-    XCTAssertNil(browser.media(at: 3))
-    XCTAssertEqual(
-      browser.media(at: 1) as? MediaUIImage,
-      MediaUIImage.templates[1]
-    )
-  }
-
   func test_validatedPage() {
     browser = LBJPagingBrowser(medias: MediaUIImage.templates)
 

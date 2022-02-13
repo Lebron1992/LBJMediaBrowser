@@ -11,7 +11,6 @@ LBJMediaBrowser is a media browser implemented with SwiftUI.
     - [Paging Mode](#paging-mode)
     - [Image Cache](#image-cache)
 - [Third Party Dependency](#third-party-dependency)
-- [Existing Issues](#existing-issues)
 - [Requesting a Feature](#requesting-a-feature)
 
 ## Features
@@ -113,62 +112,90 @@ LBJMediaBrowser defines a type of 'LBJGridMediaBrowser', which is used to browse
 
 ```swift
 let medias = [uiImage, urlImage, assetImage, urlVideo, assetVideo]
-LBJGridMediaBrowser(medias: medias)
+let dataSource = LBJGridMediaBrowserDataSource(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
 ```
 
-**Customize the content for the four stages**
+**Customize the contents**
 
-`LBJGridMediaBrowser` is a generic type, which is defined as follows:
+`LBJGridMediaBrowserDataSource` provides a wealth of closures to custom the contents:
 
 ```swift
-public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
-  public init(
-    medias: [Media],
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content,
-    pagingMediaBrowser: ((Int) -> AnyView)? = nil
-  ) { }
-}
+public init(
+  sections: [GridSection],
+  placeholderProvider: ((Media) -> AnyView)? = nil,
+  progressProvider: ((Float) -> AnyView)? = nil,
+  failureProvider: ((Error) -> AnyView)? = nil,
+  contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
+  sectionHeaderProvider: ((GridSection) -> AnyView)? = nil,
+  pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+) { }
 ```
 
 The generic types represent the display contents of the four stages:
 
--  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
--  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
--  `failure`: The content displayed when media loading fails. The type of the parameter is `Error`.
--  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
+- `placeholderProvider`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
+- `progressProvider`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
+- `failureProvider`: The content displayed when media loading fails. The type of the parameter is `Error`.
+- `contentProvider`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
+- `sectionHeaderProvider`: The content displayed for the section header. The type of the parameter is `GridSection`.
+- `pagingMediaBrowserProvider`: A closure to custom the paging media browser on tap item. The `[Media]` array is all the medias in the browser, The `Int` is the index of the tapped item.
 
-**Custom the paging media browser on tap item**
-
-The initializer of `LBJGridMediaBrowser` can also accept the `pagingMediaBrowser` closure, which is used to customize the paging browser on tap item. The 'Int' parameter of the closure is the index of the media tapped by the user in the medias array:
+For example:
 
 ```swift
-LBJGridMediaBrowser(
-  medias: medias,
-  pagingMediaBrowser: { page in
-    let browser: LBJPagingBrowser = {
-      let browser = LBJPagingBrowser(medias: medias, currentPage: page)
-      browser.autoPlayVideo = true
-      return browser
-    }()
-    return AnyView(
-      LBJPagingMediaBrowser(
-        browser: browser,
-        placeholder: { MyPlaceholderView(media: $0) },
-        progress: {
-          MyProgressView(progress: $0)
-            .foregroundColor(.white)
-            .frame(width: 100, height: 100)
-        },
-        failure: { error, retry in
-          MyErrorView(error: error, retry: retry)
-              .font(.system(size: 16))
-        },
-        content: { MyPagingContentView(result: $0) }
-      )
-    )
+let uiImageSection = TitledGridSection(title: "UIImages", medias: uiImages)
+let urlImageSection = TitledGridSection(title: "URLImages", medias: urlImages)
+let dataSource = LBJGridMediaBrowserDataSource(
+  sections: [uiImageSection, urlImageSection],
+  placeholderProvider: {
+    MyPlaceholderView(media: $0)
+      .asAnyView()
+  },
+  progressProvider: {
+    MyProgressView(progress: $0)
+      .foregroundColor(.white)
+      .frame(width: 40, height: 40)
+      .asAnyView()
+  },
+  failureProvider: {
+    MyErrorView(error: $0)
+      .font(.system(size: 10))
+      .asAnyView()
+  },
+  contentProvider: {
+    MyGridContentView(result: $0)
+      .asAnyView()
+  },
+  sectionHeaderProvider: {
+    Text($0.title)
+      .asAnyView()
+  },
+  pagingMediaBrowserProvider: { medias, page in
+    let dataSource = LBJPagingMediaBrowserDataSource(
+      medias: medias,
+      placeholderProvider: {
+        MyPlaceholderView(media: $0)
+          .asAnyView()
+      },
+      progressProvider: {
+        MyProgressView(progress: $0)
+          .foregroundColor(.white)
+          .frame(width: 100, height: 100)
+          .asAnyView()
+      },
+      failureProvider: { error, retry in
+        MyErrorView(error: error, retry: retry)
+          .font(.system(size: 16))
+          .asAnyView()
+      },
+      contentProvider: {
+        MyPagingContentView(result: $0)
+          .asAnyView()
+      })
+    let browser = LBJPagingBrowser(dataSource: dataSource, currentPage: page)
+    browser.autoPlayVideo = true
+    return LBJPagingMediaBrowser(browser: browser)
   }
 )
 ```
@@ -178,7 +205,7 @@ LBJGridMediaBrowser(
 Set the item size by calling `minItemSize`, `(80, 80)` by default:
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
   .minItemSize(.init(width: 100, height: 200))
 ```
 
@@ -187,8 +214,10 @@ LBJGridMediaBrowser(medias: medias)
 Set the item spacing by calling `itemSpacing`, `2` by default:
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
-  .itemSpacing(4)
+NavigationView {
+  LBJGridMediaBrowser(dataSource: dataSource)
+    .browseInPagingOnTapItem(true)
+}
 ```
 
 **Set wheather browse in paging mode on tap item**
@@ -196,17 +225,10 @@ LBJGridMediaBrowser(medias: medias)
 Set wheather browse in paging mode on tap item by calling `browseInPagingOnTapItem`, `true` by default:
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
-  .browseInPagingOnTapItem(true)
-```
-
-**Set wheather auto play video in paging mode**
-
-Set wheather auto play video in paging mode by calling `autoPlayVideoInPaging`, `false` by default:
-
-```swift
-LBJGridMediaBrowser(medias: medias)
-  .autoPlayVideoInPaging(false)
+NavigationView {
+  LBJGridMediaBrowser(dataSource: dataSource)
+    .browseInPagingOnTapItem(true)
+}
 ```
 
 ### Paging Mode
@@ -220,26 +242,22 @@ LBJPagingMediaBrowser(browser: browser)
 
 **Customize the content for the four stages**
 
-`LBJPagingMediaBrowser` is a generic type, which is defined as follows:
+`LBJPagingMediaBrowserDataSource` provides a wealth of closures to custom the contents:
 
 ```swift
-public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
-  public init(
-    browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
-  ) { }
-}
+public init(
+  medias: [Media],
+  placeholderProvider: ((Media) -> AnyView)? = nil,
+  progressProvider: ((Float) -> AnyView)? = nil,
+  failureProvider: ((_ error: Error, _ retry: @escaping () -> Void) -> AnyView)? = nil,
+  contentProvider: ((MediaLoadedResult) -> AnyView)? = nil
+) { }
 ```
 
-The generic types represent the display contents of the four stages:
-
--  `placeholder`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
--  `progress`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
--  `failure`: The content displayed when media loading fails. The first parameter is `Error` and you could call the second parameter `retry` to reload the media.
--  `content`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
+- `placeholderProvider`: The content displayed when the media is not loaded. The type of the parameter is `Media`. The display content can be defined for image and video respectively according to this parameter.
+- `progressProvider`: The content displayed when the media is loading. The type of the parameter is `Float`, indicating the download progress. This closure is only valid for images.
+- `failureProvider`: The content displayed when media loading fails. The first parameter is `Error` and you could call the second parameter `retry` to reload the media.
+- `contentProvider`: The content displayed when the media is loaded successfully. The type of the parameter is `MediaLoadedResult`. The display content can be defined for image and video respectively according to this parameter.
 
 **Set current page**
 
@@ -263,7 +281,7 @@ Set whether to automatically play video by setting the property `autoPlayVideo` 
 
 ```swift
 let browser: LBJPagingBrowser = {
-  let browser = LBJPagingBrowser(medias: viewModel.medias)
+  let browser = LBJPagingBrowser(medias: medias)
   browser.autoPlayVideo = true
   return browser
 }()
@@ -304,7 +322,7 @@ let imageCache: ImageCache? = {
 }()
 let mediaBrowserEnvironment = LBJMediaBrowserEnvironment(imageCache: imageCache)
 
-LBJGridMediaBrowser(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
   .environment(\.mediaBrowserEnvironment, mediaBrowserEnvironment)
 ```
 
@@ -323,10 +341,6 @@ Using AlamofireImage to download URL image.
 ### [LBJImagePreviewer](https://github.com/Lebron1992/LBJImagePreviewer)
 
 Using LBJImagePreviewer to display image.
-
-## Existing Issues
-
-There are bugs when set the current paging manually by calling `setCurrentPage`.
 
 ## Requesting a Feature
 

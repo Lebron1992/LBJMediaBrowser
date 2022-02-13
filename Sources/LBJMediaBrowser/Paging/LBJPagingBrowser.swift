@@ -14,17 +14,24 @@ public final class LBJPagingBrowser: ObservableObject {
   @Published
   public private(set) var currentPage: Int = 0
 
-  /// 浏览器中所有的媒体。
-  /// The medias in the browser.
-  public private(set) var medias: [Media]
+  /// 分页浏览器的数据源。The data source of `LBJPagingMediaBrowser`.
+  public let dataSource: LBJPagingMediaBrowserDataSource
 
-  /// 创建 LBJPagingBrowser 对象。Creates a `LBJPagingBrowser` object.
+  /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
+  /// - Parameters:
+  ///   - dataSource: 分页浏览器的数据源。The data source of `LBJPagingMediaBrowser`.
+  ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
+  public init(dataSource: LBJPagingMediaBrowserDataSource, currentPage: Int = 0) {
+    self.dataSource = dataSource
+    self.currentPage = validatedPage(currentPage)
+  }
+
+  /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
-  ///   - currentPage: 当前页的索引。The index of the current page.
-  public init(medias: [Media], currentPage: Int = 0) {
-    self.medias = medias
-    self.currentPage = validatedPage(currentPage)
+  ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
+  public convenience init(medias: [Media], currentPage: Int = 0) {
+    self.init(dataSource: .init(medias: medias), currentPage: currentPage)
   }
 }
 
@@ -48,19 +55,11 @@ extension LBJPagingBrowser {
       currentPage = validatedPage(page)
     }
   }
-
-  /// 获取给定索引对应的媒体。Get the media for the given page.
-  public func media(at page: Int) -> Media? {
-    guard page >= 0 && page < medias.count else {
-      return nil
-    }
-    return medias[page]
-  }
 }
 
 // MARK: - Helper Methods
 extension LBJPagingBrowser {
   func validatedPage(_ page: Int) -> Int {
-    min(medias.count - 1, max(0, page))
+    min(dataSource.medias.count - 1, max(0, page))
   }
 }

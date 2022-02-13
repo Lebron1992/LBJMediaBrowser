@@ -35,6 +35,15 @@ extension MediaURLImage {
   }
 }
 
+// MARK: - Equatable
+extension MediaURLImage {
+  public static func == (lhs: MediaURLImage, rhs: MediaURLImage) -> Bool {
+    lhs.id == rhs.id &&
+    lhs.imageUrl == rhs.imageUrl &&
+    lhs.thumbnailUrl == rhs.thumbnailUrl
+  }
+}
+
 // MARK: - Templates
 extension MediaURLImage {
   static let templates = [
