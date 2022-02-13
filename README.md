@@ -1,6 +1,6 @@
 # LBJMediaBrowser
 
-[English Readme](./README_en.md)
+## [English Readme](./README_en.md)
 
 LBJMediaBrowser 是一个在 SwiftUI 框架下实现的图片视频浏览器。
 
@@ -13,7 +13,6 @@ LBJMediaBrowser 是一个在 SwiftUI 框架下实现的图片视频浏览器。
     - [分页模式](#分页模式)
     - [图片缓存](#图片缓存)
 - [第三方依赖](#第三方依赖)
-- [存在问题](#存在问题)
 - [请求添加新功能](#请求添加新功能)
 
 ## 特性
@@ -113,62 +112,88 @@ LBJMediaBrowser 定义了 `LBJGridMediaBrowser` 类型，用于以网格模式�
 
 ```swift
 let medias = [uiImage, urlImage, assetImage, urlVideo, assetVideo]
-LBJGridMediaBrowser(medias: medias)
+let dataSource = LBJGridMediaBrowserDataSource(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
 ```
 
-**自定义四个加载阶段的显示内容**
+**自定义显示内容**
 
-`LBJGridMediaBrowser` 是一个泛型，它的定义如下：
+`LBJGridMediaBrowserDataSource` 提供了丰富的自定义显示内容的闭包：
 
 ```swift
-public struct LBJGridMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
-  public init(
-    medias: [Media],
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (Error) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content,
-    pagingMediaBrowser: ((Int) -> AnyView)? = nil
-  ) { }
-}
+public init(
+  sections: [GridSection],
+  placeholderProvider: ((Media) -> AnyView)? = nil,
+  progressProvider: ((Float) -> AnyView)? = nil,
+  failureProvider: ((Error) -> AnyView)? = nil,
+  contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
+  sectionHeaderProvider: ((GridSection) -> AnyView)? = nil,
+  pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+) { }
 ```
 
-其中的泛型类型分别代表媒体的四个加载阶段的显示内容：
+- `placeholderProvider`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+- `progressProvider`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
+- `failureProvider`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
+- `contentProvider`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+- `sectionHeaderProvider`: section header 显示的内容，闭包的参数是 `GridSection` 类型，可以根据这个参数为为不同的 section 定义 header 显示内容。
+- `pagingMediaBrowserProvider`: 点击跳转的分页浏览器。参数 `[Media]` 是浏览器中的所有媒体组成的数组, 参数 `Int` 是用户点击的媒体在数组中的索引。
 
--  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
--  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
--  `failure`: 媒体加载失败时显示的内容，闭包的参数是 `Error` 类型，
--  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
-
-**自定义点击跳转的分页浏览器**
-
-`LBJGridMediaBrowser` 的初始化函数还可以接受 `pagingMediaBrowser` 闭包参数，用于自定义点击跳转的分页浏览器。闭包的 `Int` 类型参数是用户点击的媒体在媒体数组中的索引：
+例如：
 
 ```swift
-LBJGridMediaBrowser(
-  medias: medias,
-  pagingMediaBrowser: { page in
-    let browser: LBJPagingBrowser = {
-      let browser = LBJPagingBrowser(medias: medias, currentPage: page)
-      browser.autoPlayVideo = true
-      return browser
-    }()
-    return AnyView(
-      LBJPagingMediaBrowser(
-        browser: browser,
-        placeholder: { MyPlaceholderView(media: $0) },
-        progress: {
-          MyProgressView(progress: $0)
-            .foregroundColor(.white)
-            .frame(width: 100, height: 100)
-        },
-        failure: { error, retry in
-          MyErrorView(error: error, retry: retry)
-              .font(.system(size: 16))
-        },
-        content: { MyPagingContentView(result: $0) }
-      )
-    )
+let uiImageSection = TitledGridSection(title: "UIImages", medias: uiImages)
+let urlImageSection = TitledGridSection(title: "URLImages", medias: urlImages)
+let dataSource = LBJGridMediaBrowserDataSource(
+  sections: [uiImageSection, urlImageSection],
+  placeholderProvider: {
+    MyPlaceholderView(media: $0)
+      .asAnyView()
+  },
+  progressProvider: {
+    MyProgressView(progress: $0)
+      .foregroundColor(.white)
+      .frame(width: 40, height: 40)
+      .asAnyView()
+  },
+  failureProvider: {
+    MyErrorView(error: $0)
+      .font(.system(size: 10))
+      .asAnyView()
+  },
+  contentProvider: {
+    MyGridContentView(result: $0)
+      .asAnyView()
+  },
+  sectionHeaderProvider: {
+    Text($0.title)
+      .asAnyView()
+  },
+  pagingMediaBrowserProvider: { medias, page in
+    let dataSource = LBJPagingMediaBrowserDataSource(
+      medias: medias,
+      placeholderProvider: {
+        MyPlaceholderView(media: $0)
+          .asAnyView()
+      },
+      progressProvider: {
+        MyProgressView(progress: $0)
+          .foregroundColor(.white)
+          .frame(width: 100, height: 100)
+          .asAnyView()
+      },
+      failureProvider: { error, retry in
+        MyErrorView(error: error, retry: retry)
+          .font(.system(size: 16))
+          .asAnyView()
+      },
+      contentProvider: {
+        MyPagingContentView(result: $0)
+          .asAnyView()
+      })
+    let browser = LBJPagingBrowser(dataSource: dataSource, currentPage: page)
+    browser.autoPlayVideo = true
+    return LBJPagingMediaBrowser(browser: browser)
   }
 )
 ```
@@ -178,7 +203,7 @@ LBJGridMediaBrowser(
 通过调用 `minItemSize` 方法设置媒体的大小，默认是 `(80, 80)`。
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
   .minItemSize(.init(width: 100, height: 200))
 ```
 
@@ -187,7 +212,7 @@ LBJGridMediaBrowser(medias: medias)
 通过调用 `itemSpacing` 方法设置媒体之间的间隔，默认是 `2`。
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
   .itemSpacing(4)
 ```
 
@@ -196,8 +221,10 @@ LBJGridMediaBrowser(medias: medias)
 通过调用 `itemSpacing` 方法设置点击媒体时是否跳转到分页模式浏览，默认是 `true`。
 
 ```swift
-LBJGridMediaBrowser(medias: medias)
-  .browseInPagingOnTapItem(true)
+NavigationView {
+  LBJGridMediaBrowser(dataSource: dataSource)
+    .browseInPagingOnTapItem(true)
+}
 ```
 
 ### 分页模式
@@ -209,28 +236,26 @@ let browser = LBJPagingBrowser(medias: medias)
 LBJPagingMediaBrowser(browser: browser)
 ```
 
-**自定义四个加载阶段的显示内容**
+**自定义显示内容**
 
-`LBJPagingMediaBrowser` 是一个泛型，它的定义如下：
+`LBJPagingMediaBrowserDataSource` 提供了丰富的自定义显示内容的闭包：
 
 ```swift
-public struct LBJPagingMediaBrowser<Placeholder: View, Progress: View, Failure: View, Content: View>: View {
-  public init(
-    browser: LBJPagingBrowser,
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
-    @ViewBuilder progress: @escaping (Float) -> Progress,
-    @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
-    @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
-  ) { }
-}
+public init(
+  medias: [Media],
+  placeholderProvider: ((Media) -> AnyView)? = nil,
+  progressProvider: ((Float) -> AnyView)? = nil,
+  failureProvider: ((_ error: Error, _ retry: @escaping () -> Void) -> AnyView)? = nil,
+  contentProvider: ((MediaLoadedResult) -> AnyView)? = nil
+) { }
 ```
 
 其中的泛型类型分别代表媒体的四个加载阶段的显示内容：
 
--  `placeholder`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
--  `progress`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
--  `failure`: 媒体加载失败时显示的内容，闭包的第一个参数是 `Error` 类型，第二参数是 `retry` 闭包，可以调用 `retry()` 重新加载媒体。
--  `content`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+- `placeholderProvider`: 媒体未加载时显示的内容，闭包的参数是 `Media` 类型，可以根据这个参数为图片和视频分别定义显示内容。
+- `progressProvider`: 媒体正在加载时显示的内容，闭包的参数是 `Float` 类型，表示下载进度。此闭包只对图片有效。
+- `failureProvider`: 媒体加载失败时显示的内容，闭包的第一个参数是 `Error` 类型，第二参数是 `retry` 闭包，可以调用 `retry()` 重新加载媒体。
+- `contentProvider`: 媒体加载成功时显示的内容，闭包的参数是 `MediaLoadedResult` 类型，可以根据这个参数为图片和视频分别定义显示内容。
 
 **设置当前页数**
 
@@ -254,7 +279,7 @@ browser.setCurrentPage(10, animated: false)
 
 ```swift
 let browser: LBJPagingBrowser = {
-  let browser = LBJPagingBrowser(medias: viewModel.medias)
+  let browser = LBJPagingBrowser(medias: medias)
   browser.autoPlayVideo = true
   return browser
 }()
@@ -295,7 +320,7 @@ let imageCache: ImageCache? = {
 }()
 let mediaBrowserEnvironment = LBJMediaBrowserEnvironment(imageCache: imageCache)
 
-LBJGridMediaBrowser(medias: medias)
+LBJGridMediaBrowser(dataSource: dataSource)
   .environment(\.mediaBrowserEnvironment, mediaBrowserEnvironment)
 ```
 
@@ -314,10 +339,6 @@ let cache = ImageCache(diskStorage: nil, memoryStorage: memoryStorage)
 ### [LBJImagePreviewer](https://github.com/Lebron1992/LBJImagePreviewer)
 
 使用 LBJImagePreviewer 展示图片。
-
-## 存在问题
-
-通过调用 `setCurrentPage` 手动设置当前页数有 Bug。
 
 ## 请求添加新功能
 

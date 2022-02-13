@@ -1,9 +1,13 @@
 import SwiftUI
 
+/// 网格媒体浏览器的 section 类型。The section type in grid browser.
+public typealias LBJGridMediaBrowserSectionType = GridSection & Equatable & Identifiable
+
 /// 一个以网格模式浏览媒体的对象。
 /// An object that browsers the medias in grid mode.
-public struct LBJGridMediaBrowser<SectionType: GridSection>: View {
+public struct LBJGridMediaBrowser<SectionType: LBJGridMediaBrowserSectionType>: View {
 
+  /// 网格媒体浏览器的数据源类型。The type of the data source in grid browser.
   public typealias DataSource = LBJGridMediaBrowserDataSource<SectionType>
 
   var minItemSize = LBJGridMediaBrowserConstant.minItemSize
@@ -17,6 +21,8 @@ public struct LBJGridMediaBrowser<SectionType: GridSection>: View {
   @ObservedObject
   private var dataSource: DataSource
 
+  /// 创建 `LBJGridMediaBrowser` 对象。Creates a `LBJGridMediaBrowser` object.
+  /// - Parameter dataSource: `LBJGridMediaBrowserDataSource` 对象。A `LBJGridMediaBrowserDataSource` object.
   public init(dataSource: DataSource) {
     self.dataSource = dataSource
   }
@@ -40,16 +46,16 @@ private extension LBJGridMediaBrowser {
     Section(header: dataSource.sectionHeaderProvider(section)) {
       ForEach(0..<dataSource.numberOfMedias(in: section), id: \.self) { index in
         if let media = dataSource.media(at: index, in: section) {
-          itemView(for: media, at: index)
+          itemView(for: media)
         }
       }
     }
   }
 
   @ViewBuilder
-  func itemView(for media: Media, at index: Int) -> some View {
-    if browseInPagingOnTapItem {
-      NavigationLink(destination: dataSource.pagingMediaBrowserProvider(index)) {
+  func itemView(for media: Media) -> some View {
+    if browseInPagingOnTapItem, let index = dataSource.indexInAllMedias(for: media) {
+      NavigationLink(destination: dataSource.pagingMediaBrowserProvider(dataSource.allMedias, index)) {
         mediaView(for: media)
       }
     } else {
@@ -158,9 +164,10 @@ enum LBJGridMediaBrowserConstant {
 struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
     let dataSource = LBJGridMediaBrowserDataSource(
-      sections: GridSectionTemplate.allCases,
+      sections: TitledGridSection.templates,
       sectionHeaderProvider: { Text($0.title).asAnyView() }
     )
+//    let dataSource = LBJGridMediaBrowserDataSource(medias: MediaUIImage.templates)
     return LBJGridMediaBrowser(dataSource: dataSource)
   }
 }
