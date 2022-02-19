@@ -20,33 +20,28 @@ public struct LBJPagingMediaBrowser: View {
   }
 
   public var body: some View {
-    GeometryReader { geometry in
-      TabView(selection: currentPage) {
-        ForEach(0..<browser.dataSource.medias.count, id: \.self) { index in
-          let media = browser.dataSource.medias[index]
-          Group {
-            switch media {
-            case let image as MediaImage:
-              imageView(for: image)
-            case let video as MediaVideo:
-              videoView(for: video)
-            default:
-              EmptyView()
-            }
+    TabView(selection: currentPage) {
+      ForEach(0..<browser.dataSource.medias.count, id: \.self) { index in
+        let media = browser.dataSource.medias[index]
+        Group {
+          switch media {
+          case let image as MediaImage:
+            imageView(for: image)
+          case let video as MediaVideo:
+            videoView(for: video)
+          default:
+            EmptyView()
           }
-          .frame(size: geometry.size)
-          .tag(index)
-          .gesture(
-            TapGesture()
-              .onEnded { onTapMedia(media) }
-          )
         }
+        .tag(index)
+        .gesture(
+          TapGesture()
+            .onEnded { onTapMedia(media) }
+        )
       }
-      .background(Color.black)
-      .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-      .ignoresSafeArea()
-      .environmentObject(browser)
     }
+    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+    .environmentObject(browser)
   }
 
   private var currentPage: Binding<Int> {
@@ -129,6 +124,7 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
       .reduce([], +)
     let browser = LBJPagingBrowser(dataSource: .init(medias: mixed))
     return LBJPagingMediaBrowser(browser: browser)
+      .background(Color.black)
   }
 }
 #endif

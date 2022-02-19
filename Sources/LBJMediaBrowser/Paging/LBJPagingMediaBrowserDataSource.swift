@@ -46,6 +46,7 @@ public class LBJPagingMediaBrowserDataSource: ObservableObject {
 
     self.contentProvider = contentProvider ?? {
       PagingMediaLoadedResultView(result: $0)
+        .background(Color.black)
         .asAnyView()
     }
   }
