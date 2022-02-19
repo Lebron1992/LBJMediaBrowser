@@ -13,7 +13,7 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
   let failureProvider: (Error) -> AnyView
   let contentProvider: (MediaLoadedResult) -> AnyView
   let sectionHeaderProvider: (SectionType) -> AnyView
-  private(set) var pagingMediaBrowserProvider: ([Media], Int) -> LBJPagingMediaBrowser
+  private(set) var pagingMediaBrowserProvider: ([Media], Int) -> AnyView
 
   /// 创建 `LBJGridMediaBrowserDataSource` 对象。Create `LBJGridMediaBrowserDataSource` object.
   /// - Parameters:
@@ -31,7 +31,7 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
     failureProvider: ((Error) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
     sectionHeaderProvider: ((SectionType) -> AnyView)? = nil,
-    pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+    pagingMediaBrowserProvider: (([Media], Int) -> AnyView)? = nil
   ) {
     self.sections = sections
 
@@ -66,6 +66,8 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
     self.pagingMediaBrowserProvider = pagingMediaBrowserProvider ?? { medias, page in
       let browser = LBJPagingBrowser(medias: medias, currentPage: page)
       return LBJPagingMediaBrowser(browser: browser)
+        .background(Color.black)
+        .asAnyView()
     }
   }
 }
@@ -88,7 +90,7 @@ extension LBJGridMediaBrowserDataSource where SectionType == SingleGridSection {
     failureProvider: ((Error) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
     sectionHeaderProvider: ((SectionType) -> AnyView)? = nil,
-    pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+    pagingMediaBrowserProvider: (([Media], Int) -> AnyView)? = nil
   ) {
     self.init(
       sections: [SingleGridSection(medias: medias)],
