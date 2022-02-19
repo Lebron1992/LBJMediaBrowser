@@ -40,7 +40,6 @@ public struct LBJPagingMediaBrowser: View {
         )
       }
     }
-    .background(Color.black)
     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     .environmentObject(browser)
   }
@@ -125,6 +124,7 @@ struct LBJPagingMediaBrowser_Previews: PreviewProvider {
       .reduce([], +)
     let browser = LBJPagingBrowser(dataSource: .init(medias: mixed))
     return LBJPagingMediaBrowser(browser: browser)
+      .background(Color.black)
   }
 }
 #endif

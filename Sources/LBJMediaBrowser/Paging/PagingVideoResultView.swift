@@ -32,7 +32,7 @@ struct PagingVideoResultView: View {
         }
       } else {
         ZStack {
-          if let preview = previewImage {
+          if let preview = previewImage ?? UIColor.black.toImage() {
             Image(uiImage: preview)
               .resizable()
               .aspectRatio(contentMode: .fit)
