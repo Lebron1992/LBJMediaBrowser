@@ -2,7 +2,7 @@ import Photos
 
 /// 代表视频格式是 `PHAsset` 的视频类型。
 /// A video type with a `PHAsset` object whose `mediaType` is `video`.
-open class MediaPHAssetVideo: MediaVideo {
+open class MediaPHAssetVideo: MediaVideoType {
 
   /// `mediaType` 是 `video` 的 `PHAsset` 对象。
   /// A  `PHAsset` object whose `mediaType` is `video`.
@@ -16,6 +16,13 @@ open class MediaPHAssetVideo: MediaVideo {
     }
     self.asset = asset
   }
+
+  public func equalsTo(_ media: MediaType) -> Bool {
+    guard let other = media as? MediaPHAssetVideo else {
+      return false
+    }
+    return self == other
+  }
 }
 
 extension MediaPHAssetVideo {
@@ -27,7 +34,6 @@ extension MediaPHAssetVideo {
 // MARK: - Equatable
 extension MediaPHAssetVideo {
   public static func == (lhs: MediaPHAssetVideo, rhs: MediaPHAssetVideo) -> Bool {
-    lhs.id == rhs.id &&
     lhs.asset == rhs.asset
   }
 }

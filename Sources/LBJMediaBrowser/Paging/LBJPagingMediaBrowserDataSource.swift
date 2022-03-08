@@ -6,9 +6,9 @@ public class LBJPagingMediaBrowserDataSource: ObservableObject {
 
   /// 浏览器中所有的媒体。All the medias in the browser.
   @Published
-  public private(set) var medias: [Media]
+  public private(set) var medias: [MediaType]
 
-  let placeholderProvider: (Media) -> AnyView
+  let placeholderProvider: (MediaType) -> AnyView
   let progressProvider: (Float) -> AnyView
   let failureProvider: (_ error: Error, _ retry: @escaping () -> Void) -> AnyView
   let contentProvider: (MediaLoadedResult) -> AnyView
@@ -21,8 +21,8 @@ public class LBJPagingMediaBrowserDataSource: ObservableObject {
   ///   - failureProvider: 自定义媒体处于加载失败时的视图的闭包。A closure to custom the view when the media is in failure.
   ///   - contentProvider: 自定义媒体处于加载完成时的视图的闭包。A closure to custom the view when the media is in loaded.
   public init(
-    medias: [Media],
-    placeholderProvider: ((Media) -> AnyView)? = nil,
+    medias: [MediaType],
+    placeholderProvider: ((MediaType) -> AnyView)? = nil,
     progressProvider: ((Float) -> AnyView)? = nil,
     failureProvider: ((_ error: Error, _ retry: @escaping () -> Void) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil
@@ -60,13 +60,13 @@ extension LBJPagingMediaBrowserDataSource {
   }
 
   /// 获取给定索引的媒体。The media in the given index.
-  public func media(at index: Int) -> Media? {
+  public func media(at index: Int) -> MediaType? {
     (0..<medias.count) ~= index ? medias[index] : nil
   }
 
   /// 添加给定的媒体。Append the given media.
-  public func append(_ media: Media) {
-    guard medias.contains(media) == false else { return }
+  public func append(_ media: MediaType) {
+    guard medias.contains(where: { $0.equalsTo(media) }) == false else { return }
     medias.append(media)
   }
 
@@ -74,10 +74,10 @@ extension LBJPagingMediaBrowserDataSource {
   /// - Parameters:
   ///   - media: 要插入的媒体。The new media to be inserted.
   ///   - before: 在此媒体前插入。The new media is inserted before this media.
-  public func insert(_ media: Media, before: Media) {
+  public func insert(_ media: MediaType, before: MediaType) {
     guard
-      medias.contains(media) == false,
-      let beforeIndex = medias.firstIndex(of: before)
+      medias.contains(where: { $0.equalsTo(media) }) == false,
+      let beforeIndex = medias.firstIndex(where: { $0.equalsTo(before) })
     else {
       return
     }
@@ -88,10 +88,10 @@ extension LBJPagingMediaBrowserDataSource {
   /// - Parameters:
   ///   - media: 要插入的媒体。The new media to be inserted.
   ///   - before: 在此媒体后插入。The new media is inserted after this media.
-  public func insert(_ media: Media, after: Media) {
+  public func insert(_ media: MediaType, after: MediaType) {
     guard
-      medias.contains(media) == false,
-      let afterIndex = medias.firstIndex(of: after)
+      medias.contains(where: { $0.equalsTo(media) }) == false,
+      let afterIndex = medias.firstIndex(where: { $0.equalsTo(after) })
     else {
       return
     }

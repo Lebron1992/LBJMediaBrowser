@@ -4,7 +4,7 @@ import SwiftUI
 /// An object that browse the medias in paging mode.
 public struct LBJPagingMediaBrowser: View {
 
-  var onTapMedia: (Media) -> Void = { _ in }
+  var onTapMedia: (MediaType) -> Void = { _ in }
 
   @Environment(\.mediaBrowserEnvironment)
   private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment
@@ -25,9 +25,9 @@ public struct LBJPagingMediaBrowser: View {
         let media = browser.dataSource.medias[index]
         Group {
           switch media {
-          case let image as MediaImage:
+          case let image as MediaImageType:
             imageView(for: image)
-          case let video as MediaVideo:
+          case let video as MediaVideoType:
             videoView(for: video)
           default:
             EmptyView()
@@ -53,7 +53,7 @@ public struct LBJPagingMediaBrowser: View {
 private extension LBJPagingMediaBrowser {
 
   @ViewBuilder
-  func imageView(for image: MediaImage) -> some View {
+  func imageView(for image: MediaImageType) -> some View {
     switch image {
     case let uiImage as MediaUIImage:
       UIImageView(image: uiImage, content: browser.dataSource.contentProvider)
@@ -89,7 +89,7 @@ private extension LBJPagingMediaBrowser {
   }
 
   @ViewBuilder
-  func videoView(for video: MediaVideo) -> some View {
+  func videoView(for video: MediaVideoType) -> some View {
     switch video {
     case let urlVideo as MediaURLVideo:
       URLVideoView(
@@ -120,7 +120,7 @@ private extension LBJPagingMediaBrowser {
 struct LBJPagingMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
     let mixed = [MediaUIImage.templates, MediaURLVideo.templates, MediaURLImage.templates]
-      .compactMap { $0 as? [Media] }
+      .compactMap { $0 as? [MediaType] }
       .reduce([], +)
     let browser = LBJPagingBrowser(dataSource: .init(medias: mixed))
     return LBJPagingMediaBrowser(browser: browser)

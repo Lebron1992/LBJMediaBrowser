@@ -7,7 +7,7 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
 
   private let urlImage: MediaURLImage
   private let targetSize: ImageTargetSize
-  private let placeholder: (Media) -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let progress: (Float) -> Progress
   private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
@@ -15,7 +15,7 @@ struct URLImageView<Placeholder: View, Progress: View, Failure: View, Content: V
   init(
     urlImage: MediaURLImage,
     targetSize: ImageTargetSize,
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder progress: @escaping (Float) -> Progress,
     @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content

@@ -2,7 +2,7 @@ import UIKit
 
 /// 代表图片格式是 `URL` 的图片类型。
 /// An image type with a `URL` object.
-open class MediaURLImage: MediaImage {
+open class MediaURLImage: MediaImageType {
 
   /// 图片路径。
   /// The url of the image.
@@ -20,6 +20,13 @@ open class MediaURLImage: MediaImage {
     self.imageUrl = imageUrl
     self.thumbnailUrl = thumbnailUrl
   }
+
+  public func equalsTo(_ media: MediaType) -> Bool {
+    guard let other = media as? MediaURLImage else {
+      return false
+    }
+    return self == other
+  }
 }
 
 // MARK: - Helper Methods
@@ -36,9 +43,8 @@ extension MediaURLImage {
 }
 
 // MARK: - Equatable
-extension MediaURLImage {
+extension MediaURLImage: Equatable {
   public static func == (lhs: MediaURLImage, rhs: MediaURLImage) -> Bool {
-    lhs.id == rhs.id &&
     lhs.imageUrl == rhs.imageUrl &&
     lhs.thumbnailUrl == rhs.thumbnailUrl
   }

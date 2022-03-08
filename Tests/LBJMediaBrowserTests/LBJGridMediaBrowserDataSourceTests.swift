@@ -25,6 +25,8 @@ final class LBJGridMediaBrowserDataSourceTests: BaseTestCase {
     )
   }
 
+  // MARK: - Manage Section
+
   func test_numberOfMedias() {
     XCTAssertEqual(multipleSectionDataSource.numberOfMedias, 13)
   }
@@ -98,9 +100,8 @@ final class LBJGridMediaBrowserDataSourceTests: BaseTestCase {
       multipleSectionDataSource.sections[1].medias.count,
       11
     )
-    XCTAssertEqual(
-      multipleSectionDataSource.sections[1].medias.first,
-      newUrlImage
+    XCTAssertTrue(
+      multipleSectionDataSource.sections[1].medias.first!.equalsTo(newUrlImage)
     )
   }
 
@@ -129,6 +130,55 @@ final class LBJGridMediaBrowserDataSourceTests: BaseTestCase {
     singleSectionDataSource.insert(newMedia, at: 0)
 
     XCTAssertEqual(singleSectionDataSource.allMedias.count, 4)
-    XCTAssertEqual(singleSectionDataSource.allMedias.first, newMedia)
+    XCTAssertTrue(singleSectionDataSource.allMedias.first!.equalsTo(newMedia))
+  }
+
+  // MARK: - Handle Selection
+
+  func test_selectAndDeselectMedia() {
+    let image = MediaUIImage.templates[0]
+    multipleSectionDataSource.select(image, in: uiImageSection)
+
+    XCTAssertTrue(
+      multipleSectionDataSource.selectedSectionMedias[uiImageSection]!
+        .contains(where: { $0.equalsTo(image) })
+    )
+
+    multipleSectionDataSource.deselect(image, in: uiImageSection)
+
+    XCTAssertFalse(
+      multipleSectionDataSource.selectedSectionMedias[uiImageSection]!
+        .contains(where: { $0.equalsTo(image) })
+    )
+  }
+
+  func test_isMediaSelected() {
+    let image = MediaUIImage.templates[0]
+    multipleSectionDataSource.select(image, in: uiImageSection)
+
+    XCTAssertTrue(multipleSectionDataSource.isMediaSelected(image, in: uiImageSection))
+    XCTAssertTrue(multipleSectionDataSource.isMediaSelected(image))
+  }
+
+  func test_allSelectedMedias() {
+    let uiImage = MediaUIImage.templates[0]
+    let urlImage = MediaURLImage.templates[0]
+
+    multipleSectionDataSource.select(uiImage, in: uiImageSection)
+    multipleSectionDataSource.select(urlImage, in: urlImageSection)
+
+    XCTAssertEqual(multipleSectionDataSource.allSelectedMedias.count, 2)
+    XCTAssertTrue(multipleSectionDataSource.allSelectedMedias[0].equalsTo(uiImage))
+    XCTAssertTrue(multipleSectionDataSource.allSelectedMedias[1].equalsTo(urlImage))
+  }
+
+  func test_selectedMediasInSection() {
+    let uiImage = MediaUIImage.templates[0]
+
+    multipleSectionDataSource.select(uiImage, in: uiImageSection)
+
+    let selectedMedias = multipleSectionDataSource.selectedMedias(in: uiImageSection)
+    XCTAssertEqual(selectedMedias.count, 1)
+    XCTAssertTrue(selectedMedias[0].equalsTo(uiImage))
   }
 }

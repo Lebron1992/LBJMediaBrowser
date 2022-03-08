@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// 网格媒体浏览器的 section 类型。The section type in grid browser.
-public typealias LBJGridMediaBrowserSectionType = GridSection & Equatable & Identifiable
+public typealias LBJGridMediaBrowserSectionType = GridSection & Equatable & Hashable & Identifiable
 
 /// 一个以网格模式浏览媒体的对象。
 /// An object that browsers the medias in grid mode.
@@ -46,42 +46,44 @@ private extension LBJGridMediaBrowser {
     Section(header: dataSource.sectionHeaderProvider(section)) {
       ForEach(0..<dataSource.numberOfMedias(in: section), id: \.self) { index in
         if let media = dataSource.media(at: index, in: section) {
-          itemView(for: media)
+          itemView(for: media, in: section)
         }
       }
     }
   }
 
   @ViewBuilder
-  func itemView(for media: Media) -> some View {
+  func itemView(for media: MediaType, in section: SectionType) -> some View {
     if browseInPagingOnTapItem, let index = dataSource.indexInAllMedias(for: media) {
       NavigationLink(destination: dataSource.pagingMediaBrowserProvider(dataSource.allMedias, index)) {
-        mediaView(for: media)
+        mediaView(for: media, in: section)
       }
     } else {
-      mediaView(for: media)
+      mediaView(for: media, in: section)
     }
   }
 
   @ViewBuilder
-  func mediaView(for media: Media) -> some View {
-    Group {
+  func mediaView(for media: MediaType, in section: SectionType) -> some View {
+    ZStack {
       switch media {
-      case let image as MediaImage:
+      case let image as MediaImageType:
         imageView(for: image)
-      case let video as MediaVideo:
+      case let video as MediaVideoType:
         videoView(for: video)
       default:
         EmptyView()
       }
+      dataSource.selectionOverlay(for: media, in: section)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .aspectRatio(minItemSize.width / minItemSize.height, contentMode: .fill)
     .background(Color.black)
+    .environmentObject(dataSource)
   }
 
   @ViewBuilder
-  func imageView(for image: MediaImage) -> some View {
+  func imageView(for image: MediaImageType) -> some View {
     Group {
       switch image {
       case let uiImage as MediaUIImage:
@@ -122,7 +124,7 @@ private extension LBJGridMediaBrowser {
   }
 
   @ViewBuilder
-  func videoView(for video: MediaVideo) -> some View {
+  func videoView(for video: MediaVideoType) -> some View {
     Group {
       switch video {
       case let urlVideo as MediaURLVideo:
@@ -165,7 +167,8 @@ struct LBJGridMediaBrowser_Previews: PreviewProvider {
   static var previews: some View {
     let dataSource = LBJGridMediaBrowserDataSource(
       sections: TitledGridSection.templates,
-      sectionHeaderProvider: { Text($0.title).asAnyView() }
+      sectionHeaderProvider: { Text($0.title).asAnyView() },
+      selectionMode: .any(max: nil)
     )
 //    let dataSource = LBJGridMediaBrowserDataSource(medias: MediaUIImage.templates)
     return LBJGridMediaBrowser(dataSource: dataSource)

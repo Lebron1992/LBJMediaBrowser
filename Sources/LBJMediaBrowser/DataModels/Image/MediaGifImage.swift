@@ -3,7 +3,7 @@ import LBJImagePreviewer
 
 /// 图片格式是 gif 的图片类型。
 /// An image type that represents a gif image.
-open class MediaGifImage: MediaImage {
+open class MediaGifImage: MediaImageType {
 
   /// gif 图片的来源。The gif image source.
   public let source: Source
@@ -32,11 +32,18 @@ open class MediaGifImage: MediaImage {
       return data
     }
   }
+
+  public func equalsTo(_ media: MediaType) -> Bool {
+    guard let other = media as? MediaGifImage else {
+      return false
+    }
+    return source == other.source
+  }
 }
 
 extension MediaGifImage {
   /// 标识 gif 图片来源的常量。Constants identifying the source of a gif image.
-  public enum Source {
+  public enum Source: Equatable {
 
     /// gif 图片来源是 `Bundle`。The source of a gif image is a `Bundle` object.
     /// - name: gif 图片名字。The name of a gif image.

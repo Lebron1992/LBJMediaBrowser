@@ -3,7 +3,7 @@ import SwiftUI
 
 struct PagingVideoResultView: View {
 
-  let video: MediaVideo
+  let video: MediaVideoType
   let previewImage: UIImage?
   let videoUrl: URL
 
@@ -65,20 +65,10 @@ private extension PagingVideoResultView {
   }
 
   var isThePlayingVideo: Bool {
-    guard let videoAtCurrentPage = browser.dataSource.media(at: browser.currentPage) as? MediaVideo else {
+    guard let videoAtCurrentPage = browser.dataSource.media(at: browser.currentPage) as? MediaVideoType else {
       return false
     }
-
-    switch (video, videoAtCurrentPage) {
-    case (let v1 as MediaURLVideo, let v2 as MediaURLVideo):
-      return v1 == v2
-
-    case (let v1 as MediaPHAssetVideo, let v2 as MediaPHAssetVideo):
-      return v1 == v2
-
-    default:
-      return false
-    }
+    return video.equalsTo(videoAtCurrentPage)
   }
 }
 

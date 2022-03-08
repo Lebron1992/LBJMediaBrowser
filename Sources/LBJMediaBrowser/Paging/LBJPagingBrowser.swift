@@ -30,7 +30,7 @@ public final class LBJPagingBrowser: ObservableObject {
   /// - Parameters:
   ///   - medias: 要浏览的媒体数组。The medias to be browsed.
   ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
-  public convenience init(medias: [Media], currentPage: Int = 0) {
+  public convenience init(medias: [MediaType], currentPage: Int = 0) {
     self.init(dataSource: .init(medias: medias), currentPage: currentPage)
   }
 }

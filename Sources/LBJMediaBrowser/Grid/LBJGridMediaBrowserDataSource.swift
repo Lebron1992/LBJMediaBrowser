@@ -8,12 +8,18 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
   @Published
   public private(set) var sections: [SectionType]
 
-  let placeholderProvider: (Media) -> AnyView
+  /// 每个 section 中选中的媒体。The selected medias in sections.
+  @Published
+  public private(set) var selectedSectionMedias: [SectionType: [MediaType]] = [:]
+
+  let placeholderProvider: (MediaType) -> AnyView
   let progressProvider: (Float) -> AnyView
   let failureProvider: (Error) -> AnyView
   let contentProvider: (MediaLoadedResult) -> AnyView
   let sectionHeaderProvider: (SectionType) -> AnyView
-  private(set) var pagingMediaBrowserProvider: ([Media], Int) -> LBJPagingMediaBrowser
+  let selectionMode: SelectionMode
+  let selectionOverlayProvider: (MediaType, SectionType, SelectionStatus) -> AnyView
+  private(set) var pagingMediaBrowserProvider: ([MediaType], Int) -> AnyView
 
   /// 创建 `LBJGridMediaBrowserDataSource` 对象。Create `LBJGridMediaBrowserDataSource` object.
   /// - Parameters:
@@ -23,15 +29,19 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
   ///   - failureProvider: 自定义媒体处于加载失败时的视图的闭包。A closure to custom the view when the media is in failure.
   ///   - contentProvider: 自定义媒体处于加载完成时的视图的闭包。A closure to custom the view when the media is in loaded.
   ///   - sectionHeaderProvider: 自定义 section header 的视图的闭包。A closure to custom the section header.
+  ///   - selectionMode: 选择模式，默认禁用选择模式。The selection mode for the browser, `.disabled` by default.
+  ///   - selectionOverlayProvider: 自定义媒体视图在不同选中状态下的覆盖层的闭包。A closure to custom the overlay for the media view in different status.
   ///   - pagingMediaBrowserProvider: 自定义点击跳转分页浏览的闭包。A closure to custom the paging media browser on tap item.
   public init(
     sections: [SectionType],
-    placeholderProvider: ((Media) -> AnyView)? = nil,
+    placeholderProvider: ((MediaType) -> AnyView)? = nil,
     progressProvider: ((Float) -> AnyView)? = nil,
     failureProvider: ((Error) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
     sectionHeaderProvider: ((SectionType) -> AnyView)? = nil,
-    pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+    selectionMode: SelectionMode = .disabled,
+    selectionOverlayProvider: ((MediaType, SectionType, SelectionStatus) -> AnyView)? = nil,
+    pagingMediaBrowserProvider: (([MediaType], Int) -> AnyView)? = nil
   ) {
     self.sections = sections
 
@@ -63,9 +73,24 @@ public class LBJGridMediaBrowserDataSource<SectionType: LBJGridMediaBrowserSecti
         .asAnyView()
     }
 
+    self.selectionMode = selectionMode
+
+    if selectionMode != .disabled {
+      self.selectionOverlayProvider = selectionOverlayProvider ?? { media, section, status in
+        GridSelectionOverlay(media: media, section: section, status: status)
+          .foregroundColor(.blue)
+          .asAnyView()
+      }
+    } else {
+      self.selectionOverlayProvider = { _, _, _ in
+        EmptyView().asAnyView()
+      }
+    }
+
     self.pagingMediaBrowserProvider = pagingMediaBrowserProvider ?? { medias, page in
       let browser = LBJPagingBrowser(medias: medias, currentPage: page)
       return LBJPagingMediaBrowser(browser: browser)
+        .asAnyView()
     }
   }
 }
@@ -80,15 +105,19 @@ extension LBJGridMediaBrowserDataSource where SectionType == SingleGridSection {
   ///   - failureProvider: 自定义媒体处于加载失败时的视图的闭包。A closure to custom the view when the media is in failure.
   ///   - contentProvider: 自定义媒体处于加载完成时的视图的闭包。A closure to custom the view when the media is in loaded.
   ///   - sectionHeaderProvider: 自定义 section header 的视图的闭包。A closure to custom the section header.
+  ///   - selectionMode: 选择模式，默认禁用选择模式。The selection mode for the browser, `.disabled` by default.
+  ///   - selectionOverlayProvider: 自定义媒体视图在不同选中状态下的覆盖层的闭包。A closure to custom the overlay for the media view in different status.
   ///   - pagingMediaBrowserProvider: 自定义点击跳转分页浏览的闭包。A closure to custom the paging media browser on tap item.
   public convenience init(
-    medias: [Media],
-    placeholderProvider: ((Media) -> AnyView)? = nil,
+    medias: [MediaType],
+    placeholderProvider: ((MediaType) -> AnyView)? = nil,
     progressProvider: ((Float) -> AnyView)? = nil,
     failureProvider: ((Error) -> AnyView)? = nil,
     contentProvider: ((MediaLoadedResult) -> AnyView)? = nil,
     sectionHeaderProvider: ((SectionType) -> AnyView)? = nil,
-    pagingMediaBrowserProvider: (([Media], Int) -> LBJPagingMediaBrowser)? = nil
+    selectionMode: SelectionMode = .disabled,
+    selectionOverlayProvider: ((MediaType, SectionType, SelectionStatus) -> AnyView)? = nil,
+    pagingMediaBrowserProvider: (([MediaType], Int) -> AnyView)? = nil
   ) {
     self.init(
       sections: [SingleGridSection(medias: medias)],
@@ -97,13 +126,15 @@ extension LBJGridMediaBrowserDataSource where SectionType == SingleGridSection {
       failureProvider: failureProvider,
       contentProvider: contentProvider,
       sectionHeaderProvider: sectionHeaderProvider,
+      selectionMode: selectionMode,
+      selectionOverlayProvider: selectionOverlayProvider,
       pagingMediaBrowserProvider: pagingMediaBrowserProvider
     )
   }
 
   /// 添加媒体（只适用于只有一个 section）。
   /// Append medias (ONLY available when data source has one `SingleGridSection`).
-  public func append(_ medias: [Media]) {
+  public func append(_ medias: [MediaType]) {
     guard sections.count == 1 else {
       fatalError("The dataSource should ONLY contains a section of `SingleGridSection`.")
     }
@@ -112,7 +143,7 @@ extension LBJGridMediaBrowserDataSource where SectionType == SingleGridSection {
 
   /// 插入媒体（只适用于只有一个 `SingleGridSection`）。
   /// Insert a media (ONLY available when data source has one `SingleGridSection`).
-  public func insert(_ media: Media, at index: Int) {
+  public func insert(_ media: MediaType, at index: Int) {
     guard sections.count == 1 else {
       fatalError("The dataSource should ONLY contains a section of `SingleGridSection`.")
     }
@@ -120,12 +151,83 @@ extension LBJGridMediaBrowserDataSource where SectionType == SingleGridSection {
   }
 }
 
+// MARK: - Handle Selection
+extension LBJGridMediaBrowserDataSource {
+  /// 选中给定 `section` 中的给定 `media`。
+  /// Select the given media in the given section.
+  public func select(_ media: MediaType, in section: SectionType) {
+    guard isMediaSelected(media, in: section) == false else {
+      return
+    }
+    var mediasInSection = selectedSectionMedias[section] ?? []
+    mediasInSection.append(media)
+    selectedSectionMedias[section] = mediasInSection
+  }
+
+  /// 取消选中给定 `section` 中的给定 `media`。
+  /// Deselect the given media in the given section.
+  public func deselect(_ media: MediaType, in section: SectionType) {
+    var mediasInSection = selectedSectionMedias[section] ?? []
+    mediasInSection.removeAll { $0.equalsTo(media) }
+    selectedSectionMedias[section] = mediasInSection
+  }
+
+  /// 给定 `section` 中的给定 `media` 是否选中。
+  /// Whether the given media is selected in the given section.
+  public func isMediaSelected(_ media: MediaType, in section: SectionType) -> Bool {
+    selectedSectionMedias[section]?.contains { $0.equalsTo(media) } ?? false
+  }
+
+  /// 给定的 `media` 是否选中。
+  /// Whether the given media is selected.
+  public func isMediaSelected(_ media: MediaType) -> Bool {
+    allSelectedMedias.contains { $0.equalsTo(media) }
+  }
+
+  func selectionOverlay(for media: MediaType, in section: SectionType) -> AnyView {
+    guard selectionMode.numberOfSelection > 0 else {
+      return EmptyView().asAnyView()
+    }
+
+    let isSelected = isMediaSelected(media, in: section)
+
+    let status: SelectionStatus
+    if isSelected {
+      status = .selected
+
+    } else if allSelectedMedias.count >= selectionMode.numberOfSelection {
+      status = .disabled
+
+    } else {
+      switch selectionMode {
+      case .disabled:
+        status = .disabled
+      case .image:
+        status = media is MediaImageType ? .unselected : .disabled
+      case .video:
+        status = media is MediaVideoType ? .unselected : .disabled
+      case .any:
+        status = .unselected
+      }
+    }
+
+    return selectionOverlayProvider(media, section, status)
+  }
+}
+
 // MARK: - Manage Sections
 extension LBJGridMediaBrowserDataSource {
 
   /// 浏览器中的所有媒体。All the medias in browser.
-  public var allMedias: [Media] {
+  public var allMedias: [MediaType] {
     sections.reduce([]) { $0 + $1.medias }
+  }
+
+  /// 浏览器中的所有选中的媒体。All the selected medias in browser.
+  public var allSelectedMedias: [MediaType] {
+    sections
+      .map { selectedMedias(in: $0) }
+      .reduce([], +)
   }
 
   /// 浏览器中的所有媒体的个数。The count of the medias in browser.
@@ -139,8 +241,13 @@ extension LBJGridMediaBrowserDataSource {
   }
 
   /// 获取给定 section 中的媒体数组。The medias in the given section.
-  public func medias(in section: SectionType) -> [Media] {
+  public func medias(in section: SectionType) -> [MediaType] {
     sections.first(where: { $0 == section })?.medias ?? []
+  }
+
+  /// 给定 section 中的所有选中的媒体。All the selected medias in the given section.
+  public func selectedMedias(in section: SectionType) -> [MediaType] {
+    selectedSectionMedias[section] ?? []
   }
 
   /// 获取给定 section 中的媒体的个数。The count of the medias in the given section.
@@ -149,14 +256,14 @@ extension LBJGridMediaBrowserDataSource {
   }
 
   /// 获取给定 section 和索引的媒体。The media in the given section and index.
-  public func media(at index: Int, in section: SectionType) -> Media? {
+  public func media(at index: Int, in section: SectionType) -> MediaType? {
     let mediasInSection = medias(in: section)
     return (0..<mediasInSection.count) ~= index ? mediasInSection[index] : nil
   }
 
   /// 获取给定媒体在所有媒体中数组中的索引。The index of the given media in all medias.
-  public func indexInAllMedias(for media: Media) -> Int? {
-    allMedias.firstIndex(of: media)
+  public func indexInAllMedias(for media: MediaType) -> Int? {
+    allMedias.firstIndex { $0.equalsTo(media) }
   }
 
   /// 添加给定的 section。Append the given section.
@@ -174,10 +281,10 @@ extension LBJGridMediaBrowserDataSource {
   }
 
   /// 在给定的 section 和索引插入新的媒体。Insert the new media at the given section and index.
-  public func insert(_ media: Media, at index: Int, in section: SectionType) {
+  public func insert(_ media: MediaType, at index: Int, in section: SectionType) {
     guard
       let sectionIndex = sections.firstIndex(of: section),
-      sections[sectionIndex].medias.contains(media) == false
+      sections[sectionIndex].medias.contains(where: { $0.equalsTo(media) })  == false
     else {
       return
     }

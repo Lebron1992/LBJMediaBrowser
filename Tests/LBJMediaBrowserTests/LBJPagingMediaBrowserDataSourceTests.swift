@@ -26,7 +26,7 @@ final class LBJPagingMediaBrowserDataSourceTests: BaseTestCase {
   func test_append() {
     let newMedia = MediaURLImage.templates[0]
     dataSource.append(newMedia)
-    XCTAssertEqual(dataSource.medias.last, newMedia)
+    XCTAssertTrue(dataSource.medias.last!.equalsTo(newMedia))
   }
 
   func test_append_ignoredExisting() {
@@ -41,7 +41,7 @@ final class LBJPagingMediaBrowserDataSourceTests: BaseTestCase {
     dataSource.insert(newMedia, before: dataSource.medias[2])
 
     XCTAssertEqual(dataSource.numberOfMedias, 4)
-    XCTAssertEqual(dataSource.medias[2], newMedia)
+    XCTAssertTrue(dataSource.medias[2].equalsTo(newMedia))
   }
 
   func test_insertBefore_ignoredExisting() {
@@ -57,7 +57,7 @@ final class LBJPagingMediaBrowserDataSourceTests: BaseTestCase {
     dataSource.insert(newMedia, after: dataSource.medias[1])
 
     XCTAssertEqual(dataSource.numberOfMedias, 4)
-    XCTAssertEqual(dataSource.medias[2], newMedia)
+    XCTAssertTrue(dataSource.medias[2].equalsTo(newMedia))
   }
 
   func test_insertAfter_ignoredExisting() {

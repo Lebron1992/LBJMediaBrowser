@@ -2,7 +2,7 @@ import UIKit
 
 /// 图片格式是 `UIImage` 的图片类型。
 /// An image type with a `UIImage` object.
-open class MediaUIImage: MediaImage {
+open class MediaUIImage: MediaImageType {
 
   /// `UIImage` 对象。
   /// an `UIImage` object.
@@ -13,12 +13,18 @@ open class MediaUIImage: MediaImage {
   public init(uiImage: UIImage) {
     self.uiImage = uiImage
   }
+  
+  public func equalsTo(_ media: MediaType) -> Bool {
+    guard let other = media as? MediaUIImage else {
+      return false
+    }
+    return self == other
+  }
 }
 
 // MARK: - Equatable
-extension MediaUIImage {
+extension MediaUIImage: Equatable {
   public static func == (lhs: MediaUIImage, rhs: MediaUIImage) -> Bool {
-    lhs.id == rhs.id &&
     lhs.uiImage == rhs.uiImage
   }
 }

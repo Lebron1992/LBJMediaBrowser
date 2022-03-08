@@ -4,7 +4,7 @@ import Foundation
 /// A type that represents a section in `LBJGridMediaBrowser`.
 public protocol GridSection {
   /// section 中的媒体。The medias in the section.
-  var medias: [Media] { get set }
+  var medias: [MediaType] { get set }
 }
 
 // MARK: - SingleGridSection
@@ -14,13 +14,13 @@ public protocol GridSection {
 public struct SingleGridSection: GridSection, Identifiable {
 
   public let id = UUID().uuidString
-  public var medias: [Media]
+  public var medias: [MediaType]
 
-  mutating func append(_ newMedias: [Media]) {
+  mutating func append(_ newMedias: [MediaType]) {
     medias.append(contentsOf: newMedias)
   }
 
-  mutating func insert(_ media: Media, at index: Int) {
+  mutating func insert(_ media: MediaType, at index: Int) {
     medias.insert(media, at: index)
   }
 }
@@ -31,19 +31,26 @@ extension SingleGridSection: Equatable {
   }
 }
 
+extension SingleGridSection: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
+  }
+}
+
 // MARK: - TitledGridSection
+
 /// 有标题的 section。A type of `GridSection` with a title.
 public struct TitledGridSection: GridSection {
 
   /// section 的标题。The section title.
   public let title: String
-  public var medias: [Media]
+  public var medias: [MediaType]
 
   /// 创建 `TitledGridSection` 对象。Creates a `TitledGridSection` object.
   /// - Parameters:
   ///   - title: section 的标题。The section title.
   ///   - medias: section 中的媒体。The medias in the section.
-  public init(title: String, medias: [Media]) {
+  public init(title: String, medias: [MediaType]) {
     self.title = title
     self.medias = medias
   }
@@ -58,6 +65,12 @@ extension TitledGridSection: Identifiable {
 extension TitledGridSection: Equatable {
   public static func == (lhs: TitledGridSection, rhs: TitledGridSection) -> Bool {
     lhs.title == rhs.title
+  }
+}
+
+extension TitledGridSection: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(title)
   }
 }
 

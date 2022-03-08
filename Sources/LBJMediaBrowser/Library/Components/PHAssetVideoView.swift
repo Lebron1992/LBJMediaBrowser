@@ -7,14 +7,14 @@ struct PHAssetVideoView<Placeholder: View, Failure: View, Content: View>: View {
 
   private let assetVideo: MediaPHAssetVideo
   private let maxThumbnailSize: CGSize
-  private let placeholder: (Media) -> Placeholder
+  private let placeholder: (MediaType) -> Placeholder
   private let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
   private let content: (MediaLoadedResult) -> Content
 
   init(
     assetVideo: MediaPHAssetVideo,
     maxThumbnailSize: CGSize,
-    @ViewBuilder placeholder: @escaping (Media) -> Placeholder,
+    @ViewBuilder placeholder: @escaping (MediaType) -> Placeholder,
     @ViewBuilder failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
     @ViewBuilder content: @escaping (MediaLoadedResult) -> Content
   ) {

@@ -3,7 +3,7 @@ import UIKit
 
 /// 图片格式是 `PHAsset` 的图片类型。
 /// An image type with a `PHAsset` object whose `mediaType` is `image`.
-open class MediaPHAssetImage: MediaImage {
+open class MediaPHAssetImage: MediaImageType {
 
   /// `mediaType` 是 `image` 的 `PHAsset` 对象。
   /// A `PHAsset` object whose `mediaType` is `image`.
@@ -48,6 +48,13 @@ open class MediaPHAssetImage: MediaImage {
     self.thumbnailTargetSize = thumbnailTargetSize
     self.thumbnailContentMode = thumbnailContentMode
   }
+
+  public func equalsTo(_ media: MediaType) -> Bool {
+    guard let other = media as? MediaPHAssetImage else {
+      return false
+    }
+    return self == other
+  }
 }
 
 // MARK: - Helper Methods
@@ -70,7 +77,6 @@ extension MediaPHAssetImage {
 // MARK: - Equatable
 extension MediaPHAssetImage {
   public static func == (lhs: MediaPHAssetImage, rhs: MediaPHAssetImage) -> Bool {
-    lhs.id == rhs.id &&
     lhs.asset == rhs.asset &&
     lhs.targetSize == rhs.targetSize &&
     lhs.contentMode == rhs.contentMode &&
