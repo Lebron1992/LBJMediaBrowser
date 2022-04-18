@@ -1,14 +1,14 @@
 import AVKit
 import SwiftUI
 
-struct PagingVideoResultView: View {
+struct PagingVideoResultView<SectionType: LBJMediaSectionType>: View {
 
   let video: MediaVideoType
   let previewImage: UIImage?
   let videoUrl: URL
 
   @EnvironmentObject
-  private var browser: LBJPagingBrowser
+  private var browser: LBJPagingBrowser<SectionType>
 
   @State
   private var hasTappedPlayButton = false
@@ -37,7 +37,7 @@ struct PagingVideoResultView: View {
               .resizable()
               .aspectRatio(contentMode: .fit)
           }
-          PlayButton(size: Constant.playButtonSize) {
+          PlayButton(size: PagingVideoResultViewConstant.playButtonSize) {
             handlePlayButtonAction(videoUrl: videoUrl)
           }
         }
@@ -72,16 +72,14 @@ private extension PagingVideoResultView {
   }
 }
 
-private extension PagingVideoResultView {
-  enum Constant {
-    static let playButtonSize: CGFloat = 50
-  }
+enum PagingVideoResultViewConstant {
+  static let playButtonSize: CGFloat = 50
 }
 
 struct PagingVideoResultView_Previews: PreviewProvider {
   static var previews: some View {
     let video = MediaURLVideo.templates[0]
-    PagingVideoResultView(
+    PagingVideoResultView<SingleMediaSection>(
       video: video,
       previewImage: nil,
       videoUrl: video.videoUrl

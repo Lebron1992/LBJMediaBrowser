@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 一个以分页模式浏览媒体的对象。
 /// An object that browse the medias in paging mode.
-public struct LBJPagingMediaBrowser: View {
+public struct LBJPagingMediaBrowser<SectionType: LBJMediaSectionType>: View {
 
   var onTapMedia: (MediaType) -> Void = { _ in }
 
@@ -10,34 +10,20 @@ public struct LBJPagingMediaBrowser: View {
   private var mediaBrowserEnvironment: LBJMediaBrowserEnvironment
 
   @ObservedObject
-  private var browser: LBJPagingBrowser
+  private var browser: LBJPagingBrowser<SectionType>
 
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - browser: 管理分页模式浏览的对象。An object that manages the media paging browser.
-  public init(browser: LBJPagingBrowser) {
+  public init(browser: LBJPagingBrowser<SectionType>) {
     self.browser = browser
   }
 
   public var body: some View {
     TabView(selection: currentPage) {
-      ForEach(0..<browser.dataSource.medias.count, id: \.self) { index in
-        let media = browser.dataSource.medias[index]
-        Group {
-          switch media {
-          case let image as MediaImageType:
-            imageView(for: image)
-          case let video as MediaVideoType:
-            videoView(for: video)
-          default:
-            EmptyView()
-          }
-        }
-        .tag(index)
-        .gesture(
-          TapGesture()
-            .onEnded { onTapMedia(media) }
-        )
+      ForEach(0..<browser.dataSource.allMedias.count, id: \.self) { index in
+        let media = browser.dataSource.allMedias[index]
+        itemView(for: media, at: index)
       }
     }
     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
@@ -51,6 +37,41 @@ public struct LBJPagingMediaBrowser: View {
 
 // MARK: - Subviews
 private extension LBJPagingMediaBrowser {
+
+  @ViewBuilder
+  func itemView(for media: MediaType, at index: Int) -> some View {
+    ZStack {
+      Group {
+        switch media {
+        case let image as MediaImageType:
+          imageView(for: image)
+        case let video as MediaVideoType:
+          videoView(for: video)
+        default:
+          EmptyView()
+        }
+      }
+      .tag(index)
+      .gesture(
+        TapGesture()
+          .onEnded { onTapMedia(media) }
+      )
+      if browser.selectionManager.selectionMode != .disabled,
+         let section = browser.dataSource.sections.first(where: { $0.contains(media) }) {
+        let status = browser.selectionManager.selectionStatus(for: media, in: section)
+        switch status {
+        case .disabled:
+          Text("disabled")
+        case .unselected:
+          Text("unselected")
+        case .selected:
+          Text("selected")
+        }
+//        browser.dataSource.selectionOverlayProvider(media, section, status)
+//          .environmentObject(browser.selectionManager)
+      }
+    }
+  }
 
   @ViewBuilder
   func imageView(for image: MediaImageType) -> some View {

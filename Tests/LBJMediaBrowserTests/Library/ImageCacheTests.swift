@@ -10,7 +10,6 @@ final class ImageCacheTests: BaseTestCase {
   private var preferredMemoryImageCountAfterPurge = 3
 
   private var uiImage: UIImage!
-  private var imageSizeInFile: UInt!
 
   private var cache: ImageCache!
 
@@ -18,11 +17,10 @@ final class ImageCacheTests: BaseTestCase {
     super.setUp()
 
     uiImage = image(forResource: "unicorn", withExtension: "png")
-    imageSizeInFile = 43791
 
     let config = ImageDiskStorage.Config(
       name: "DiskStorageTests.StringDiskStorage",
-      sizeLimit: imageSizeInFile * UInt(imageCountInDisk),
+      sizeLimit: uiImage.cacheSize * UInt(imageCountInDisk),
       expiration: .seconds(expirationDuration)
     )
     let diskStorage = try! ImageDiskStorage(config: config)
@@ -132,7 +130,7 @@ final class ImageCacheTests: BaseTestCase {
     cache.store(.still(uiImage), forKey: "2")
 
     wait(interval: 0.5) { [unowned self] in
-      XCTAssertEqual(cache.diskStorageSize(), UInt(imageSizeInFile * 2))
+      XCTAssertEqual(cache.diskStorageSize(), UInt(uiImage.cacheSize * 2))
     }
   }
 

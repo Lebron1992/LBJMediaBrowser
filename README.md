@@ -142,8 +142,8 @@ public init(
 例如：
 
 ```swift
-let uiImageSection = TitledGridSection(title: "UIImages", medias: uiImages)
-let urlImageSection = TitledGridSection(title: "URLImages", medias: urlImages)
+let uiImageSection = TitledMediaSection(title: "UIImages", medias: uiImages)
+let urlImageSection = TitledMediaSection(title: "URLImages", medias: urlImages)
 let dataSource = LBJGridMediaBrowserDataSource(
   sections: [uiImageSection, urlImageSection],
   placeholderProvider: {

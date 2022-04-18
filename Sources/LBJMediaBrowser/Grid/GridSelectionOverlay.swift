@@ -1,13 +1,13 @@
 import SwiftUI
 
-struct GridSelectionOverlay<SectionType: LBJGridMediaBrowserSectionType>: View {
+struct GridSelectionOverlay<SectionType: LBJMediaSectionType>: View {
 
   let media: MediaType
   let section: SectionType
   let status: SelectionStatus
 
   @EnvironmentObject
-  private var dataSource: LBJGridMediaBrowserDataSource<SectionType>
+  private var selectionManager: LBJMediaSelectionManager<SectionType>
 
   var body: some View {
     GeometryReader { geometry in
@@ -45,9 +45,9 @@ struct GridSelectionOverlay<SectionType: LBJGridMediaBrowserSectionType>: View {
     guard status.isDisabled == false else { return }
 
     if status.isSelected {
-      dataSource.deselect(media, in: section)
+      selectionManager.deselect(media, in: section)
     } else {
-      dataSource.select(media, in: section)
+      selectionManager.select(media, in: section)
     }
   }
 }

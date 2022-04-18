@@ -2,8 +2,8 @@ import Combine
 import SwiftUI
 
 /// 一个管理分页模式浏览的对象。
-/// An object that manages the medias paging browser.
-public final class LBJPagingBrowser: ObservableObject {
+/// An object that manages the medias in paging browser.
+public final class LBJPagingBrowser<SectionType: LBJMediaSectionType>: ObservableObject {
 
   /// 是否自动播放视频，默认是 `false`。
   /// Weather auto play a video, `false` by default.
@@ -15,28 +15,53 @@ public final class LBJPagingBrowser: ObservableObject {
   public private(set) var currentPage: Int = 0
 
   /// 分页浏览器的数据源。The data source of `LBJPagingMediaBrowser`.
-  public let dataSource: LBJPagingMediaBrowserDataSource
+  @Published
+  public private(set) var dataSource: LBJPagingMediaBrowserDataSource<SectionType>
+
+  /// 管理选择的对象。The object to manage selection.
+  @Published
+  public private(set) var selectionManager: LBJMediaSelectionManager<SectionType>
+
+  private var observaleSubscriptions: AnyCancellable?
 
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
   /// - Parameters:
   ///   - dataSource: 分页浏览器的数据源。The data source of `LBJPagingMediaBrowser`.
+  ///   - selectionManager: 管理选择的对象。The object to manage selection.
   ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
-  public init(dataSource: LBJPagingMediaBrowserDataSource, currentPage: Int = 0) {
+  public init(
+    dataSource: LBJPagingMediaBrowserDataSource<SectionType>,
+    selectionManager: LBJMediaSelectionManager<SectionType> = .init(),
+    currentPage: Int = 0
+  ) {
     self.dataSource = dataSource
+    self.selectionManager = selectionManager
     self.currentPage = validatedPage(currentPage)
+
+    observaleSubscriptions = Publishers.Merge(dataSource.objectWillChange, selectionManager.objectWillChange)
+      .sink { [weak self] in
+      self?.objectWillChange.send()
+    }
   }
 
   /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
+  ///
+  /// 此初始化函数在创建 `LBJGridMediaBrowserDataSource` 对象自定义 `pagingMediaBrowserProvider` 时使用。
+  /// The initializer is specially used in `pagingMediaBrowserProvider` when creating `LBJGridMediaBrowserDataSource` object.
+  ///
   /// - Parameters:
-  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - gridBrowser: `LBJGridBrowser` 对象。The `LBJGridBrowser` object.
   ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
-  public convenience init(medias: [MediaType], currentPage: Int = 0) {
-    self.init(dataSource: .init(medias: medias), currentPage: currentPage)
+  public convenience init(
+    gridBrowser: LBJGridBrowser<SectionType>,
+    currentPage: Int = 0
+  ) {
+    self.init(
+      dataSource: .init(sections: gridBrowser.dataSource.sections),
+      selectionManager: gridBrowser.selectionManager,
+      currentPage: currentPage
+    )
   }
-}
-
-// MARK: - Public Methods
-extension LBJPagingBrowser {
 
   /// 设置当前页。Set the current page.
   /// - Parameters:
@@ -55,11 +80,27 @@ extension LBJPagingBrowser {
       currentPage = validatedPage(page)
     }
   }
+
+  func validatedPage(_ page: Int) -> Int {
+    min(dataSource.allMedias.count - 1, max(0, page))
+  }
 }
 
-// MARK: - Helper Methods
-extension LBJPagingBrowser {
-  func validatedPage(_ page: Int) -> Int {
-    min(dataSource.medias.count - 1, max(0, page))
+extension LBJPagingBrowser where SectionType == SingleMediaSection {
+  /// 创建 `LBJPagingBrowser` 对象。Creates a `LBJPagingBrowser` object.
+  /// - Parameters:
+  ///   - medias: 要浏览的媒体数组。The medias to be browsed.
+  ///   - selectionManager: 管理选择的对象。The object to manage selection.
+  ///   - currentPage: 当前页面的索引，默认是 `0`。The index of the current page, `0` by default.
+  public convenience init(
+    medias: [MediaType],
+    selectionManager: LBJMediaSelectionManager<SectionType> = .init(),
+    currentPage: Int = 0
+  ) {
+    self.init(
+      dataSource: .init(medias: medias),
+      selectionManager: selectionManager,
+      currentPage: currentPage
+    )
   }
 }

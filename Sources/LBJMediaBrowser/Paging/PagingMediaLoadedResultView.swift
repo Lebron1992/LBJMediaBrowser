@@ -3,7 +3,7 @@ import LBJImagePreviewer
 
 /// 一个在分页模式下显示媒体加载成功的对象。
 /// An object that displays the loaded result of a media in  paging mode.
-public struct PagingMediaLoadedResultView: View {
+public struct PagingMediaLoadedResultView<SectionType: LBJMediaSectionType>: View {
   let result: MediaLoadedResult
 
   public var body: some View {
@@ -13,7 +13,7 @@ public struct PagingMediaLoadedResultView: View {
     case .gifImage(_, let data):
       LBJGIFImagePreviewer(imageData: data)
     case .video(let video, let previewImage, let videoUrl):
-      PagingVideoResultView(video: video, previewImage: previewImage, videoUrl: videoUrl)
+      PagingVideoResultView<SectionType>(video: video, previewImage: previewImage, videoUrl: videoUrl)
     }
   }
 }
@@ -21,9 +21,9 @@ public struct PagingMediaLoadedResultView: View {
 struct PagingMediaResultView_Previews: PreviewProvider {
   static var previews: some View {
     let image = MediaUIImage.templates[0]
-    PagingMediaLoadedResultView(result: .stillImage(image: image, uiImage: image.uiImage))
+    PagingMediaLoadedResultView<SingleMediaSection>(result: .stillImage(image: image, uiImage: image.uiImage))
 
     let video = MediaURLVideo.templates[0]
-    PagingMediaLoadedResultView(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))
+    PagingMediaLoadedResultView<SingleMediaSection>(result: .video(video: video, previewImage: nil, videoUrl: video.videoUrl))
   }
 }

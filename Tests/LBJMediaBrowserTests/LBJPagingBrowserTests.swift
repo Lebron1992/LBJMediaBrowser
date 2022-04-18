@@ -1,7 +1,7 @@
 import XCTest
 @testable import LBJMediaBrowser
 
-final class LBJPagingMediaBrowserTests: BaseTestCase {
+final class LBJPagingBrowserTests: BaseTestCase {
 
   private let mediaUIImage = MediaUIImage.templates[0]
   private let urlImage = MediaURLImage.templates[0]
@@ -12,7 +12,7 @@ final class LBJPagingMediaBrowserTests: BaseTestCase {
   private var uiImage: UIImage!
   private let videoUrl = URL(string: "https://www.example.com/test.mp4")!
 
-  private var browser: LBJPagingBrowser!
+  private var browser: LBJPagingBrowser<SingleMediaSection>!
 
   override func setUp() {
     super.setUp()

@@ -144,8 +144,8 @@ The generic types represent the display contents of the four stages:
 For example:
 
 ```swift
-let uiImageSection = TitledGridSection(title: "UIImages", medias: uiImages)
-let urlImageSection = TitledGridSection(title: "URLImages", medias: urlImages)
+let uiImageSection = TitledMediaSection(title: "UIImages", medias: uiImages)
+let urlImageSection = TitledMediaSection(title: "URLImages", medias: urlImages)
 let dataSource = LBJGridMediaBrowserDataSource(
   sections: [uiImageSection, urlImageSection],
   placeholderProvider: {
